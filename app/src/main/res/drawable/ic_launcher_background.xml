@@ -4,20 +4,8 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Deep maroon base -->
+    <!-- Dark purple background matching the diya icon -->
     <path
-        android:fillColor="#5C1018"
+        android:fillColor="#1A1A3E"
         android:pathData="M0,0h108v108H0z"/>
-
-    <!-- Warm radial glow behind diya -->
-    <path
-        android:fillColor="#7B1A24"
-        android:pathData="M54,54m-48,0a48,48 0,1 1,96 0a48,48 0,1 1,-96 0"/>
-    <path
-        android:fillColor="#8B2030"
-        android:pathData="M54,54m-36,0a36,36 0,1 1,72 0a36,36 0,1 1,-72 0"/>
-    <path
-        android:fillColor="#9B2840"
-        android:pathData="M54,50m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"/>
 </vector>

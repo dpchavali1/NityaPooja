@@ -57,6 +57,7 @@ import com.nityapooja.app.ui.audio.AudioPlayerViewModel
 import com.nityapooja.app.ui.components.PremiumBottomBar
 import com.nityapooja.app.ui.mantra.MantraChantingScreen
 import com.nityapooja.app.ui.onboarding.OnboardingScreen
+import com.nityapooja.app.ui.store.DevotionalStoreScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -180,6 +181,7 @@ fun NityaPoojaNavHost(
             }
             composable(Screen.More.route) {
                 MoreScreen(
+                    onNavigateToStore = { navController.navigate(Screen.DevotionalStore.route) },
                     onNavigateToStotrams = { navController.navigate(Screen.StotramList.route) },
                     onNavigateToKeertanalu = { navController.navigate(Screen.KeertanaList.route) },
                     onNavigateToTemples = { navController.navigate(Screen.TempleList.route) },
@@ -441,6 +443,13 @@ fun NityaPoojaNavHost(
             }
             composable(Screen.GunaMilan.route) {
                 GunaMilanScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            // ═══ Devotional Store ═══
+            composable(Screen.DevotionalStore.route) {
+                DevotionalStoreScreen(
                     onBack = { navController.popBackStack() },
                 )
             }

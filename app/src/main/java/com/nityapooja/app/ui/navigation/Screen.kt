@@ -83,6 +83,9 @@ sealed class Screen(val route: String) {
     // Onboarding
     data object Onboarding : Screen("onboarding")
 
+    // Devotional Store
+    data object DevotionalStore : Screen("devotional_store")
+
     // Mantra Chanting Mode
     data object MantraChanting : Screen("mantra_chanting/{id}/{type}") {
         fun createRoute(id: Int, type: String) = "mantra_chanting/$id/$type"

@@ -54,6 +54,9 @@ class SettingsViewModel @Inject constructor(
     val locationCity: StateFlow<String> = preferencesManager.locationCity
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Hyderabad")
 
+    val locationTimezone: StateFlow<String> = preferencesManager.locationTimezone
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Asia/Kolkata")
+
     val morningNotification: StateFlow<Boolean> = preferencesManager.morningNotification
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 

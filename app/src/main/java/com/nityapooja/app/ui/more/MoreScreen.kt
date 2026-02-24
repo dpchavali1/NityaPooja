@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import com.nityapooja.app.ui.theme.TempleGold
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoreScreen(
+    onNavigateToStore: () -> Unit = {},
     onNavigateToStotrams: () -> Unit = {},
     onNavigateToKeertanalu: () -> Unit = {},
     onNavigateToTemples: () -> Unit = {},
@@ -56,6 +58,13 @@ fun MoreScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item {
+                SectionHeader(titleTelugu = "భక్తి స్టోర్", titleEnglish = "Devotional Store")
+                Spacer(Modifier.height(8.dp))
+            }
+            item { MoreMenuItem("పూజా సామగ్రి", "Shop Puja Items", Icons.Default.ShoppingCart, onNavigateToStore) }
+
+            item {
+                Spacer(Modifier.height(16.dp))
                 SectionHeader(titleTelugu = "భక్తి విభాగాలు", titleEnglish = "Devotional Sections")
                 Spacer(Modifier.height(8.dp))
             }

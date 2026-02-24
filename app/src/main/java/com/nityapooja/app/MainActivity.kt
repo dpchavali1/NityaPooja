@@ -95,7 +95,6 @@ class MainActivity : ComponentActivity() {
     @Deprecated("Use Activity Result API", replaceWith = ReplaceWith("registerForActivityResult"))
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        android.util.Log.d("SpotifyAuth", "onActivityResult: requestCode=$requestCode resultCode=$resultCode data=$data")
         if (requestCode == SpotifyManager.AUTH_REQUEST_CODE) {
             spotifyManager.handleAuthResponse(resultCode, data)
         }

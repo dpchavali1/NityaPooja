@@ -1,9 +1,12 @@
 package com.nityapooja.app.data.preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -34,9 +37,19 @@ class UserPreferencesManager @Inject constructor(
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val GOTRA = stringPreferencesKey("gotra")
         val NAKSHATRA = stringPreferencesKey("nakshatra")
-        val SPOTIFY_ACCESS_TOKEN = stringPreferencesKey("spotify_access_token")
-        val SPOTIFY_TOKEN_EXPIRY = longPreferencesKey("spotify_token_expiry")
         val SPOTIFY_LINKED = booleanPreferencesKey("spotify_linked")
+    }
+
+    // Encrypted storage for OAuth tokens
+    private val encryptedPrefs: SharedPreferences by lazy {
+        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        EncryptedSharedPreferences.create(
+            "secure_tokens",
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
     }
 
     val themeMode: Flow<ThemeMode> = context.dataStore.data.map { prefs ->
@@ -184,31 +197,35 @@ class UserPreferencesManager @Inject constructor(
         }
     }
 
-    // === SPOTIFY ===
+    // === SPOTIFY (tokens stored in encrypted storage) ===
     val spotifyLinked: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[Keys.SPOTIFY_LINKED] ?: false
     }
 
-    val spotifyAccessToken: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[Keys.SPOTIFY_ACCESS_TOKEN] ?: ""
+    val spotifyAccessToken: Flow<String> = context.dataStore.data.map {
+        encryptedPrefs.getString("spotify_access_token", "") ?: ""
     }
 
-    val spotifyTokenExpiry: Flow<Long> = context.dataStore.data.map { prefs ->
-        prefs[Keys.SPOTIFY_TOKEN_EXPIRY] ?: 0L
+    val spotifyTokenExpiry: Flow<Long> = context.dataStore.data.map {
+        encryptedPrefs.getLong("spotify_token_expiry", 0L)
     }
 
     suspend fun setSpotifyToken(token: String, expiresIn: Int) {
+        encryptedPrefs.edit()
+            .putString("spotify_access_token", token)
+            .putLong("spotify_token_expiry", System.currentTimeMillis() + (expiresIn * 1000L))
+            .apply()
         context.dataStore.edit { prefs ->
-            prefs[Keys.SPOTIFY_ACCESS_TOKEN] = token
-            prefs[Keys.SPOTIFY_TOKEN_EXPIRY] = System.currentTimeMillis() + (expiresIn * 1000L)
             prefs[Keys.SPOTIFY_LINKED] = true
         }
     }
 
     suspend fun clearSpotifyToken() {
+        encryptedPrefs.edit()
+            .remove("spotify_access_token")
+            .remove("spotify_token_expiry")
+            .apply()
         context.dataStore.edit { prefs ->
-            prefs.remove(Keys.SPOTIFY_ACCESS_TOKEN)
-            prefs.remove(Keys.SPOTIFY_TOKEN_EXPIRY)
             prefs[Keys.SPOTIFY_LINKED] = false
         }
     }

@@ -69,7 +69,6 @@ class SpotifyManager @Inject constructor(
         // Auto-reconnect App Remote on app startup if previously linked
         scope.launch {
             val tokenValid = ensureTokenValid()
-            android.util.Log.d("SpotifyAuth", "init: tokenValid=$tokenValid, isInstalled=${isSpotifyInstalled()}")
             if (tokenValid && isSpotifyInstalled()) {
                 connectAppRemote()
             }
@@ -99,11 +98,9 @@ class SpotifyManager @Inject constructor(
 
     fun handleAuthResponse(resultCode: Int, data: Intent?) {
         val response = AuthorizationClient.getResponse(resultCode, data)
-        android.util.Log.d("SpotifyAuth", "handleAuthResponse: type=${response.type} error=${response.error} token=${response.accessToken?.take(10)}... expiresIn=${response.expiresIn}")
         when (response.type) {
             AuthorizationResponse.Type.TOKEN -> {
                 accessToken = response.accessToken
-                android.util.Log.d("SpotifyAuth", "Got token, saving and connecting App Remote")
                 scope.launch {
                     preferencesManager.setSpotifyToken(
                         response.accessToken,
@@ -113,18 +110,15 @@ class SpotifyManager @Inject constructor(
                 connectAppRemote()
             }
             AuthorizationResponse.Type.ERROR -> {
-                android.util.Log.e("SpotifyAuth", "Auth error: ${response.error}")
                 _connectionStatus.value = SpotifyConnectionStatus.ERROR
             }
             else -> {
-                android.util.Log.w("SpotifyAuth", "Auth cancelled or unknown: ${response.type}")
                 _connectionStatus.value = SpotifyConnectionStatus.DISCONNECTED
             }
         }
     }
 
     fun connectAppRemote() {
-        android.util.Log.d("SpotifyAuth", "connectAppRemote called, isConnected=${spotifyAppRemote?.isConnected}, isInstalled=${isSpotifyInstalled()}")
         if (spotifyAppRemote?.isConnected == true) {
             _connectionStatus.value = SpotifyConnectionStatus.CONNECTED
             return
@@ -144,7 +138,6 @@ class SpotifyManager @Inject constructor(
 
         SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
             override fun onConnected(appRemote: SpotifyAppRemote) {
-                android.util.Log.d("SpotifyAuth", "App Remote CONNECTED")
                 spotifyAppRemote = appRemote
                 _connectionStatus.value = SpotifyConnectionStatus.CONNECTED
                 subscribeToPlayerState()
@@ -152,7 +145,6 @@ class SpotifyManager @Inject constructor(
             }
 
             override fun onFailure(throwable: Throwable) {
-                android.util.Log.e("SpotifyAuth", "App Remote FAILED: ${throwable.message}", throwable)
                 _connectionStatus.value = SpotifyConnectionStatus.ERROR
             }
         })

@@ -70,11 +70,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Use release signing config when keystore is configured
-            val releaseSigningConfig = signingConfigs.findByName("release")
-            if (releaseSigningConfig?.storeFile?.exists() == true) {
-                signingConfig = releaseSigningConfig
-            }
+            // Require release signing config — build will fail if keystore is not configured
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -150,6 +147,9 @@ dependencies {
 
     // DataStore
     implementation(libs.datastore.preferences)
+
+    // Encrypted storage
+    implementation(libs.security.crypto)
 
     // Splash
     implementation(libs.splashscreen)

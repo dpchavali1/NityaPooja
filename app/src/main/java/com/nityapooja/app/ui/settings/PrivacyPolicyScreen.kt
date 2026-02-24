@@ -101,6 +101,13 @@ fun PrivacyPolicyScreen(
             )
 
             PolicySection(
+                title = "Affiliate Links",
+                content = "The App contains a Devotional Store section that displays product links to Amazon. These are affiliate links — as an Amazon Associate, we earn a small commission from qualifying purchases at no extra cost to you.\n\n" +
+                        "Prices shown in the store are approximate and may differ from the actual price on Amazon at the time of purchase. We do not guarantee pricing accuracy.\n\n" +
+                        "Clicking a product link will open the Amazon website or app. Amazon's own privacy policy governs any data collected during your purchase."
+            )
+
+            PolicySection(
                 title = "Data Deletion",
                 content = "You can delete all your personal data at any time by going to Settings > Data & Privacy > Clear My Data. This will remove all bookmarks, reading history, japa sessions, and preferences. You can also uninstall the App to remove all data from your device."
             )

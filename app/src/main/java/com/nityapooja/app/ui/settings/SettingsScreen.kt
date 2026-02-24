@@ -1,5 +1,10 @@
 package com.nityapooja.app.ui.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,9 +19,11 @@ import androidx.compose.runtime.*
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nityapooja.app.data.model.indianCities
@@ -53,6 +60,27 @@ fun SettingsScreen(
     val spotifyLinked by viewModel.spotifyLinked.collectAsStateWithLifecycle()
     val spotifyConnectionStatus by viewModel.spotifyConnectionStatus.collectAsStateWithLifecycle()
     val spotifyInstalled by viewModel.spotifyInstalled.collectAsStateWithLifecycle()
+
+    // Notification permission for Android 13+
+    val notifContext = LocalContext.current
+    var pendingNotifAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val notifPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) pendingNotifAction?.invoke()
+        pendingNotifAction = null
+    }
+
+    fun enableNotification(action: () -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(notifContext, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            pendingNotifAction = action
+            notifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            action()
+        }
+    }
 
     var showCityPicker by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
@@ -332,7 +360,10 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = morningNotification,
-                        onCheckedChange = { viewModel.setMorningNotification(it) },
+                        onCheckedChange = { enabled ->
+                            if (enabled) enableNotification { viewModel.setMorningNotification(true) }
+                            else viewModel.setMorningNotification(false)
+                        },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -350,7 +381,10 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = eveningNotification,
-                        onCheckedChange = { viewModel.setEveningNotification(it) },
+                        onCheckedChange = { enabled ->
+                            if (enabled) enableNotification { viewModel.setEveningNotification(true) }
+                            else viewModel.setEveningNotification(false)
+                        },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -368,7 +402,10 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = panchangNotifications,
-                        onCheckedChange = { viewModel.setPanchangNotifications(it) },
+                        onCheckedChange = { enabled ->
+                            if (enabled) enableNotification { viewModel.setPanchangNotifications(true) }
+                            else viewModel.setPanchangNotifications(false)
+                        },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }

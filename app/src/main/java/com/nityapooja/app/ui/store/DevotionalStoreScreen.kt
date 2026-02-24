@@ -229,6 +229,14 @@ fun DevotionalStoreScreen(
                 }
             }
 
+            // Affiliate disclosure
+            Text(
+                "As an Amazon Associate, we earn from qualifying purchases. Prices shown are approximate and may vary.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+
             BannerAd()
         }
     }

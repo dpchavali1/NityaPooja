@@ -15,6 +15,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +32,7 @@ import com.nityapooja.app.ui.components.FontSizeViewModel
 import com.nityapooja.app.ui.components.buildShareText
 import com.nityapooja.app.ui.theme.SpotifyGreen
 import com.nityapooja.app.ui.theme.TempleGold
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +51,8 @@ fun AartiDetailScreen(
     val isSpotifyConnected by audioViewModel.isSpotifyConnected.collectAsStateWithLifecycle()
     val audioState by audioViewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     // Track reading history
     LaunchedEffect(aarti) {
@@ -55,6 +60,7 @@ fun AartiDetailScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -129,6 +135,14 @@ fun AartiDetailScreen(
                                 val query = SpotifySearchQueryBuilder.buildQuery(a.title, "aarti")
                                 audioViewModel.playViaSpotify(query, a.title, a.titleTelugu)
                             }
+                        }
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Spotify not connected. Go to Settings to connect.",
+                                actionLabel = "OK",
+                                duration = SnackbarDuration.Short,
+                            )
                         }
                     }
                 },

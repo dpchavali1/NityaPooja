@@ -46,14 +46,19 @@ object DatabaseModule {
 
                 override fun onOpen(db: SupportSQLiteDatabase) {
                     super.onOpen(db)
-                    // Re-seed only when app version changes (e.g. new content added in update)
+                    // Re-seed when app version or content version changes
                     val prefs = context.getSharedPreferences("db_seed", Context.MODE_PRIVATE)
                     val lastSeededVersion = prefs.getInt("seeded_version_code", 0)
+                    val lastContentVersion = prefs.getInt("seeded_content_version", 0)
                     val currentVersion = BuildConfig.VERSION_CODE
-                    if (lastSeededVersion < currentVersion) {
+                    val currentContentVersion = DatabaseSeeder.CONTENT_VERSION
+                    if (lastSeededVersion < currentVersion || lastContentVersion < currentContentVersion) {
                         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
                             seederProvider.get().seed()
-                            prefs.edit().putInt("seeded_version_code", currentVersion).apply()
+                            prefs.edit()
+                                .putInt("seeded_version_code", currentVersion)
+                                .putInt("seeded_content_version", currentContentVersion)
+                                .apply()
                         }
                     }
                 }

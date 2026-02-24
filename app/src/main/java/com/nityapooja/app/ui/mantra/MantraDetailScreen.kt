@@ -31,6 +31,7 @@ import com.nityapooja.app.ui.components.buildShareText
 import com.nityapooja.app.ui.theme.TempleGold
 import com.nityapooja.app.data.spotify.SpotifySearchQueryBuilder
 import com.nityapooja.app.ui.theme.SpotifyGreen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,12 +52,15 @@ fun MantraDetailScreen(
     val audioState by audioViewModel.state.collectAsStateWithLifecycle()
     val downloadProgress by audioViewModel.downloadProgress.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(mantra) {
         mantra?.let { viewModel.trackHistory("mantra", it.id, it.title, it.titleTelugu) }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -122,6 +126,14 @@ fun MantraDetailScreen(
                                 val query = SpotifySearchQueryBuilder.buildQuery(m.title, "mantra")
                                 audioViewModel.playViaSpotify(query, m.title, m.titleTelugu)
                             }
+                        }
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Spotify not connected. Go to Settings to connect.",
+                                actionLabel = "OK",
+                                duration = SnackbarDuration.Short,
+                            )
                         }
                     }
                 },

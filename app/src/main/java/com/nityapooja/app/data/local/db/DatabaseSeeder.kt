@@ -23,6 +23,9 @@ class DatabaseSeeder @Inject constructor(
 ) {
 
     companion object {
+        // Bump this whenever content changes to force re-seed on existing installs
+        const val CONTENT_VERSION = 2
+
         // Audio hosted via GitHub releases — upload MP3s to this release tag
         private const val GH_AUDIO = "https://raw.githubusercontent.com/dpchavali1/NityaPoojaAudio/main/"
         private const val GH_AARTI = GH_AUDIO + "aartis/"
@@ -368,9 +371,9 @@ class DatabaseSeeder @Inject constructor(
             SuprabhatamEntity(2, 3, "Shiva Suprabhatam", "శివ సుప్రభాతం",
                 textTelugu = SuprabhatamContent.textTelugu[2],
                 textEnglish = SuprabhatamContent.textEnglish[2],
-                duration = 900, verseCount = 20,
+                duration = 600, verseCount = 6,
                 audioUrl = GH_SUPRABHATAM + "shiva_suprabhatam.mp3", audioSource = "Traditional",
-                youtubeUrl = "https://www.youtube.com/results?search_query=shiva+suprabhatam+telugu"),
+                youtubeUrl = "https://www.youtube.com/results?search_query=shiva+suprabhatam+vijayaa+shanker"),
         ))
     }
 

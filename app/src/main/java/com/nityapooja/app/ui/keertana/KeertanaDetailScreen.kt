@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,6 +35,7 @@ import com.nityapooja.app.ui.components.buildShareText
 import com.nityapooja.app.ui.theme.TempleGold
 import com.nityapooja.app.data.spotify.SpotifySearchQueryBuilder
 import com.nityapooja.app.ui.theme.SpotifyGreen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -53,12 +55,15 @@ fun KeertanaDetailScreen(
     val audioState by audioViewModel.state.collectAsStateWithLifecycle()
     val downloadProgress by audioViewModel.downloadProgress.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(keertana) {
         keertana?.let { viewModel.trackHistory("keertana", it.id, it.title, it.titleTelugu) }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -140,6 +145,14 @@ fun KeertanaDetailScreen(
                                 val query = SpotifySearchQueryBuilder.buildQuery(k.title, "keertana")
                                 audioViewModel.playViaSpotify(query, k.title, k.titleTelugu)
                             }
+                        }
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Spotify not connected. Go to Settings to connect.",
+                                actionLabel = "OK",
+                                duration = SnackbarDuration.Short,
+                            )
                         }
                     }
                 },

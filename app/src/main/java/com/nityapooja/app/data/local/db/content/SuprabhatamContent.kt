@@ -130,95 +130,39 @@ object SuprabhatamContent {
 క్షమస్వ త్వం క్షమస్వ త్వం శేషశైల శిఖామణే
 """.trimIndent(),
 
-        // 2. Shiva Suprabhatam - 20 verses
+        // 2. Shiva Suprabhatam - 6 verses (Classical Sanskrit)
         2 to """
-సామ వేద పారాయణ ప్రియాయ
-శ్రీ శంభో శివ శంభో స్వయంభో
-సుప్రభాతమ్
+స్నాత్వా జలే శీతలితాన్తరఙ్గాః
+స్పృష్ట్వా చ పుష్పాణి సువాసితాఙ్గాః ।
+ద్విజన్తి ప్రభాతే మరుత్తరఙ్గాః
+ఉత్తిష్ఠ శమ్భో తవ సుప్రభాతమ్ ॥ 1 ॥
 
-ప్రాతస్స్మరామి భవభీతిహరం సురేశం
-గంగాధరం వృషభవాహనమంబికేశం
-ఖట్వాంగ శూల వరదాభయ హస్తమీశం
-సంసార రోగహరమౌషధ మద్వితీయం
+నన్దీశ్వరామ్భా నినదం మనోజ్ఞం
+వర్షాబ్దగర్జ్యామివ మన్యమానః ।
+కేకీ కుమారస్య కరోతి నృత్తం
+ఉత్తిష్ఠ శమ్భో తవ సుప్రభాతమ్ ॥ 2 ॥
 
-ప్రాతః ప్రణామ్య గిరిశం గిరిజా సమేతం
-సర్వేశ్వరం సకల భూతపతిం మహేశం
-రుద్రం మహాదేవమనంతమజం పురారిం
-సుప్రభాతం తవ శంభో మమ సంప్రసీద
+లోకైకబన్ధుం ప్రసవిష్యతీతి
+ప్రాచీం సమర్చ్యాఞ్జలిబద్ధహస్తైః ।
+స్తోతుం భవన్తం మునయః ప్రవృత్తాః
+ఉత్తిష్ఠ శమ్భో తవ సుప్రభాతమ్ ॥ 3 ॥
 
-త్రిపురాంతకం త్రినయనం త్రిశూలధారిణం
-జటాజూటమధ్యే గలిత గంగా ధారిణం
-నంది వాహనం నాగాభరణ శోభితం
-శశిధరం మహాదేవం సుప్రభాతం తవ
+బ్రహ్మాదిదేవోదిత వేదమన్త్రైః
+దిగ్పాలభూషామణిరాజినాదైః ।
+కోలాహలోద్వారి చ సమ్ప్రభూతః
+ఉత్తిష్ఠ శమ్భో తవ సుప్రభాతమ్ ॥ 4 ॥
 
-భస్మ భూషిత సర్వాంగం విభూతి సుందరం
-రుండమాలా ధరం దేవం రుద్రాక్ష భూషణం
-పార్వతీ సహితం దేవం పరమేశ్వరం
-శివ శంకరం మహాదేవం సుప్రభాతం తవ
+ఆభాతి శైలోపరి లమ్బమానా
+మేఘాలిరేషా గజచర్మనీలా ।
+నిత్యేవ శాటీ హరినా త్వదర్థం
+ఉత్తిష్ఠ శమ్భో తవ సుప్రభాతమ్ ॥ 5 ॥
 
-కైలాస వాసినం దేవం కామారి మీశ్వరం
-అర్ధనారీశ్వరం శంభుం ఆదిదేవం మహేశ్వరం
-వేదాంత వేద్యం విశ్వేశం విశ్వనాథం విభుం
-సుప్రభాతం తవ శంభో మమ సంప్రసీద
+ప్రాత్యాసమన్తాత్ ప్రవికీర్యమాణైః
+లిప్తోఽత్యలోకః శిశిరాంశుపుఞ్జైః ।
+ధత్తే త్వదీయాం రుచిరాఙ్గశోభాం
+ఉత్తిష్ఠ శమ్భో తవ సుప్రభాతమ్ ॥ 6 ॥
 
-పంచవక్త్రం దశభుజం పరమేశ్వరం
-నీలకంఠం విషధరం నిర్మలం శివం
-సోమసూర్యాగ్ని నయనం సర్వలోకేశ్వరం
-సుప్రభాతం తవ దేవ సదాశివ
-
-డమరుక వాద్య ప్రియం నటరాజం
-ఆనంద తాండవ సుందరం శివం
-ప్రమథ గణ సేవిత పాదపద్మం
-అమరేశ్వరం శివం సుప్రభాతం
-
-గజచర్మాంబరధరం గరళ కంఠం
-అజగంధ పుష్ప ప్రియం ఆదిశంకరం
-భుజంగ భూషణం దేవం భూతనాథం
-సుప్రభాతం తవ శంభో భవ మోచనం
-
-మృత్యుంజయం మహాదేవం మృడానీ వల్లభం
-సత్యం శివం సుందరం పరమశివం
-నిత్యం శుద్ధం బుద్ధం ముక్తం నిరంజనం
-సుప్రభాతం తవ దేవ నమో నమః
-
-వీరభద్ర మహారూప భైరవం
-కాల భైరవం దండపాణిం
-ఘోర రూపం కృపాసింధుం
-సుప్రభాతం తవ శంభో సదాశివ
-
-దక్షయజ్ఞ వినాశకం మహేశం
-రక్షకం భక్తవత్సలం శంకరం
-అక్షయం అవినాశం అనాదిం
-సుప్రభాతం తవ శివ శంకర
-
-లింగమూర్తిం మహాదేవం లయకారణం
-అంగజ ఆరిం అనంగం పరమశివం
-మంగళం కరం సర్వేశం మహేశం
-సుప్రభాతం తవ శివ మహాదేవ
-
-హరహర మహాదేవ శంభో కాశీవిశ్వనాథ
-గంగే చ యమునే చైవ సుప్రభాతం తవ
-శ్రీ కాళహస్తీశ్వర శ్రీశైల మల్లికార్జున
-జ్యోతిర్లింగ స్వరూపా సుప్రభాతం తవ
-
-ప్రదోషకాల ప్రియం భక్తవత్సలం
-శివరాత్రి మహోత్సవ ప్రియం శంభుం
-బిల్వ పత్ర ప్రియం భస్మ ప్రియం
-సుప్రభాతం తవ శివ సదాశివ
-
-ఉమామహేశ్వరం దేవం ఉమాశంకరం
-సోమశేఖరం భవానీ శంకరం
-హిమశైల సుతా సహితం శివం
-సుప్రభాతం తవ సాంబ సదాశివ
-
-మహామృత్యుంజయం దేవం మహాకాలేశ్వరం
-ఓంకార స్వరూపం పరంజ్యోతిం
-అనాది మధ్యాంత రహితం పరమం
-సుప్రభాతం తవ శంకర శంకర
-
-సర్వ మంగళ మాంగల్యే శివే సర్వార్థ సాధికే
-శరణ్యే త్ర్యంబకే గౌరీ నారాయణి నమోస్తుతే
-శ్రీ విశ్వనాథ సుప్రభాతం సంపూర్ణం
+ఇతి శ్రీ శివ సుప్రభాతమ్ సమ్పూర్ణమ్
 """.trimIndent()
     )
 
@@ -350,95 +294,39 @@ Ajnaninaa Maya Doshan Asheshaan Vihitaan Hare
 Kshamasva Tvam Kshamasva Tvam Sheshashaila Shikhamane
 """.trimIndent(),
 
-        // 2. Shiva Suprabhatam - 20 verses
+        // 2. Shiva Suprabhatam - 6 verses (Classical Sanskrit)
         2 to """
-Sama Veda Parayana Priyaya
-Sri Shambho Shiva Shambho Swayambho
-Suprabhatam
+Snatva Jale Sheetalitantarangah
+Sprishtva Cha Pushpani Suvasitangah |
+Dvijanti Prabhate Maruttarangah
+Utthishtha Shambho Tava Suprabhatam || 1 ||
 
-Pratassmarami Bhavabheetiaharam Suresham
-Gangadharam Vrishabhavaahanam Ambikesham
-Khatvanga Shoola Varadabhaya Hastameesham
-Samsara Rogaharamaushadha Madviteeyam
+Nandeeshvarambha Ninadam Manojnam
+Varshabdagarjyamiva Manyamanah |
+Kekee Kumarasya Karoti Nrittam
+Utthishtha Shambho Tava Suprabhatam || 2 ||
 
-Pratah Pranamya Girisham Girija Sametam
-Sarveshwaram Sakala Bhutapatim Mahesham
-Rudram Mahadevam Anantam Ajam Purarim
-Suprabhatam Tava Shambho Mama Sampraseeda
+Lokaikbandhum Prasavishyateeti
+Pracheem Samarchyanjali Baddhahasthaih |
+Stotum Bhavantam Munayah Pravrittah
+Utthishtha Shambho Tava Suprabhatam || 3 ||
 
-Tripurantakam Trinayanam Trishula Dharinam
-Jatajuta Madhye Galita Ganga Dharinam
-Nandi Vahanam Nagabharana Shobhitam
-Shashidharam Mahadevam Suprabhatam Tava
+Brahmadidevadita Vedamantraih
+Digpalabhushamanirajinadaih |
+Kolahaloddvari Cha Samprabhutah
+Utthishtha Shambho Tava Suprabhatam || 4 ||
 
-Bhasma Bhushita Sarvangam Vibhuti Sundaram
-Rundamala Dharam Devam Rudraksha Bhushanam
-Parvati Sahitam Devam Parameshwaram
-Shiva Shankaram Mahadevam Suprabhatam Tava
+Abhati Shailopari Lambamanaa
+Meghaliresha Gajacharmanila |
+Nityeva Shatee Harina Tvadartham
+Utthishtha Shambho Tava Suprabhatam || 5 ||
 
-Kailasa Vasinam Devam Kamari Meeshwaram
-Ardhanareeshwaram Shambhum Adidevam Maheshwaram
-Vedanta Vedyam Vishwesham Vishwanatham Vibhum
-Suprabhatam Tava Shambho Mama Sampraseeda
+Pratyasamantat Pravikeeryamanaih
+Liptotyalokah Shishiranshupunjaih |
+Dhatte Tvadeeyam Ruchirangashobham
+Utthishtha Shambho Tava Suprabhatam || 6 ||
 
-Panchavaktram Dashabhujam Parameshwaram
-Nilakantham Vishadharam Nirmalam Shivam
-Soma Surya Agni Nayanam Sarva Lokeshwaram
-Suprabhatam Tava Deva Sadashiva
-
-Damaruka Vadya Priyam Natarajam
-Ananda Tandava Sundaram Shivam
-Pramatha Gana Sevita Padapadmam
-Amareshwaram Shivam Suprabhatam
-
-Gajacharma Ambaradharam Garala Kantham
-Ajagandha Pushpa Priyam Adishankaram
-Bhujanga Bhushanam Devam Bhutanatham
-Suprabhatam Tava Shambho Bhava Mochanam
-
-Mrityunjayam Mahadevam Mridani Vallabham
-Satyam Shivam Sundaram Paramashivam
-Nityam Shuddham Buddham Muktam Niranjanam
-Suprabhatam Tava Deva Namo Namah
-
-Virabhadra Maharupa Bhairavam
-Kala Bhairavam Dandapanim
-Ghora Rupam Krupasindhu
-Suprabhatam Tava Shambho Sadashiva
-
-Dakshayagna Vinashakam Mahesham
-Rakshakam Bhaktavatsalam Shankaram
-Akshayam Avinasham Anadim
-Suprabhatam Tava Shiva Shankara
-
-Lingamurtim Mahadevam Layakaranam
-Angaja Arim Anangam Paramashivam
-Mangalam Karam Sarvesham Mahesham
-Suprabhatam Tava Shiva Mahadeva
-
-Harahara Mahadeva Shambho Kashivishwanatha
-Gange Cha Yamune Chaiva Suprabhatam Tava
-Sri Kalahasteeswara Srishaila Mallikarjuna
-Jyotirlinga Swarupa Suprabhatam Tava
-
-Pradoshakala Priyam Bhaktavatsalam
-Shivaratri Mahotsava Priyam Shambhum
-Bilva Patra Priyam Bhasma Priyam
-Suprabhatam Tava Shiva Sadashiva
-
-Umamaheshwaram Devam Umashankaram
-Somashekaram Bhavani Shankaram
-Himashailasuta Sahitam Shivam
-Suprabhatam Tava Samba Sadashiva
-
-Mahamrityunjayam Devam Mahakaleshwaram
-Omkara Swarupam Paranjyotim
-Anadi Madhyanta Rahitam Paramam
-Suprabhatam Tava Shankara Shankara
-
-Sarva Mangala Mangalye Shive Sarvartha Sadhike
-Sharanye Tryambake Gauri Narayani Namostute
-Sri Vishwanatha Suprabhatam Sampurnam
+Iti Sri Shiva Suprabhatam Sampurnam
 """.trimIndent()
     )
 }

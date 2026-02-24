@@ -5,6 +5,7 @@ object SpotifySearchQueryBuilder {
     // Preferred search queries for specific titles to get the best Spotify match
     private val preferredQueries = mapOf(
         "Hanuman Chalisa" to "MS Rama Rao Hanuman Chalisa",
+        "Shiva Suprabhatam" to "Shiva Suprabhatam Vijayaa Shanker",
     )
 
     fun buildQuery(title: String, contentType: String, deityName: String? = null): String {

@@ -117,7 +117,7 @@ fun PrivacyPolicyScreen(
 
             PolicySection(
                 title = "Contact Us",
-                content = "If you have any questions about this Privacy Policy, please contact us at:\n\nnityapooja.contact@yahoo.com"
+                content = "If you have any questions about this Privacy Policy, please contact us at:\n\nnityapooja.contact@gmail.com"
             )
 
             Spacer(Modifier.height(32.dp))

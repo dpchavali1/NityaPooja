@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.NityaPooja" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/temple_gold</item>
+        <item name="android:navigationBarColor">@color/ivory_white</item>
+        <item name="android:windowBackground">@color/ivory_white</item>
+    </style>
+
+    <style name="Theme.NityaPooja.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.NityaPooja</item>
+    </style>
+</resources>

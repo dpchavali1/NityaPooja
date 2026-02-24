@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nitya Pooja</string>
+    <string name="app_name_telugu">నిత్య పూజ</string>
+    <string name="app_tagline">Your Spiritual Companion</string>
+    <string name="app_tagline_telugu">మీ ఆధ్యాత్మిక సహచరుడు</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_home_te">హోమ్</string>
+    <string name="nav_aarti">Aarti</string>
+    <string name="nav_aarti_te">హారతి</string>
+    <string name="nav_mantra">Mantra</string>
+    <string name="nav_mantra_te">మంత్రం</string>
+    <string name="nav_panchangam">Panchangam</string>
+    <string name="nav_panchangam_te">పంచాంగం</string>
+    <string name="nav_more">More</string>
+    <string name="nav_more_te">మరిన్ని</string>
+
+    <!-- Content Sections -->
+    <string name="section_stotrams">Stotrams</string>
+    <string name="section_stotrams_te">స్తోత్రాలు</string>
+    <string name="section_keertanalu">Keertanalu</string>
+    <string name="section_keertanalu_te">కీర్తనలు</string>
+    <string name="section_aartulu">Aartulu</string>
+    <string name="section_aartulu_te">హారతులు</string>
+    <string name="section_mantras">Mantras</string>
+    <string name="section_mantras_te">మంత్రాలు</string>
+    <string name="section_bhajans">Bhajans</string>
+    <string name="section_bhajans_te">భజనలు</string>
+    <string name="section_suprabhatam">Suprabhatam</string>
+    <string name="section_suprabhatam_te">సుప్రభాతం</string>
+    <string name="section_ashtotra">Ashtotra</string>
+    <string name="section_ashtotra_te">అష్టోత్తరాలు</string>
+    <string name="section_temples">Temples</string>
+    <string name="section_temples_te">దేవాలయాలు</string>
+    <string name="section_festivals">Festivals</string>
+    <string name="section_festivals_te">పండుగలు</string>
+    <string name="section_panchangam">Panchangam</string>
+    <string name="section_panchangam_te">పంచాంగం</string>
+
+    <!-- Home Screen -->
+    <string name="todays_shloka">Today\'s Shloka</string>
+    <string name="todays_shloka_te">నేటి శ్లోకం</string>
+    <string name="deity_of_the_day">Deity of the Day</string>
+    <string name="deity_of_the_day_te">నేటి దైవం</string>
+    <string name="all_deities">All Deities</string>
+    <string name="all_deities_te">అన్ని దేవతలు</string>
+    <string name="daily_puja_checklist">Daily Puja Checklist</string>
+    <string name="daily_puja_checklist_te">రోజువారీ పూజ చెక్‌లిస్ట్</string>
+    <string name="continue_listening">Continue Listening</string>
+    <string name="continue_listening_te">వినడం కొనసాగించండి</string>
+
+    <!-- Streak -->
+    <string name="bhakti_streak">Bhakti Streak</string>
+    <string name="day_streak">%d Day Streak!</string>
+
+    <!-- Actions -->
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="share">Share</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="search">Search</string>
+    <string name="settings">Settings</string>
+
+    <!-- Deity Names -->
+    <string name="deity_venkateswara">Lord Venkateswara</string>
+    <string name="deity_venkateswara_te">శ్రీ వేంకటేశ్వరుడు</string>
+    <string name="deity_ganesha">Lord Ganesha</string>
+    <string name="deity_ganesha_te">శ్రీ గణేశుడు</string>
+    <string name="deity_shiva">Lord Shiva</string>
+    <string name="deity_shiva_te">శ్రీ శివుడు</string>
+    <string name="deity_hanuman">Lord Hanuman</string>
+    <string name="deity_hanuman_te">శ్రీ హనుమాన్</string>
+    <string name="deity_krishna">Lord Krishna</string>
+    <string name="deity_krishna_te">శ్రీ కృష్ణుడు</string>
+    <string name="deity_rama">Lord Rama</string>
+    <string name="deity_rama_te">శ్రీ రాముడు</string>
+    <string name="deity_lakshmi">Goddess Lakshmi</string>
+    <string name="deity_lakshmi_te">శ్రీ లక్ష్మీదేవి</string>
+    <string name="deity_durga">Goddess Durga</string>
+    <string name="deity_durga_te">దుర్గాదేవి</string>
+    <string name="deity_saraswati">Goddess Saraswati</string>
+    <string name="deity_saraswati_te">సరస్వతీదేవి</string>
+    <string name="deity_vishnu">Lord Vishnu</string>
+    <string name="deity_vishnu_te">శ్రీ విష్ణువు</string>
+    <string name="deity_surya">Lord Surya</string>
+    <string name="deity_surya_te">సూర్య భగవానుడు</string>
+    <string name="deity_subramanya">Lord Subramanya</string>
+    <string name="deity_subramanya_te">శ్రీ సుబ్రహ్మణ్యేశ్వరుడు</string>
+    <string name="deity_ayyappa">Lord Ayyappa</string>
+    <string name="deity_ayyappa_te">శ్రీ అయ్యప్పస్వామి</string>
+</resources>

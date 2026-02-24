@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary - Temple Gold -->
+    <color name="temple_gold">#FFD4A017</color>
+    <color name="temple_gold_light">#FFFFD54F</color>
+    <color name="temple_gold_dark">#FFA07B00</color>
+    <color name="temple_gold_50">#FFFFF8E1</color>
+
+    <!-- Secondary - Deep Vermillion -->
+    <color name="deep_vermillion">#FFC41E3A</color>
+    <color name="deep_vermillion_light">#FFFF5F6D</color>
+    <color name="deep_vermillion_dark">#FF8C0012</color>
+
+    <!-- Tertiary - Sacred Turmeric -->
+    <color name="sacred_turmeric">#FFE8B800</color>
+
+    <!-- Background -->
+    <color name="ivory_white">#FFFFFFF0</color>
+    <color name="ivory_cream">#FFFFF8E7</color>
+
+    <!-- Surface -->
+    <color name="dark_teak">#FF3E2723</color>
+
+    <!-- Highlights -->
+    <color name="lotus_pink">#FFE91E63</color>
+
+    <!-- Status -->
+    <color name="auspicious_green">#FF2E7D32</color>
+    <color name="inauspicious_red">#FFD32F2F</color>
+
+    <!-- Splash -->
+    <color name="splash_background">#FFD4A017</color>
+</resources>

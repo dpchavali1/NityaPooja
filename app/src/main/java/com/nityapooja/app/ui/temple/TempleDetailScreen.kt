@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BookOnline
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Videocam
@@ -220,6 +221,26 @@ fun TempleDetailScreen(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text("దర్శనం బుకింగ్ · Book Darshan")
+                    }
+                }
+
+                // Website URL button
+                t.websiteUrl?.let { url ->
+                    OutlinedButton(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.Language,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("అధికారిక వెబ్‌సైట్ · Official Website")
                     }
                 }
 

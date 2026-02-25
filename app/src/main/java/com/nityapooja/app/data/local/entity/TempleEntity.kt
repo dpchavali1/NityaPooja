@@ -20,4 +20,5 @@ data class TempleEntity(
     val descriptionTelugu: String? = null,
     val hasLiveDarshan: Boolean = false,
     val bookingUrl: String? = null,
+    val websiteUrl: String? = null,
 )

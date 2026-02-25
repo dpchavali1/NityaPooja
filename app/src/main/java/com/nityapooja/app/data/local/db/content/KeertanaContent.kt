@@ -195,6 +195,133 @@ object KeertanaContent {
 మరువకుమీ శ్రీరామచంద్రా
 """.trimIndent(),
 
+        // 8. Jagadanandakaraka - Tyagaraja (Pancharatna Kriti)
+        8 to """
+జగదానందకారక జయ జానకీప్రాణ నాయక
+గగనాధిప సత్కులజ రాజరాజేశ్వర
+
+సుగుణాకర సురసేవ్య భవ్యదాయక సదా సకల
+
+అమరతారకనికరాపూజిత నిజరూప
+కమలాదళ విశాల నయన కరుణాసాగర
+
+సుమనోరమణ నిరుపమాన సువర్ణ దీప్తి
+విమలగాత్ర భూషణ రామ వినురాగ ధీర
+
+పురన పరాధీన ఖండ
+మందార మకరంద మాధుర్య
+సుందర విదనోజ్వల నీల
+కుందరదన హాసయుత
+
+ఖగ తురగ భుజగేంద్ర వర
+నగధర సురనికర మదవిదారక
+నగరాజవందన నతలోకాబరణ
+
+పవనజ గర్వహార సదయహృదయ సరోజ వాస
+భవనాశన రవికులాన్వయ రత్నదీప
+సరసీరుహదళ నేత్ర సజ్జన శిరోమణి
+
+సురవైరి వర్గహార ధీర రఘురామ
+తరుణాయత నయనాగ్ర కరుణాలయ భాస
+దరహాస ముఖాంభోజ సదమల ఆస
+
+పరిపూర్ణ ఉదారవర నిర్జిత మదనాకార
+పరమేశ వ్యాస సన్నుత హరికథాసార
+త్యాగరాజ సన్నుత నే మనసున సదాపూజ
+""".trimIndent(),
+
+        // 9. Dudukugala - Tyagaraja (Pancharatna Kriti)
+        9 to """
+దుడుకుగల నన్నే దొర కొడుకు బ్రోచురా
+
+దుడుకుగల వాడే దొరలలో మేటి
+జడియు చుండెడి నీకు సరియేవ్వరురా
+
+శ్రీరాముని దయచేతను నేజేసిన
+పూజలన్నియు సద్ఫలమగు
+
+తల్లి దండ్రి నీవే యనుచు ఎల్లవేళల
+మ్రొక్కినంతనే పల్లవించురా
+
+కలుషములను బాపి కరుణతో
+బ్రోచే పరమానంద రూపి
+
+చుట్టూ బంధువులు లేకపోయినను
+పట్టుదల మరువక నీ
+గట్టి పదములనే బట్టిన వారికి
+
+అన్ని ధర్మములకు అన్ని కర్మలకు
+నన్ను బ్రోచుటకు సన్నద్ధుడైన
+
+తనయుని ప్రాణప్రదుని సురపాలుని
+మనసిజగురుని వానరసేవితుని
+
+సకలేశుని భరతేశుని కౌసల్యా
+తనయుని రామచంద్రుని త్యాగరాజ నుతుని
+""".trimIndent(),
+
+        // 10. Sadhinchene - Tyagaraja (Pancharatna Kriti)
+        10 to """
+సాధించెనే ఓ మనసా
+బోధించిన సన్మార్గ వచనమును
+
+మాధవ భక్తులతో నెపుడు
+సమానముగ నుండి
+
+సాధించెనే ఓ మనసా
+
+వదలక తత్వ మార్గానుభవము
+వదలక భజియించు రామ
+
+అదిగాక తా జేసిన
+సుకృతామలమునకు
+
+మదిలో గల రాగద్వేషములను
+సదయుడై ఆత్మానందులను
+
+వెదకక తానై మ్రొక్కించెడు
+బుధజనుల సంగతిచే
+
+సదమలాత్ముడై సుఖమనుభవించు
+బుధవరులు గలిగెను ఎందరో
+
+చన్ను పాలకు యానతియ్యగ
+మున్ను రాముడు వచ్చెగా
+
+తిన్నగా నడువగ దొర
+సన్నిధిని చేర్చు త్యాగరాజుని
+""".trimIndent(),
+
+        // 11. Kanakannaruchira - Tyagaraja (Pancharatna Kriti)
+        11 to """
+కనకనరుచిరా కనక వసన నిన్ను
+మనసున తలచి మరవరాదురా
+
+దినకరకులమణి దీనరక్షక
+మునిజన చిత్తాబ్జ భానురా
+
+అనిలజసుతుడనే హనుమంతుడు
+ఘనముగా సేవించు చరణయుగళము
+
+సామజ వరద కరశోభిత
+రామభద్ర ఘనశ్యామ సుందర
+
+బిరుదు వహించిన సీతామానసచోరా
+కరుణారసజలధి నాదు మొర
+వినరాదా
+
+ధరణిజ రమణ ఉదార
+గుణగణాభరణ నిరామయ
+
+సుందరి రమణ ధర్మ సంస్థాపన
+నందకధర దశరథనందన
+
+సురవందన కురుగూరిన మైనేను
+వరదా నీమీద ఆశగలదురా
+
+త్యాగరాజ హృత్సదన
+""".trimIndent(),
+
         // 6. Paluke Bangaramayena - Ramadasu
         6 to """
 పాలుకే బంగారమాయెనా
@@ -458,6 +585,133 @@ Darijerina Bhaktulanu Kapade
 Paramatmudavu Nivani Nammiti
 Karunajudavaya Nannelukova
 Maruvakumi Sri Ramachandra
+""".trimIndent(),
+
+        // 8. Jagadanandakaraka - Tyagaraja (Pancharatna Kriti)
+        8 to """
+Jagadanandakaraka Jaya Janaki Prana Nayaka
+Gaganadhipa Satkulaja Rajarajeshwara
+
+Sugunakara Surasevya Bhavyadayaka Sada Sakala
+
+Amara Taraka Nikarapujita Nijaroopa
+Kamaladala Vishala Nayana Karunasagara
+
+Sumanoramana Nirupamana Suvarna Deepti
+Vimalagathra Bhushana Rama Vinuraga Dheera
+
+Purana Paradhina Khanda
+Mandara Makaranda Madhurya
+Sundara Vidanojwala Neela
+Kundaradana Hasayuta
+
+Khaga Turaga Bhujagendra Vara
+Nagadhara Suranikara Madavidaraka
+Nagaraja Vandana Natalokabharana
+
+Pavanaja Garvahara Sadayahrudaya Saroja Vasa
+Bhavanashana Ravikulanvaya Ratnadeep
+Saraseeruhadala Netra Sajjana Shiromani
+
+Suravairi Vargahara Dheera Raghurama
+Tarunayata Nayanaagra Karunalaya Bhasa
+Darahasa Mukhambhoja Sadamala Asa
+
+Paripurna Udaravara Nirjita Madanakara
+Paramesha Vyasa Sannuta Harikatha Sara
+Tyagaraja Sannuta Ne Manasuna Sadapuja
+""".trimIndent(),
+
+        // 9. Dudukugala - Tyagaraja (Pancharatna Kriti)
+        9 to """
+Dudukugala Nanne Dora Koduku Brochura
+
+Dudukugala Vade Doralalo Meti
+Jadiyu Chundedi Niku Sariyevvarura
+
+Sri Ramuni Dayachetanu Nejesina
+Pujalanniyu Sadphalamagu
+
+Talli Dandri Nive Yanuchu Ellavelala
+Mrokkinantane Pallavinchura
+
+Kalushamulanu Bapi Karunato
+Broche Paramananda Rupi
+
+Chuttu Bandhuvulu Lekapoyinanu
+Pattudala Maruvaka Ni
+Gatti Padamulane Battina Variki
+
+Anni Dharmamulaku Anni Karmamulaku
+Nannu Brochutaku Sannaddhudaina
+
+Tanayuni Pranapraduni Surapaluni
+Manasijaguruni Vanarasevituni
+
+Sakaleshuni Bharateshuni Kausalya
+Tanayuni Ramachandruni Tyagaraja Nutuni
+""".trimIndent(),
+
+        // 10. Sadhinchene - Tyagaraja (Pancharatna Kriti)
+        10 to """
+Sadhinchene O Manasa
+Bodhinchina Sanmarga Vachanamunu
+
+Madhava Bhaktulato Nepudu
+Samanamu Ga Nundi
+
+Sadhinchene O Manasa
+
+Vadalaka Tatva Marganubhavamu
+Vadalaka Bhajinchu Rama
+
+Adigaka Ta Jesina
+Sukrutamalamanaku
+
+Madilo Gala Ragadveshamulanu
+Sadayudai Atmanandulanu
+
+Vedakaka Tanai Mrokkinchdu
+Budhajanula Sangati Che
+
+Sadamalatmudai Sukhamanubhavinchu
+Budhavarulu Galigenu Endaro
+
+Channu Palaku Yanatiyyaga
+Munnu Ramudu Vachchega
+
+Tinnaga Naduvaga Dora
+Sannidhini Cherchu Tyagarajuni
+""".trimIndent(),
+
+        // 11. Kanakannaruchira - Tyagaraja (Pancharatna Kriti)
+        11 to """
+Kanakannaruchira Kanaka Vasana Ninnu
+Manasuna Talachi Maravaradura
+
+Dinakarakulamani Deenarakshaka
+Munijana Chittabja Bhanura
+
+Anilajasutudane Hanumanthudu
+Ghanamuga Sevinchu Charanayugalamu
+
+Samaja Varada Karashobhita
+Ramabhadra Ghanashyama Sundara
+
+Birudu Vahinchina Sitamanasachora
+Karunarasajaladhi Nadu Mora
+Vinarada
+
+Dharanija Ramana Udara
+Gunaganabharana Niramaya
+
+Sundari Ramana Dharma Samsthapana
+Nandakadhara Dasharathanandana
+
+Suravandana Kuruguurina Mainenu
+Varada Nimida Ashagaladura
+
+Tyagaraja Hrutsadana
 """.trimIndent(),
 
         // 6. Paluke Bangaramayena - Ramadasu

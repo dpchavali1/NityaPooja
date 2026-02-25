@@ -56,6 +56,8 @@ class SpotifyManager @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private var spotifyAppRemote: SpotifyAppRemote? = null
+    private var reconnectAttempts = 0
+    private val maxReconnectAttempts = 3
 
     private val _connectionStatus = MutableStateFlow(SpotifyConnectionStatus.DISCONNECTED)
     val connectionStatus: StateFlow<SpotifyConnectionStatus> = _connectionStatus.asStateFlow()
@@ -107,7 +109,7 @@ class SpotifyManager @Inject constructor(
                         response.expiresIn,
                     )
                 }
-                connectAppRemote()
+                connectAppRemote(showAuth = false)
             }
             AuthorizationResponse.Type.ERROR -> {
                 _connectionStatus.value = SpotifyConnectionStatus.ERROR
@@ -118,9 +120,10 @@ class SpotifyManager @Inject constructor(
         }
     }
 
-    fun connectAppRemote() {
+    fun connectAppRemote(showAuth: Boolean = false) {
         if (spotifyAppRemote?.isConnected == true) {
             _connectionStatus.value = SpotifyConnectionStatus.CONNECTED
+            reconnectAttempts = 0
             return
         }
 
@@ -133,37 +136,60 @@ class SpotifyManager @Inject constructor(
 
         val connectionParams = ConnectionParams.Builder(CLIENT_ID)
             .setRedirectUri(REDIRECT_URI)
-            .showAuthView(true)
+            .showAuthView(showAuth)
             .build()
 
         SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
             override fun onConnected(appRemote: SpotifyAppRemote) {
                 spotifyAppRemote = appRemote
                 _connectionStatus.value = SpotifyConnectionStatus.CONNECTED
+                reconnectAttempts = 0
                 subscribeToPlayerState()
                 checkUserCapabilities()
             }
 
             override fun onFailure(throwable: Throwable) {
-                _connectionStatus.value = SpotifyConnectionStatus.ERROR
+                spotifyAppRemote = null
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++
+                    scope.launch {
+                        kotlinx.coroutines.delay(1000L * reconnectAttempts)
+                        connectAppRemote(showAuth = false)
+                    }
+                } else {
+                    reconnectAttempts = 0
+                    _connectionStatus.value = SpotifyConnectionStatus.ERROR
+                }
             }
         })
     }
 
     private fun subscribeToPlayerState() {
-        spotifyAppRemote?.playerApi?.subscribeToPlayerState()?.setEventCallback { state ->
-            val track = state.track
-            _playerState.update {
-                SpotifyPlayerState(
-                    trackName = track?.name ?: "",
-                    artistName = track?.artist?.name ?: "",
-                    albumImageUrl = track?.imageUri?.raw ?: "",
-                    isPaused = state.isPaused,
-                    positionMs = state.playbackPosition,
-                    durationMs = track?.duration ?: 0L,
-                )
+        spotifyAppRemote?.playerApi?.subscribeToPlayerState()
+            ?.setEventCallback { state ->
+                val track = state.track
+                _playerState.update {
+                    SpotifyPlayerState(
+                        trackName = track?.name ?: "",
+                        artistName = track?.artist?.name ?: "",
+                        albumImageUrl = track?.imageUri?.raw ?: "",
+                        isPaused = state.isPaused,
+                        positionMs = state.playbackPosition,
+                        durationMs = track?.duration ?: 0L,
+                    )
+                }
             }
-        }
+            ?.setErrorCallback {
+                // Connection dropped — attempt silent reconnect
+                spotifyAppRemote = null
+                _connectionStatus.value = SpotifyConnectionStatus.DISCONNECTED
+                scope.launch {
+                    val tokenValid = ensureTokenValid()
+                    if (tokenValid && isSpotifyInstalled()) {
+                        connectAppRemote(showAuth = false)
+                    }
+                }
+            }
     }
 
     private val _isPremiumUser = MutableStateFlow<Boolean?>(null)
@@ -176,7 +202,19 @@ class SpotifyManager @Inject constructor(
     }
 
     fun play(spotifyUri: String) {
-        spotifyAppRemote?.playerApi?.play(spotifyUri)
+        if (spotifyAppRemote?.isConnected == true) {
+            spotifyAppRemote?.playerApi?.play(spotifyUri)
+        } else {
+            // Reconnect then play
+            val pendingUri = spotifyUri
+            scope.launch {
+                connectAppRemote(showAuth = false)
+                connectionStatus.first { it == SpotifyConnectionStatus.CONNECTED || it == SpotifyConnectionStatus.ERROR }
+                if (_connectionStatus.value == SpotifyConnectionStatus.CONNECTED) {
+                    spotifyAppRemote?.playerApi?.play(pendingUri)
+                }
+            }
+        }
     }
 
     fun pause() {
@@ -184,7 +222,17 @@ class SpotifyManager @Inject constructor(
     }
 
     fun resume() {
-        spotifyAppRemote?.playerApi?.resume()
+        if (spotifyAppRemote?.isConnected == true) {
+            spotifyAppRemote?.playerApi?.resume()
+        } else {
+            scope.launch {
+                connectAppRemote(showAuth = false)
+                connectionStatus.first { it == SpotifyConnectionStatus.CONNECTED || it == SpotifyConnectionStatus.ERROR }
+                if (_connectionStatus.value == SpotifyConnectionStatus.CONNECTED) {
+                    spotifyAppRemote?.playerApi?.resume()
+                }
+            }
+        }
     }
 
     fun disconnect() {

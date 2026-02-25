@@ -547,6 +547,7 @@ fun HomeScreen(
                     userNakshatra = userNakshatra,
                     city = locationInfo.city,
                     fontScale = fontScale,
+                    timezone = locationInfo.timezone,
                     onNavigateToSettings = onNavigateToSettings,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )

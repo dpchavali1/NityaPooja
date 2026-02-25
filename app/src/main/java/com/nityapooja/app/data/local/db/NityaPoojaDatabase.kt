@@ -26,7 +26,7 @@ import com.nityapooja.app.data.local.entity.*
         PujaStepEntity::class,
         ReadingHistoryEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -35,6 +35,7 @@ import com.nityapooja.app.data.local.entity.*
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8),
     ],
 )
 abstract class NityaPoojaDatabase : RoomDatabase() {

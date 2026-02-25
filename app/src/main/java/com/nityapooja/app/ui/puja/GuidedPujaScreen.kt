@@ -147,6 +147,8 @@ fun GuidedPujaScreen(
                     userNakshatra = userNakshatra,
                     city = locationInfo.city,
                     fontScale = fontScale,
+                    timezone = locationInfo.timezone,
+                    pujaType = selectedPujaType,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
@@ -265,6 +267,8 @@ private fun PujaStepContent(
     userNakshatra: String,
     city: String,
     fontScale: Float,
+    timezone: String = "Asia/Kolkata",
+    pujaType: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val currentStep = steps.getOrNull(currentStepIndex) ?: return
@@ -286,6 +290,8 @@ private fun PujaStepContent(
                 userNakshatra = userNakshatra,
                 city = city,
                 fontScale = fontScale,
+                timezone = timezone,
+                pujaType = pujaType,
             )
         }
 

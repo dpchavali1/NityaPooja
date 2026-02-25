@@ -48,19 +48,8 @@ class VirtualPoojaRoomViewModel @Inject constructor(
 
     private fun loadDeityData(deityId: Int) {
         viewModelScope.launch {
-            // Load deity entity
             repository.getDeityById(deityId).firstOrNull()?.let { deity ->
                 _uiState.update { it.copy(selectedDeity = deity) }
-            }
-            // Load first aarti for Harathi audio
-            repository.getAartisByDeity(deityId).firstOrNull()?.firstOrNull()?.let { aarti ->
-                _uiState.update {
-                    it.copy(
-                        harathiAartiUrl = aarti.audioUrl ?: aarti.archiveOrgUrl,
-                        harathiAartiTitle = aarti.title,
-                        harathiAartiTitleTelugu = aarti.titleTelugu,
-                    )
-                }
             }
         }
     }

@@ -121,15 +121,12 @@ fun VirtualPoojaRoomScreen(
                         PoojaItem.HARATHI -> {
                             val isNowAnimating = uiState.offerings[PoojaItem.HARATHI]?.isAnimating != true
                             if (isNowAnimating) {
-                                // Starting harathi — play aarti audio
-                                val url = uiState.harathiAartiUrl
-                                if (!url.isNullOrBlank()) {
-                                    audioViewModel.playTrack(
-                                        url,
-                                        uiState.harathiAartiTitle,
-                                        uiState.harathiAartiTitleTelugu,
-                                    )
-                                }
+                                // Starting harathi — play Om Jai Jagdish Hare via Spotify
+                                audioViewModel.playViaSpotify(
+                                    "om jai jagdish hare anuradha paudwal",
+                                    "Om Jai Jagdish Hare",
+                                    "ఓం జై జగదీశ్ హరే",
+                                )
                             } else {
                                 // Stopping harathi — stop audio
                                 audioViewModel.stop()

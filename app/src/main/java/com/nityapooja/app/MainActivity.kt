@@ -1,10 +1,10 @@
 package com.nityapooja.app
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
@@ -33,6 +33,12 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var spotifyManager: SpotifyManager
 
     private var isReady = false
+
+    private val spotifyAuthLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        spotifyManager.handleAuthResponse(result.resultCode, result.data)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
@@ -85,18 +91,13 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NityaPoojaNavHost(
                         onboardingCompleted = onboardingDone,
-                        onLinkSpotify = { spotifyManager.startAuth(this@MainActivity) },
+                        onLinkSpotify = {
+                            val intent = spotifyManager.createAuthIntent(this@MainActivity)
+                            spotifyAuthLauncher.launch(intent)
+                        },
                     )
                 }
             }
-        }
-    }
-
-    @Deprecated("Use Activity Result API", replaceWith = ReplaceWith("registerForActivityResult"))
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == SpotifyManager.AUTH_REQUEST_CODE) {
-            spotifyManager.handleAuthResponse(resultCode, data)
         }
     }
 }

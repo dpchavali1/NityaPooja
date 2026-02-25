@@ -165,4 +165,7 @@ dependencies {
 
     // Spotify SDK (place AARs in app/libs/)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
 }

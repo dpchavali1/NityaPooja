@@ -550,7 +550,7 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Version 1.1.0",
+                        "Version 1.1.1",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -569,7 +569,7 @@ fun SettingsScreen(
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "nityapooja.contact@yahoo.com",
+                        "nityapooja.contact@gmail.com",
                         style = MaterialTheme.typography.labelSmall,
                         color = TempleGold,
                     )

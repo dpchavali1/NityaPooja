@@ -48,7 +48,6 @@ class SpotifyManager @Inject constructor(
     private val preferencesManager: UserPreferencesManager,
 ) {
     companion object {
-        const val AUTH_REQUEST_CODE = 1337
         private const val CLIENT_ID = BuildConfig.SPOTIFY_CLIENT_ID
         private const val REDIRECT_URI = BuildConfig.SPOTIFY_REDIRECT_URI
     }
@@ -86,7 +85,7 @@ class SpotifyManager @Inject constructor(
         }
     }
 
-    fun startAuth(activity: Activity) {
+    fun createAuthIntent(activity: Activity): Intent {
         val request = AuthorizationRequest.Builder(
             CLIENT_ID,
             AuthorizationResponse.Type.TOKEN,
@@ -95,7 +94,7 @@ class SpotifyManager @Inject constructor(
             .setScopes(arrayOf("app-remote-control", "streaming", "user-read-playback-state", "user-modify-playback-state"))
             .build()
 
-        AuthorizationClient.openLoginActivity(activity, AUTH_REQUEST_CODE, request)
+        return AuthorizationClient.createLoginActivityIntent(activity, request)
     }
 
     fun handleAuthResponse(resultCode: Int, data: Intent?) {

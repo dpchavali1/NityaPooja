@@ -36,17 +36,9 @@ object DatabaseModule {
             "nityapooja_database"
         )
             .addCallback(object : RoomDatabase.Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    super.onCreate(db)
-                    // Seed on first install
-                    CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-                        seederProvider.get().seed()
-                    }
-                }
-
                 override fun onOpen(db: SupportSQLiteDatabase) {
                     super.onOpen(db)
-                    // Re-seed when app version or content version changes
+                    // Seed on first install or re-seed when version/content changes
                     val prefs = context.getSharedPreferences("db_seed", Context.MODE_PRIVATE)
                     val lastSeededVersion = prefs.getInt("seeded_version_code", 0)
                     val lastContentVersion = prefs.getInt("seeded_content_version", 0)

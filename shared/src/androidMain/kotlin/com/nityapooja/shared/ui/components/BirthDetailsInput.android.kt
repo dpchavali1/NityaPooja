@@ -2,14 +2,9 @@ package com.nityapooja.shared.ui.components
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.location.Geocoder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.Locale
-import kotlin.math.abs
 
 @Composable
 actual fun PlatformDatePicker(
@@ -57,24 +52,3 @@ actual fun PlatformTimePicker(
     }
 }
 
-actual suspend fun searchPlaces(query: String): List<PlaceResult> = withContext(Dispatchers.IO) {
-    val results = mutableListOf<PlaceResult>()
-
-    if (Geocoder.isPresent()) {
-        try {
-            // Use a temporary context-free approach - Geocoder needs context
-            // This will be provided via Koin or passed differently in production
-            // For now, use fallback
-            // Note: Android actual needs app context. We use fallback here and
-            // the androidApp module can override with Geocoder if needed.
-        } catch (_: Exception) {
-            // Fall through to fallback
-        }
-    }
-
-    if (results.isEmpty()) {
-        results.addAll(searchFallbackCities(query))
-    }
-
-    results.take(8)
-}

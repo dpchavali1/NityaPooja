@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SelfImprovement
@@ -23,6 +24,7 @@ fun MantraListScreen(
     viewModel: MantraViewModel = koinViewModel(),
     onMantraClick: (Int) -> Unit = {},
     onJapaClick: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val mantras by viewModel.allMantras.collectAsState()
 
@@ -50,7 +52,10 @@ fun MantraListScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(mantras, key = { it.id }) { mantra ->
+            itemsIndexed(mantras, key = { _, it -> it.id }) { index, mantra ->
+                if (index == 3) {
+                    bannerAd?.invoke()
+                }
                 Card(
                     modifier = Modifier.fillMaxWidth().clickable { onMantraClick(mantra.id) },
                     shape = RoundedCornerShape(12.dp),

@@ -39,6 +39,7 @@ fun MoreScreen(
     onNavigateToJatakaChakram: () -> Unit = {},
     onNavigateToGunaMilan: () -> Unit = {},
     onNavigateToVirtualPoojaRoom: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     Scaffold(
         topBar = {
@@ -76,6 +77,8 @@ fun MoreScreen(
             item { MoreMenuItem("అష్టోత్రాలు", "Ashtottara", Icons.Default.AutoAwesome, onNavigateToAshtotra) }
             item { MoreMenuItem("జపం", "Japa Counter", Icons.Default.SelfImprovement, onNavigateToJapa) }
             item { MoreMenuItem("చాలీసా", "Chalisa", Icons.AutoMirrored.Filled.MenuBook, onNavigateToChalisas) }
+
+            item { bannerAd?.invoke() }
 
             item {
                 Spacer(Modifier.height(16.dp))

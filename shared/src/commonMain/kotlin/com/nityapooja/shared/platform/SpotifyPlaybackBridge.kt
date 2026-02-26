@@ -11,6 +11,9 @@ interface SpotifyPlaybackBridge {
     /** Whether Spotify is connected and ready for playback */
     val isConnected: StateFlow<Boolean>
 
+    /** Whether the user has linked their Spotify account (persisted preference) */
+    val isLinked: StateFlow<Boolean>
+
     /** Current Spotify player state */
     val playerState: StateFlow<SpotifyBridgePlayerState>
 
@@ -46,6 +49,8 @@ data class SpotifyBridgePlayerState(
  */
 class NoOpSpotifyPlaybackBridge : SpotifyPlaybackBridge {
     override val isConnected: StateFlow<Boolean> =
+        kotlinx.coroutines.flow.MutableStateFlow(false)
+    override val isLinked: StateFlow<Boolean> =
         kotlinx.coroutines.flow.MutableStateFlow(false)
     override val playerState: StateFlow<SpotifyBridgePlayerState> =
         kotlinx.coroutines.flow.MutableStateFlow(SpotifyBridgePlayerState())

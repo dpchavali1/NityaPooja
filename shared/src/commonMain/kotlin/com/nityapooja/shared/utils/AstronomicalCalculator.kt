@@ -1,5 +1,9 @@
 package com.nityapooja.shared.utils
 
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlin.math.*
 
 /**
@@ -12,6 +16,11 @@ import kotlin.math.*
  */
 object AstronomicalCalculator {
 
+    data class SunTimesDecimal(
+        val sunriseDecimal: Double,
+        val sunsetDecimal: Double,
+    )
+
     // Julian Day
 
     fun julianDay(year: Int, month: Int, day: Int, utHours: Double): Double {
@@ -23,6 +32,31 @@ object AstronomicalCalculator {
         return (365.25 * (y + 4716)).toInt() +
                 (30.6001 * (m + 1)).toInt() +
                 day + utHours / 24.0 + b - 1524.5
+    }
+
+    /**
+     * Converts local civil birth time to JD using IANA timezone rules when possible.
+     * Falls back to fixed UTC offset if timezoneId is invalid/unavailable.
+     */
+    fun julianDayFromLocalDateTime(
+        year: Int,
+        month: Int,
+        day: Int,
+        hour: Int,
+        minute: Int,
+        timezoneId: String,
+        fallbackUtcOffsetHours: Double,
+    ): Double {
+        try {
+            val tz = TimeZone.of(timezoneId)
+            val local = LocalDateTime(year, month, day, hour, minute)
+            val utc = local.toInstant(tz).toLocalDateTime(TimeZone.UTC)
+            val utHours = utc.hour + utc.minute / 60.0 + utc.second / 3600.0
+            return julianDay(utc.year, utc.monthNumber, utc.dayOfMonth, utHours)
+        } catch (_: Exception) {
+            val utHours = hour + minute / 60.0 - fallbackUtcOffsetHours
+            return julianDay(year, month, day, utHours)
+        }
     }
 
     fun centuriesSinceJ2000(jd: Double): Double = (jd - 2451545.0) / 36525.0
@@ -252,6 +286,72 @@ object AstronomicalCalculator {
         }
     }
 
+    /**
+     * Sunrise/sunset decimals in local clock hours (0..24 wrap allowed), using Meeus-style solar model.
+     */
+    fun calculateSunTimesDecimal(
+        lat: Double,
+        lng: Double,
+        year: Int,
+        month: Int,
+        day: Int,
+        utcOffsetHours: Double,
+    ): SunTimesDecimal {
+        val jdNoon = julianDay(year, month, day, 12.0 - utcOffsetHours)
+        val t = centuriesSinceJ2000(jdNoon)
+
+        val l0 = normalize360(280.46646 + 36000.76983 * t + 0.0003032 * t * t)
+        val m = normalize360(357.52911 + 35999.05029 * t - 0.0001537 * t * t)
+        val mRad = m * PI / 180.0
+
+        val c = (1.914602 - 0.004817 * t - 0.000014 * t * t) * sin(mRad) +
+                (0.019993 - 0.000101 * t) * sin(2 * mRad) +
+                0.000289 * sin(3 * mRad)
+
+        val sunTrueLong = l0 + c
+        val omega = normalize360(125.04 - 1934.136 * t)
+        val apparentLong = sunTrueLong - 0.00569 - 0.00478 * sin(omega * PI / 180.0)
+
+        val obliquity0 = 23.439291 - 0.0130042 * t
+        val obliquity = obliquity0 + 0.00256 * cos(omega * PI / 180.0)
+        val oblRad = obliquity * PI / 180.0
+
+        val declination = asin(sin(oblRad) * sin(apparentLong * PI / 180.0)) * 180.0 / PI
+
+        val raRad = atan2(
+            cos(oblRad) * sin(apparentLong * PI / 180.0),
+            cos(apparentLong * PI / 180.0)
+        )
+        val ra = normalize360(raRad * 180.0 / PI)
+
+        var eotDeg = l0 - 0.0057183 - ra
+        while (eotDeg > 180.0) eotDeg -= 360.0
+        while (eotDeg < -180.0) eotDeg += 360.0
+        val eotMinutes = eotDeg * 4.0
+
+        val latRad = lat * PI / 180.0
+        val declRad = declination * PI / 180.0
+        val cosHA = (sin(-0.8333 * PI / 180.0) - sin(latRad) * sin(declRad)) /
+                (cos(latRad) * cos(declRad))
+
+        val hourAngle = when {
+            cosHA < -1.0 -> 180.0
+            cosHA > 1.0 -> 0.0
+            else -> acos(cosHA) * 180.0 / PI
+        }
+
+        val standardMeridian = utcOffsetHours * 15.0
+        val longitudeCorrection = (standardMeridian - lng) * 4.0
+        val solarNoonMinutes = 720.0 + longitudeCorrection - eotMinutes
+        val solarNoon = solarNoonMinutes / 60.0
+
+        val halfDayHours = hourAngle / 15.0
+        return SunTimesDecimal(
+            sunriseDecimal = solarNoon - halfDayHours,
+            sunsetDecimal = solarNoon + halfDayHours,
+        )
+    }
+
     // Utility
 
     fun normalize360(degrees: Double): Double {
@@ -261,9 +361,13 @@ object AstronomicalCalculator {
     }
 
     fun formatTime(decimalHours: Double): String {
-        val clamped = decimalHours.coerceIn(0.0, 23.999)
-        val hours = clamped.toInt()
-        val minutes = ((clamped - hours) * 60 + 0.5).toInt().coerceIn(0, 59)
+        var wrapped = decimalHours % 24.0
+        if (wrapped < 0.0) wrapped += 24.0
+
+        val totalMinutesRounded = ((wrapped * 60.0) + 0.5).toInt()
+        val normalizedMinutes = ((totalMinutesRounded % (24 * 60)) + (24 * 60)) % (24 * 60)
+        val hours = normalizedMinutes / 60
+        val minutes = normalizedMinutes % 60
         val displayHour: Int
         val amPm: String
         if (hours < 12) {

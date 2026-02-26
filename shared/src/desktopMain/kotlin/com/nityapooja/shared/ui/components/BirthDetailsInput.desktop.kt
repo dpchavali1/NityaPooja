@@ -82,6 +82,3 @@ actual fun PlatformTimePicker(
     )
 }
 
-actual suspend fun searchPlaces(query: String): List<PlaceResult> {
-    return searchFallbackCities(query)
-}

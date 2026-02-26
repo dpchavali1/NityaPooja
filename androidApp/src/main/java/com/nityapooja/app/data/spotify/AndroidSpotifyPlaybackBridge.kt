@@ -13,10 +13,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import com.nityapooja.shared.data.preferences.UserPreferencesManager
 
 class AndroidSpotifyPlaybackBridge(
     private val spotifyManager: SpotifyManager,
     private val spotifyApi: SpotifyApi,
+    preferencesManager: UserPreferencesManager,
 ) : SpotifyPlaybackBridge {
 
     companion object {
@@ -27,6 +29,9 @@ class AndroidSpotifyPlaybackBridge(
 
     override val isConnected: StateFlow<Boolean> = spotifyManager.connectionStatus
         .map { it == SpotifyConnectionStatus.CONNECTED }
+        .stateIn(scope, SharingStarted.WhileSubscribed(5000), false)
+
+    override val isLinked: StateFlow<Boolean> = preferencesManager.spotifyLinked
         .stateIn(scope, SharingStarted.WhileSubscribed(5000), false)
 
     override val playerState: StateFlow<SpotifyBridgePlayerState> = spotifyManager.playerState

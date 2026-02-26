@@ -16,7 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nityapooja.shared.ui.theme.TempleGold
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.math.abs
 import kotlin.math.round
 
@@ -34,6 +42,7 @@ data class BirthDetails(
     val city: String = "Hyderabad",
     val latitude: Double = 17.385,
     val longitude: Double = 78.4867,
+    val timezoneId: String = "Asia/Kolkata",
     val timezoneOffsetHours: Double = 5.5,
 )
 
@@ -70,14 +79,78 @@ data class PlaceResult(
     val subtitle: String,
     val lat: Double,
     val lng: Double,
+    val timezoneId: String,
     val tzOffsetHours: Double,
 )
 
+@Serializable
+private data class NominatimResult(
+    @SerialName("display_name") val displayName: String = "",
+    val lat: String = "0",
+    val lon: String = "0",
+    val name: String = "",
+    val type: String = "",
+    val address: NominatimAddress? = null,
+)
+
+@Serializable
+private data class NominatimAddress(
+    val city: String? = null,
+    val town: String? = null,
+    val village: String? = null,
+    val state: String? = null,
+    val country: String? = null,
+    @SerialName("country_code") val countryCode: String? = null,
+)
+
+private val nominatimJson = Json { ignoreUnknownKeys = true }
+
 /**
- * Platform-specific place search function.
- * Returns list of matching places for the given query.
+ * Searches for places using OpenStreetMap Nominatim API, with fallback to
+ * the hardcoded city list if the API call fails.
  */
-expect suspend fun searchPlaces(query: String): List<PlaceResult>
+suspend fun searchPlaces(query: String): List<PlaceResult> {
+    return try {
+        val client = HttpClient()
+        val response: String = client.get("https://nominatim.openstreetmap.org/search") {
+            parameter("q", query)
+            parameter("format", "json")
+            parameter("addressdetails", "1")
+            parameter("limit", "8")
+            parameter("accept-language", "en")
+            header("User-Agent", "NityaPooja/1.0")
+        }.body()
+        client.close()
+
+        val results = nominatimJson.decodeFromString<List<NominatimResult>>(response)
+        if (results.isEmpty()) {
+            return searchFallbackCities(query)
+        }
+        results.map { r ->
+            val lat = r.lat.toDoubleOrNull() ?: 0.0
+            val lng = r.lon.toDoubleOrNull() ?: 0.0
+            val cityName = r.address?.city ?: r.address?.town ?: r.address?.village ?: r.name
+            val country = r.address?.country ?: ""
+            val state = r.address?.state ?: ""
+            val subtitle = listOfNotNull(
+                state.takeIf { it.isNotBlank() },
+                country.takeIf { it.isNotBlank() },
+            ).joinToString(", ")
+            val tzOffset = getTimezoneOffsetFromCoords(lat, lng)
+            val timezoneId = inferTimezoneIdFromCoords(lat, lng, r.address?.countryCode ?: "")
+            PlaceResult(
+                displayName = cityName,
+                subtitle = subtitle,
+                lat = lat,
+                lng = lng,
+                timezoneId = timezoneId,
+                tzOffsetHours = tzOffset,
+            )
+        }
+    } catch (_: Exception) {
+        searchFallbackCities(query)
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -214,12 +287,13 @@ fun BirthDetailsInput(
                 currentCity = details.city,
                 currentLat = details.latitude,
                 currentLng = details.longitude,
-                onPlaceSelected = { city, lat, lng, tzOffset ->
+                onPlaceSelected = { city, lat, lng, timezoneId, tzOffset ->
                     onDetailsChange(
                         details.copy(
                             city = city,
                             latitude = lat,
                             longitude = lng,
+                            timezoneId = timezoneId,
                             timezoneOffsetHours = tzOffset,
                         )
                     )
@@ -231,11 +305,11 @@ fun BirthDetailsInput(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PlaceSearchField(
+internal fun PlaceSearchField(
     currentCity: String,
     currentLat: Double,
     currentLng: Double,
-    onPlaceSelected: (city: String, lat: Double, lng: Double, tzOffset: Double) -> Unit,
+    onPlaceSelected: (city: String, lat: Double, lng: Double, timezoneId: String, tzOffset: Double) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -244,6 +318,7 @@ private fun PlaceSearchField(
     var suggestions by remember { mutableStateOf<List<PlaceResult>>(emptyList()) }
     var showSuggestions by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    var searchJob by remember { mutableStateOf<Job?>(null) }
 
     val coordsText = remember(currentLat, currentLng) {
         val latDir = if (currentLat >= 0) "N" else "S"
@@ -292,9 +367,11 @@ private fun PlaceSearchField(
                 value = query,
                 onValueChange = { newQuery ->
                     query = newQuery
+                    searchJob?.cancel()
                     if (newQuery.length >= 2) {
-                        scope.launch {
-                            isLoading = true
+                        isLoading = true
+                        searchJob = scope.launch {
+                            delay(300)
                             suggestions = searchPlaces(newQuery)
                             showSuggestions = suggestions.isNotEmpty()
                             isLoading = false
@@ -302,6 +379,7 @@ private fun PlaceSearchField(
                     } else {
                         suggestions = emptyList()
                         showSuggestions = false
+                        isLoading = false
                     }
                 },
                 label = { Text("నగరం / City or Place") },
@@ -348,7 +426,13 @@ private fun PlaceSearchField(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        onPlaceSelected(place.displayName, place.lat, place.lng, place.tzOffsetHours)
+                                        onPlaceSelected(
+                                            place.displayName,
+                                            place.lat,
+                                            place.lng,
+                                            place.timezoneId,
+                                            place.tzOffsetHours,
+                                        )
                                         query = ""
                                         suggestions = emptyList()
                                         showSuggestions = false
@@ -377,11 +461,18 @@ private fun PlaceSearchField(
                                     )
                                 }
                                 val sign = if (place.tzOffsetHours >= 0) "+" else ""
-                                Text(
-                                    "UTC$sign${place.tzOffsetHours}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = TempleGold,
-                                )
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text(
+                                        "UTC$sign${place.tzOffsetHours}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = TempleGold,
+                                    )
+                                    Text(
+                                        place.timezoneId.substringAfter('/'),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                             if (place != suggestions.last()) {
                                 HorizontalDivider(
@@ -407,6 +498,7 @@ internal data class FallbackCity(
     val lat: Double,
     val lng: Double,
     val tzOffset: Double,
+    val timezoneId: String = "",
 )
 
 internal val FALLBACK_CITIES = listOf(
@@ -528,6 +620,7 @@ fun searchFallbackCities(query: String): List<PlaceResult> {
         .filter { it.name.lowercase().contains(lowerQuery) }
         .take(8)
         .map { city ->
+            val timezoneId = city.timezoneId.ifBlank { inferTimezoneId(city) }
             val latStr = "${city.lat.toInt()}.${((kotlin.math.abs(city.lat) - kotlin.math.abs(city.lat).toInt()) * 100).toInt().toString().padStart(2, '0')}"
             val lngStr = "${city.lng.toInt()}.${((kotlin.math.abs(city.lng) - kotlin.math.abs(city.lng).toInt()) * 100).toInt().toString().padStart(2, '0')}"
             PlaceResult(
@@ -535,9 +628,147 @@ fun searchFallbackCities(query: String): List<PlaceResult> {
                 subtitle = "${city.country} ($latStr°, $lngStr°)",
                 lat = city.lat,
                 lng = city.lng,
+                timezoneId = timezoneId,
                 tzOffsetHours = city.tzOffset,
             )
         }
+}
+
+private fun inferTimezoneId(city: FallbackCity): String {
+    return when (city.country) {
+        "India" -> "Asia/Kolkata"
+        "USA" -> when (city.name) {
+            "Phoenix" -> "America/Phoenix"
+            "New York", "Atlanta", "Boston", "Washington DC", "Edison", "Jersey City" -> "America/New_York"
+            "Chicago", "Houston", "Dallas", "Irving", "Plano" -> "America/Chicago"
+            "Denver" -> "America/Denver"
+            "Los Angeles", "San Francisco", "Seattle", "Fremont", "Sunnyvale", "San Jose" -> "America/Los_Angeles"
+            else -> if (city.lng <= -100.0) "America/Chicago" else "America/New_York"
+        }
+        "UK" -> "Europe/London"
+        "France" -> "Europe/Paris"
+        "Germany" -> "Europe/Berlin"
+        "Netherlands" -> "Europe/Amsterdam"
+        "Italy" -> "Europe/Rome"
+        "Spain" -> "Europe/Madrid"
+        "Russia" -> "Europe/Moscow"
+        "UAE" -> "Asia/Dubai"
+        "Saudi Arabia" -> "Asia/Riyadh"
+        "Qatar" -> "Asia/Qatar"
+        "Kuwait" -> "Asia/Kuwait"
+        "Oman" -> "Asia/Muscat"
+        "Singapore" -> "Asia/Singapore"
+        "Japan" -> "Asia/Tokyo"
+        "China" -> "Asia/Shanghai"
+        "Thailand" -> "Asia/Bangkok"
+        "Australia" -> when (city.name) {
+            "Perth" -> "Australia/Perth"
+            "Adelaide" -> "Australia/Adelaide"
+            "Darwin" -> "Australia/Darwin"
+            "Brisbane" -> "Australia/Brisbane"
+            "Melbourne", "Sydney" -> "Australia/Sydney"
+            else -> "Australia/Sydney"
+        }
+        "New Zealand" -> "Pacific/Auckland"
+        "Malaysia" -> "Asia/Kuala_Lumpur"
+        "Indonesia" -> "Asia/Jakarta"
+        "South Korea" -> "Asia/Seoul"
+        "Philippines" -> "Asia/Manila"
+        "Pakistan" -> "Asia/Karachi"
+        "Bangladesh" -> "Asia/Dhaka"
+        "Sri Lanka" -> "Asia/Colombo"
+        "Nepal" -> "Asia/Kathmandu"
+        "South Africa" -> "Africa/Johannesburg"
+        "Kenya" -> "Africa/Nairobi"
+        "Nigeria" -> "Africa/Lagos"
+        "Egypt" -> "Africa/Cairo"
+        "Canada" -> when (city.name) {
+            "Vancouver" -> "America/Vancouver"
+            else -> "America/Toronto"
+        }
+        "Brazil" -> "America/Sao_Paulo"
+        "Mexico" -> "America/Mexico_City"
+        else -> {
+            // Best-effort fallback from longitude when country mapping is unavailable.
+            when {
+                city.lng in 68.0..98.0 -> "Asia/Kolkata"
+                city.lng in -130.0..-105.0 -> "America/Los_Angeles"
+                city.lng in -105.0..-88.0 -> "America/Chicago"
+                city.lng in -88.0..-60.0 -> "America/New_York"
+                city.lng in -11.0..2.0 -> "Europe/London"
+                city.lng in 2.0..16.0 -> "Europe/Berlin"
+                city.lng in 16.0..35.0 -> "Europe/Athens"
+                city.lng in 35.0..60.0 -> "Asia/Dubai"
+                city.lng in 95.0..125.0 -> "Asia/Bangkok"
+                city.lng in 125.0..150.0 -> "Asia/Tokyo"
+                else -> "UTC"
+            }
+        }
+    }
+}
+
+/**
+ * Infers timezone ID from coordinates and country code for Nominatim results.
+ */
+private fun inferTimezoneIdFromCoords(lat: Double, lng: Double, countryCode: String): String {
+    return when (countryCode.lowercase()) {
+        "in" -> "Asia/Kolkata"
+        "us" -> when {
+            lng < -115.0 -> "America/Los_Angeles"
+            lng < -100.0 -> "America/Denver"
+            lng < -85.0 -> "America/Chicago"
+            else -> "America/New_York"
+        }
+        "gb" -> "Europe/London"
+        "fr" -> "Europe/Paris"
+        "de" -> "Europe/Berlin"
+        "nl" -> "Europe/Amsterdam"
+        "it" -> "Europe/Rome"
+        "es" -> "Europe/Madrid"
+        "ru" -> "Europe/Moscow"
+        "ae" -> "Asia/Dubai"
+        "sa" -> "Asia/Riyadh"
+        "qa" -> "Asia/Qatar"
+        "kw" -> "Asia/Kuwait"
+        "om" -> "Asia/Muscat"
+        "sg" -> "Asia/Singapore"
+        "jp" -> "Asia/Tokyo"
+        "cn", "hk" -> "Asia/Shanghai"
+        "th" -> "Asia/Bangkok"
+        "au" -> if (lng < 130.0) "Australia/Perth" else "Australia/Sydney"
+        "nz" -> "Pacific/Auckland"
+        "my" -> "Asia/Kuala_Lumpur"
+        "id" -> "Asia/Jakarta"
+        "kr" -> "Asia/Seoul"
+        "ph" -> "Asia/Manila"
+        "pk" -> "Asia/Karachi"
+        "bd" -> "Asia/Dhaka"
+        "lk" -> "Asia/Colombo"
+        "np" -> "Asia/Kathmandu"
+        "za" -> "Africa/Johannesburg"
+        "ke" -> "Africa/Nairobi"
+        "ng" -> "Africa/Lagos"
+        "eg" -> "Africa/Cairo"
+        "ca" -> if (lng < -100.0) "America/Vancouver" else "America/Toronto"
+        "br" -> "America/Sao_Paulo"
+        "mx" -> "America/Mexico_City"
+        else -> {
+            // Longitude-based fallback
+            when {
+                lat in 6.0..37.0 && lng in 68.0..98.0 -> "Asia/Kolkata"
+                lng in -130.0..-105.0 -> "America/Los_Angeles"
+                lng in -105.0..-88.0 -> "America/Chicago"
+                lng in -88.0..-60.0 -> "America/New_York"
+                lng in -11.0..2.0 -> "Europe/London"
+                lng in 2.0..16.0 -> "Europe/Berlin"
+                lng in 16.0..35.0 -> "Europe/Athens"
+                lng in 35.0..60.0 -> "Asia/Dubai"
+                lng in 95.0..125.0 -> "Asia/Bangkok"
+                lng in 125.0..150.0 -> "Asia/Tokyo"
+                else -> "UTC"
+            }
+        }
+    }
 }
 
 /**

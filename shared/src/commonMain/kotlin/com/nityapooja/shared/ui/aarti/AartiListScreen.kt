@@ -3,6 +3,7 @@ package com.nityapooja.shared.ui.aarti
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -31,6 +32,7 @@ fun AartiListScreen(
     viewModel: AartiViewModel = koinViewModel(),
     onAartiClick: (Int) -> Unit = {},
     onBack: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val aartis by viewModel.allAartis.collectAsState()
     val deityMap by viewModel.deityMap.collectAsState()
@@ -80,6 +82,7 @@ fun AartiListScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                item(span = { GridItemSpan(maxLineSpan) }) { bannerAd?.invoke() }
                 items(aartis, key = { it.id }) { aarti ->
                     val deity = deityMap[aarti.deityId]
                     AartiTile(

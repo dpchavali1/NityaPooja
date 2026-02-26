@@ -41,6 +41,7 @@ fun NityaPoojaApp(
     spotifyLinked: Boolean = false,
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val preferencesManager = koinInject<UserPreferencesManager>()
     var onboardingDone by remember { mutableStateOf<Boolean?>(null) }
@@ -100,6 +101,7 @@ fun NityaPoojaApp(
                     spotifyLinked = spotifyLinked,
                     spotifyConnecting = spotifyConnecting,
                     spotifyInstalled = spotifyInstalled,
+                    bannerAd = bannerAd,
                 )
             }
         }

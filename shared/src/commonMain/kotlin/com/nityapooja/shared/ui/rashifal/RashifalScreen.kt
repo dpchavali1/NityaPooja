@@ -3,6 +3,7 @@ package com.nityapooja.shared.ui.rashifal
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -29,6 +30,7 @@ import com.nityapooja.shared.ui.theme.TempleGold
 fun RashifalScreen(
     viewModel: RashifalViewModel = koinViewModel(),
     onBack: () -> Unit,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val rashis by viewModel.rashis.collectAsState()
     val selectedRashi by viewModel.selectedRashi.collectAsState()
@@ -96,6 +98,7 @@ fun RashifalScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    item(span = { GridItemSpan(maxLineSpan) }) { bannerAd?.invoke() }
                     items(rashis, key = { it.id }) { rashi ->
                         RashiGridItem(
                             rashi = rashi,
@@ -145,7 +148,7 @@ private fun RashiGridItem(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                rashi.dateRange,
+                "జన్మ రాశి ఫలితం",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
@@ -227,7 +230,7 @@ private fun RashiPredictionDialog(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Text(
-                        rashi.dateRange,
+                        "చంద్ర/జన్మ రాశి ఆధారంగా",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )

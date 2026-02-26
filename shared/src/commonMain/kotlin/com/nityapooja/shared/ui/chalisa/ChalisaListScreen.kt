@@ -3,6 +3,7 @@ package com.nityapooja.shared.ui.chalisa
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -28,6 +29,7 @@ fun ChalisaListScreen(
     viewModel: ChalisaViewModel = koinViewModel(),
     onChalisaClick: (Int) -> Unit,
     onBack: () -> Unit,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val chalisas by viewModel.chalisas.collectAsState()
 
@@ -81,7 +83,10 @@ fun ChalisaListScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    items(chalisas, key = { it.id }) { chalisa ->
+                    itemsIndexed(chalisas, key = { _, it -> it.id }) { index, chalisa ->
+                        if (index == 3) {
+                            bannerAd?.invoke()
+                        }
                         ChalisaListItem(
                             chalisa = chalisa,
                             onClick = { onChalisaClick(chalisa.id) },

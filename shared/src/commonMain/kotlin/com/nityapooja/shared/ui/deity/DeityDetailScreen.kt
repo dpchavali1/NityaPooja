@@ -41,6 +41,7 @@ fun DeityDetailScreen(
     onChalisaClick: (Int) -> Unit = {},
     onSuprabhatamClick: (Int) -> Unit = {},
     onAshtotraClick: (Int) -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
     viewModel: DeityViewModel = koinViewModel(),
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
 ) {
@@ -162,6 +163,9 @@ fun DeityDetailScreen(
                         }
                     }
                 }
+
+                // Banner Ad
+                item { bannerAd?.invoke() }
 
                 // Tab Row
                 item {

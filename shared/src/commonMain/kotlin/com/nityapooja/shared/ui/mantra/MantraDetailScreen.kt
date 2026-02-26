@@ -40,6 +40,7 @@ fun MantraDetailScreen(
     audioViewModel: AudioPlayerViewModel,
     viewModel: MantraViewModel = koinViewModel(),
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val mantra by remember(mantraId) { viewModel.getMantraById(mantraId) }
         .collectAsState(initial = null)
@@ -48,6 +49,7 @@ fun MantraDetailScreen(
     val fontScale = fontSize / 16f
     val audioState by audioViewModel.state.collectAsState()
     val isSpotifyConnected by audioViewModel.isSpotifyConnected.collectAsState()
+    val isSpotifyLinked by audioViewModel.isSpotifyLinked.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -101,7 +103,7 @@ fun MantraDetailScreen(
 
                 FloatingActionButton(
                     onClick = {
-                        if (isSpotifyConnected) {
+                        if (isSpotifyConnected || isSpotifyLinked) {
                             if (isCurrentTrackPlaying) {
                                 audioViewModel.togglePlayPause()
                             } else {
@@ -118,8 +120,8 @@ fun MantraDetailScreen(
                             }
                         }
                     },
-                    containerColor = if (isSpotifyConnected) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (isSpotifyConnected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    containerColor = if (isSpotifyConnected || isSpotifyLinked) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (isSpotifyConnected || isSpotifyLinked) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
                     Icon(
                         if (isCurrentTrackPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -168,6 +170,8 @@ fun MantraDetailScreen(
                 }
 
                 Spacer(Modifier.height(24.dp))
+
+                bannerAd?.invoke()
 
                 m.meaningTelugu?.let {
                     Text(

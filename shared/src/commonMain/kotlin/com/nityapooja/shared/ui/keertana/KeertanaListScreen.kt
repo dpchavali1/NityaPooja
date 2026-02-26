@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,6 +28,7 @@ fun KeertanaListScreen(
     viewModel: KeertanaViewModel = koinViewModel(),
     onKeertanaClick: (Int) -> Unit,
     onBack: () -> Unit,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val keertanalu by viewModel.filteredKeertanalu.collectAsState()
     val composers by viewModel.composers.collectAsState()
@@ -131,7 +133,10 @@ fun KeertanaListScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(keertanalu, key = { it.id }) { keertana ->
+                    itemsIndexed(keertanalu, key = { _, it -> it.id }) { index, keertana ->
+                        if (index == 3) {
+                            bannerAd?.invoke()
+                        }
                         KeertanaListItem(
                             keertana = keertana,
                             onClick = { onKeertanaClick(keertana.id) },

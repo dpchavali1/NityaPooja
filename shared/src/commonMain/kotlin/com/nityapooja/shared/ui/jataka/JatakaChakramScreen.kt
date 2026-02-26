@@ -84,6 +84,7 @@ fun JatakaChakramScreen(
                             minute = birthDetails.minute,
                             latitude = birthDetails.latitude,
                             longitude = birthDetails.longitude,
+                            timezoneId = birthDetails.timezoneId,
                             utcOffsetHours = birthDetails.timezoneOffsetHours,
                         )
                     },

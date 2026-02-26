@@ -40,6 +40,7 @@ class AudioPlayerViewModel(
     private val _isBuffering = MutableStateFlow(false)
 
     val isSpotifyConnected: StateFlow<Boolean> = spotifyBridge.isConnected
+    val isSpotifyLinked: StateFlow<Boolean> = spotifyBridge.isLinked
 
     val state: StateFlow<AudioPlayerState> = combine(
         audioPlayer.playbackState,

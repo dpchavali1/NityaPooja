@@ -25,6 +25,7 @@ import com.nityapooja.shared.ui.home.HomeViewModel
 import com.nityapooja.shared.ui.japa.JapaViewModel
 import com.nityapooja.shared.ui.jataka.JatakaChakramViewModel
 import com.nityapooja.shared.ui.keertana.KeertanaViewModel
+import com.nityapooja.shared.ui.mantra.MantraChantingViewModel
 import com.nityapooja.shared.ui.mantra.MantraViewModel
 import com.nityapooja.shared.ui.onboarding.OnboardingViewModel
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
@@ -106,6 +107,7 @@ val sharedModule = module {
     viewModelOf(::JapaViewModel)
     viewModelOf(::JatakaChakramViewModel)
     viewModelOf(::KeertanaViewModel)
+    viewModelOf(::MantraChantingViewModel)
     viewModelOf(::MantraViewModel)
     viewModelOf(::OnboardingViewModel)
     viewModelOf(::PanchangamViewModel)

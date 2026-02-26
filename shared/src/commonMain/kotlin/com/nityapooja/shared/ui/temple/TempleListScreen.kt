@@ -3,6 +3,7 @@ package com.nityapooja.shared.ui.temple
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -30,6 +31,7 @@ fun TempleListScreen(
     viewModel: TempleViewModel = koinViewModel(),
     onTempleClick: (Int) -> Unit,
     onBack: () -> Unit,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val temples by viewModel.allTemples.collectAsState()
 
@@ -89,7 +91,10 @@ fun TempleListScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    items(temples, key = { it.id }) { temple ->
+                    itemsIndexed(temples, key = { _, it -> it.id }) { index, temple ->
+                        if (index == 3) {
+                            bannerAd?.invoke()
+                        }
                         TempleListItem(
                             temple = temple,
                             onClick = { onTempleClick(temple.id) },

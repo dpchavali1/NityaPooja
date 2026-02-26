@@ -42,6 +42,7 @@ fun HomeScreen(
     onNavigateToRashifal: () -> Unit = {},
     onNavigateToBookmark: (String, Int) -> Unit = { _, _ -> },
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val deities by viewModel.deities.collectAsState()
     val todayShloka by viewModel.todayShloka.collectAsState()
@@ -276,6 +277,8 @@ fun HomeScreen(
                     }
                 }
             }
+
+            item { bannerAd?.invoke() }
 
             // Upcoming Festivals Countdown
             if (upcomingFestivals.isNotEmpty()) {

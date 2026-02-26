@@ -63,3 +63,6 @@ Thumbs.db
 # Secrets
 *.env
 iosApp/Secrets.xcconfig
+
+# CocoaPods
+iosApp/Pods/

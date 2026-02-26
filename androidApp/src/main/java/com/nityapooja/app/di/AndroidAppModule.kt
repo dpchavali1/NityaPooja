@@ -16,6 +16,6 @@ val androidAppModule = module {
         clientSecret = BuildConfig.SPOTIFY_CLIENT_SECRET,
     ) }
     single { SpotifyManager(androidContext(), get()) }
-    single<SpotifyPlaybackBridge> { AndroidSpotifyPlaybackBridge(get(), get()) }
+    single<SpotifyPlaybackBridge> { AndroidSpotifyPlaybackBridge(get(), get(), get()) }
     single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
 }

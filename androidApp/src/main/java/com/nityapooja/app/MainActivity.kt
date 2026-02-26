@@ -16,6 +16,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.nityapooja.app.data.spotify.SpotifyConnectionStatus
 import com.nityapooja.app.data.spotify.SpotifyManager
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
+import com.nityapooja.app.ui.components.BannerAd
 import com.nityapooja.shared.ui.NityaPoojaApp
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
                 spotifyLinked = spotifyLinkedPref || connectionStatus == SpotifyConnectionStatus.CONNECTED,
                 spotifyConnecting = connectionStatus == SpotifyConnectionStatus.CONNECTING,
                 spotifyInstalled = spotifyManager.isSpotifyInstalled(),
+                bannerAd = { BannerAd() },
             )
         }
     }

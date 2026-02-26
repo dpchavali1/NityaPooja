@@ -18,9 +18,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nityapooja.shared.platform.PlatformSoundEffect
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.theme.*
 import kotlinx.coroutines.delay
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,9 +37,7 @@ fun PoojaTimerScreen(
     var isPaused by remember { mutableStateOf(false) }
     var bellInterval by remember { mutableIntStateOf(5) }
     val bellIntervals = listOf(0, 1, 3, 5, 10)
-
-    // TODO: Add keep-screen-on via expect/actual (was Android View.keepScreenOn)
-    // TODO: Add bell sound via expect/actual (was Android ToneGenerator)
+    val soundEffect = koinInject<PlatformSoundEffect>()
 
     // Timer countdown
     LaunchedEffect(isRunning, isPaused) {
@@ -49,13 +49,16 @@ fun PoojaTimerScreen(
                     // Bell at intervals
                     val elapsed = totalSeconds - remainingSeconds
                     if (bellInterval > 0 && elapsed > 0 && elapsed % (bellInterval * 60) == 0) {
-                        // TODO: playBell via expect/actual
+                        soundEffect.playBellSound()
                     }
                 }
             }
             if (remainingSeconds == 0 && totalSeconds > 0) {
-                // Timer complete
-                // TODO: play completion bell via expect/actual
+                // Timer complete — play 3 bell rings
+                repeat(3) {
+                    soundEffect.playBellSound()
+                    delay(600)
+                }
                 isRunning = false
                 isPaused = false
             }

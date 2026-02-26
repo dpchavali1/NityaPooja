@@ -41,6 +41,7 @@ fun AartiDetailScreen(
     audioViewModel: AudioPlayerViewModel,
     viewModel: AartiViewModel = koinViewModel(),
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val aarti by viewModel.getAartiById(aartiId)
         .collectAsState(initial = null)
@@ -49,6 +50,7 @@ fun AartiDetailScreen(
     val fontScale = fontSize / 16f
     val audioState by audioViewModel.state.collectAsState()
     val isSpotifyConnected by audioViewModel.isSpotifyConnected.collectAsState()
+    val isSpotifyLinked by audioViewModel.isSpotifyLinked.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -112,7 +114,7 @@ fun AartiDetailScreen(
 
                 FloatingActionButton(
                     onClick = {
-                        if (isSpotifyConnected) {
+                        if (isSpotifyConnected || isSpotifyLinked) {
                             if (isCurrentTrackPlaying) {
                                 audioViewModel.togglePlayPause()
                             } else {
@@ -129,8 +131,8 @@ fun AartiDetailScreen(
                             }
                         }
                     },
-                    containerColor = if (isSpotifyConnected) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (isSpotifyConnected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    containerColor = if (isSpotifyConnected || isSpotifyLinked) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (isSpotifyConnected || isSpotifyLinked) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
                     Icon(
                         if (isCurrentTrackPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -148,6 +150,8 @@ fun AartiDetailScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
             ) {
+                bannerAd?.invoke()
+
                 // Telugu lyrics
                 currentAarti.lyricsTelugu?.let { lyrics ->
                     Text(

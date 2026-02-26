@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -45,6 +46,7 @@ import kotlinx.datetime.minus
 fun FestivalListScreen(
     viewModel: FestivalViewModel = koinViewModel(),
     onBack: () -> Unit,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val festivals by viewModel.allFestivals.collectAsState()
     var showCalendar by remember { mutableStateOf(false) }
@@ -117,7 +119,10 @@ fun FestivalListScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    items(festivals, key = { it.id }) { festival ->
+                    itemsIndexed(festivals, key = { _, it -> it.id }) { index, festival ->
+                        if (index == 3) {
+                            bannerAd?.invoke()
+                        }
                         FestivalListItem(festival = festival)
                     }
                 }

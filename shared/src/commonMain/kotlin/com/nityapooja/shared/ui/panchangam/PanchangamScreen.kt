@@ -29,9 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.clickable
 import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
+import com.nityapooja.shared.ui.components.PlaceSearchField
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.theme.*
 import com.nityapooja.shared.platform.shareText
@@ -41,6 +43,7 @@ import com.nityapooja.shared.platform.shareText
 fun PanchangamScreen(
     viewModel: PanchangamViewModel = koinViewModel(),
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val locationInfo by viewModel.locationInfo.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
@@ -48,6 +51,7 @@ fun PanchangamScreen(
     val fontScale = fontSize / 16f
 
     var showDatePicker by remember { mutableStateOf(false) }
+    var showLocationPicker by remember { mutableStateOf(false) }
 
     val panchangam = remember(locationInfo, selectedDate) {
         viewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone, selectedDate)
@@ -142,7 +146,12 @@ fun PanchangamScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Spacer(Modifier.height(4.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+                                    showLocationPicker = true
+                                },
+                            ) {
                                 Icon(
                                     Icons.Default.LocationOn,
                                     contentDescription = null,
@@ -154,6 +163,13 @@ fun PanchangamScreen(
                                     locationInfo.city,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = TempleGold,
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Change location",
+                                    tint = TempleGold.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(12.dp),
                                 )
                             }
                         }
@@ -225,6 +241,8 @@ fun PanchangamScreen(
                     SunTimeColumn(Icons.Default.WbTwilight, "సూర్యాస్తమయం", "Sunset", panchangam.sunTimes.sunset, DeepVermillion, fontScale)
                 }
             }
+
+            bannerAd?.invoke()
 
             // ═══════════════════════════════════════════
             // Panchangam Details (5 Angas)
@@ -358,6 +376,32 @@ fun PanchangamScreen(
 
             Spacer(Modifier.height(60.dp))
         }
+    }
+
+    // Location Picker Dialog
+    if (showLocationPicker) {
+        AlertDialog(
+            onDismissRequest = { showLocationPicker = false },
+            title = {
+                Text("ప్రదేశం మార్చండి / Change Location", style = MaterialTheme.typography.titleMedium)
+            },
+            text = {
+                PlaceSearchField(
+                    currentCity = locationInfo.city,
+                    currentLat = locationInfo.lat,
+                    currentLng = locationInfo.lng,
+                    onPlaceSelected = { city, lat, lng, timezoneId, _ ->
+                        viewModel.setLocation(city, lat, lng, timezoneId)
+                        showLocationPicker = false
+                    },
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showLocationPicker = false }) {
+                    Text("Cancel")
+                }
+            },
+        )
     }
 
     // Date Picker Dialog

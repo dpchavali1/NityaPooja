@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,8 +15,11 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetIn
 import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.math.*
 
@@ -362,8 +366,12 @@ private fun dayOfWeekToCalendarIndex(dow: DayOfWeek): Int {
 // ═══════════════════════════════════════════════════════════════
 
 class PanchangamViewModel(
-    preferencesManager: UserPreferencesManager,
+    private val preferencesManager: UserPreferencesManager,
 ) : ViewModel() {
+    private data class MasaComputation(
+        val info: MasaInfo,
+        val masaIndex: Int,
+    )
 
     val locationInfo: StateFlow<LocationInfo> = combine(
         preferencesManager.locationCity,
@@ -417,6 +425,10 @@ class PanchangamViewModel(
         selectDate(localDate.year, localDate.monthNumber, localDate.dayOfMonth)
     }
 
+    fun setLocation(city: String, lat: Double, lng: Double, timezone: String) {
+        viewModelScope.launch { preferencesManager.setLocation(city, lat, lng, timezone) }
+    }
+
     // ═══════════════════════════════════════════════════════════
     // Public API: compute full panchangam for a given location
     // ═══════════════════════════════════════════════════════════
@@ -428,39 +440,36 @@ class PanchangamViewModel(
     fun calculatePanchangam(lat: Double, lng: Double, timezone: String, date: SelectedDate?): PanchangamData {
         val tz = TimeZone.of(timezone)
         val now = Clock.System.now()
-        val localDateTime = now.toLocalDateTime(tz)
-        val localDt = now.toLocalDateTime(tz)
-        val utcDt = now.toLocalDateTime(TimeZone.UTC)
-        var offsetSec = (localDt.hour - utcDt.hour) * 3600 + (localDt.minute - utcDt.minute) * 60
-        if (offsetSec > 50400) offsetSec -= 86400
-        if (offsetSec < -50400) offsetSec += 86400
-        val utcOffsetHours = offsetSec / 3600.0
-        val isToday = date == null
-        val year: Int
-        val month: Int
-        val day: Int
-        val hour: Int
-        val minute: Int
-        val dayOfWeek: Int
-
-        if (date != null) {
-            year = date.year
-            month = date.month
-            day = date.day
-            hour = 12
-            minute = 0
-            // For a specific date, we need to figure out the day of week.
-            // Construct a LocalDate and get its dayOfWeek.
-            val selectedLocalDate = kotlinx.datetime.LocalDate(year, month, day)
-            dayOfWeek = dayOfWeekToCalendarIndex(selectedLocalDate.dayOfWeek)
+        var calculationInstant = if (date == null) {
+            now
         } else {
-            year = localDateTime.year
-            month = localDateTime.monthNumber
-            day = localDateTime.dayOfMonth
-            hour = localDateTime.hour
-            minute = localDateTime.minute
-            dayOfWeek = dayOfWeekToCalendarIndex(localDateTime.dayOfWeek)
+            LocalDateTime(date.year, date.month, date.day, 12, 0).toInstant(tz)
         }
+        var calculationLocalDateTime = calculationInstant.toLocalDateTime(tz)
+        var utcOffsetHours = calculationInstant.offsetIn(tz).totalSeconds / 3600.0
+        val isToday = date == null
+        val year = calculationLocalDateTime.year
+        val month = calculationLocalDateTime.monthNumber
+        val day = calculationLocalDateTime.dayOfMonth
+        var hour = calculationLocalDateTime.hour
+        var minute = calculationLocalDateTime.minute
+
+        // For selected dates, daily Panchangam should reflect sunrise-based day markers.
+        if (date != null) {
+            val approxSunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
+            val sunriseMinutes = (((approxSunTimes.sunriseDecimal % 24.0 + 24.0) % 24.0) * 60.0).roundToInt()
+            val sunriseHour = (sunriseMinutes / 60) % 24
+            val sunriseMinute = sunriseMinutes % 60
+
+            calculationInstant = LocalDateTime(year, month, day, sunriseHour, sunriseMinute).toInstant(tz)
+            calculationLocalDateTime = calculationInstant.toLocalDateTime(tz)
+            utcOffsetHours = calculationInstant.offsetIn(tz).totalSeconds / 3600.0
+            hour = calculationLocalDateTime.hour
+            minute = calculationLocalDateTime.minute
+        }
+
+        val dayOfWeek = dayOfWeekToCalendarIndex(calculationLocalDateTime.dayOfWeek)
+        val referenceDate = calculationLocalDateTime.date
 
         // Julian Day Number at current time (convert local time to UT)
         val utHours = hour + minute / 60.0 - utcOffsetHours
@@ -479,9 +488,9 @@ class PanchangamViewModel(
         val moonLong = normalize360(moonLongTropical - ayanamsa)
 
         // ── Core Panchangam Elements (using sidereal longitudes) ──
-        val tithi = calculateTithi(sunLong, moonLong, jd, ayanamsa, utcOffsetHours)
-        val nakshatra = calculateNakshatra(moonLong, jd, ayanamsa, utcOffsetHours)
-        val yoga = calculateYoga(sunLong, moonLong, jd, ayanamsa, utcOffsetHours)
+        val tithi = calculateTithi(sunLong, moonLong, jd, tz, referenceDate)
+        val nakshatra = calculateNakshatra(moonLong, jd, tz, referenceDate)
+        val yoga = calculateYoga(sunLong, moonLong, jd, tz, referenceDate)
         val karana = calculateKarana(sunLong, moonLong)
 
         // ── Rashi (zodiac sign) from sidereal longitudes ──
@@ -489,8 +498,9 @@ class PanchangamViewModel(
         val moonRashi = calculateRashi(moonLong)
 
         // ── Calendar elements ──
-        val samvatsara = calculateSamvatsara(year, month)
-        val masa = calculateMasa(sunLong)
+        val masaComputation = calculateMasa(jd)
+        val masa = masaComputation.info
+        val samvatsara = calculateSamvatsara(year, masaComputation.masaIndex)
         val ayana = calculateAyana(sunLong)
         val rutu = calculateRutu(sunLong)
 
@@ -681,64 +691,32 @@ class PanchangamViewModel(
         maxDaysAhead: Double,
         angleFunction: (Double) -> Double,
     ): Double {
-        // Step forward in coarse increments to find the interval containing the crossing
-        val stepDays = 1.0 / 24.0  // 1 hour steps
-        var jd1 = jdStart
-        var angle1 = angleFunction(jd1)
-        var jd2 = jd1
+        val startAngle = angleFunction(jdStart)
+        var targetDelta = normalize360(targetDegree - startAngle)
+        if (targetDelta == 0.0) targetDelta = 360.0
 
+        val stepDays = 1.0 / 24.0 // 1 hour
         val maxJd = jdStart + maxDaysAhead
+        var lo = jdStart
+        var hi = jdStart
         var found = false
 
-        while (jd2 < maxJd) {
-            jd2 = jd1 + stepDays
-            val angle2 = angleFunction(jd2)
-
-            // Check if the target falls between angle1 and angle2
-            // Handle wrap-around (e.g., 359° → 1°)
-            val crossed = if (abs(angle2 - angle1) < 180.0) {
-                // No wrap-around: simple check
-                (angle1 < targetDegree && targetDegree <= angle2) ||
-                        (angle1 > targetDegree && targetDegree >= angle2)
-            } else {
-                // Wrap-around occurred
-                // The target is between them if it's NOT in the non-wrapped range
-                val minA = minOf(angle1, angle2)
-                val maxA = maxOf(angle1, angle2)
-                targetDegree > maxA || targetDegree < minA
-            }
-
-            if (crossed) {
+        while (hi < maxJd) {
+            hi = (hi + stepDays).coerceAtMost(maxJd)
+            val delta = normalize360(angleFunction(hi) - startAngle)
+            if (delta >= targetDelta) {
                 found = true
                 break
             }
-
-            jd1 = jd2
-            angle1 = angle2
+            lo = hi
         }
 
-        if (!found) return jdStart + 1.0  // fallback: ~24h ahead
+        if (!found) return jdStart + 1.0
 
-        // Binary search within [jd1, jd2] for ~1-minute precision
-        var lo = jd1
-        var hi = jd2
-        repeat(20) { // 20 iterations = precision of ~0.08 seconds
+        repeat(24) {
             val mid = (lo + hi) / 2.0
-            val angleMid = angleFunction(mid)
-
-            val angle1Now = angleFunction(lo)
-
-            // Determine which half the crossing is in
-            val leftCrossed = if (abs(angleMid - angle1Now) < 180.0) {
-                (angle1Now < targetDegree && targetDegree <= angleMid) ||
-                        (angle1Now > targetDegree && targetDegree >= angleMid)
-            } else {
-                val minA = minOf(angle1Now, angleMid)
-                val maxA = maxOf(angle1Now, angleMid)
-                targetDegree > maxA || targetDegree < minA
-            }
-
-            if (leftCrossed) {
+            val delta = normalize360(angleFunction(mid) - startAngle)
+            if (delta >= targetDelta) {
                 hi = mid
             } else {
                 lo = mid
@@ -752,33 +730,23 @@ class PanchangamViewModel(
     // Convert JD to local time string (HH:MM AM/PM)
     // ═══════════════════════════════════════════════════════════
 
-    private fun jdToLocalTime(jd: Double, utcOffsetHours: Double): String {
-        // JD to UT hours of the day
-        val jdFloor = (jd + 0.5).toLong()
-        val utFraction = jd + 0.5 - jdFloor // fraction of day in UT
-        val utHoursOfDay = utFraction * 24.0
-        val localHours = utHoursOfDay + utcOffsetHours
-
-        // Handle day wrap
-        val adjustedHours = when {
-            localHours >= 24.0 -> localHours - 24.0
-            localHours < 0.0 -> localHours + 24.0
-            else -> localHours
-        }
-
-        return formatTime(adjustedHours)
+    private fun jdToLocalTime(jd: Double, timezone: TimeZone): Pair<String, LocalDate> {
+        val epochMillis = ((jd - 2440587.5) * 86_400_000.0).roundToLong()
+        val localDateTime = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(timezone)
+        val decimalHours = localDateTime.hour + localDateTime.minute / 60.0 + localDateTime.second / 3600.0
+        return Pair(formatTime(decimalHours), localDateTime.date)
     }
 
     /**
-     * Returns "Tomorrow HH:MM AM" if the JD is on the next day relative to [referenceJd].
+     * Returns local time with a day prefix when event spills outside [referenceDate].
      */
-    private fun jdToLocalTimeWithDay(jd: Double, utcOffsetHours: Double, referenceJd: Double): String {
-        val diffDays = jd - referenceJd
-        val timeStr = jdToLocalTime(jd, utcOffsetHours)
-        return if (diffDays > 0.8) {
-            "రేపు $timeStr"  // "Tomorrow" in Telugu
-        } else {
-            timeStr
+    private fun jdToLocalTimeWithDay(jd: Double, timezone: TimeZone, referenceDate: LocalDate): String {
+        val (timeStr, localDate) = jdToLocalTime(jd, timezone)
+        return when {
+            localDate == referenceDate -> timeStr
+            localDate == referenceDate.plus(1, DateTimeUnit.DAY) -> "రేపు $timeStr"
+            localDate == referenceDate.plus(-1, DateTimeUnit.DAY) -> "నిన్న $timeStr"
+            else -> "${localDate.dayOfMonth} ${localDate.monthNumber} $timeStr"
         }
     }
 
@@ -790,8 +758,8 @@ class PanchangamViewModel(
         sunLong: Double,
         moonLong: Double,
         jd: Double,
-        ayanamsa: Double,
-        utcOffsetHours: Double,
+        timezone: TimeZone,
+        referenceDate: LocalDate,
     ): TithiInfo {
         val elongation = normalize360(moonLong - sunLong)
         val tithiIndex = (elongation / 12.0).toInt().coerceIn(0, 29)
@@ -802,7 +770,7 @@ class PanchangamViewModel(
         // Find when this tithi ends: next 12° boundary
         val nextBoundary = ((tithiIndex + 1) * 12.0) % 360.0
         val endJd = findCrossingJD(jd, nextBoundary, 2.0) { siderealElongation(it) }
-        val endTimeStr = jdToLocalTimeWithDay(endJd, utcOffsetHours, jd)
+        val endTimeStr = jdToLocalTimeWithDay(endJd, timezone, referenceDate)
 
         return TithiInfo(
             index = tithiIndex,
@@ -821,8 +789,8 @@ class PanchangamViewModel(
     private fun calculateNakshatra(
         moonLong: Double,
         jd: Double,
-        ayanamsa: Double,
-        utcOffsetHours: Double,
+        timezone: TimeZone,
+        referenceDate: LocalDate,
     ): NakshatraInfo {
         val nakshatraDeg = 360.0 / 27.0  // 13.333°
         val index = (moonLong / nakshatraDeg).toInt().coerceIn(0, 26)
@@ -830,7 +798,7 @@ class PanchangamViewModel(
         // Find when this nakshatra ends
         val nextBoundary = ((index + 1) * nakshatraDeg) % 360.0
         val endJd = findCrossingJD(jd, nextBoundary, 2.0) { siderealMoonLong(it) }
-        val endTimeStr = jdToLocalTimeWithDay(endJd, utcOffsetHours, jd)
+        val endTimeStr = jdToLocalTimeWithDay(endJd, timezone, referenceDate)
 
         return NakshatraInfo(
             index = index,
@@ -848,8 +816,8 @@ class PanchangamViewModel(
         sunLong: Double,
         moonLong: Double,
         jd: Double,
-        ayanamsa: Double,
-        utcOffsetHours: Double,
+        timezone: TimeZone,
+        referenceDate: LocalDate,
     ): YogaInfo {
         val sum = normalize360(sunLong + moonLong)
         val yogaDeg = 360.0 / 27.0  // 13.333°
@@ -858,7 +826,7 @@ class PanchangamViewModel(
         // Find when this yoga ends
         val nextBoundary = ((index + 1) * yogaDeg) % 360.0
         val endJd = findCrossingJD(jd, nextBoundary, 2.0) { siderealSunMoonSum(it) }
-        val endTimeStr = jdToLocalTimeWithDay(endJd, utcOffsetHours, jd)
+        val endTimeStr = jdToLocalTimeWithDay(endJd, timezone, referenceDate)
 
         return YogaInfo(
             index = index,
@@ -915,9 +883,10 @@ class PanchangamViewModel(
     // Reference: 2024-25 = Krodhi = index 37
     // ═══════════════════════════════════════════════════════════
 
-    private fun calculateSamvatsara(year: Int, month: Int): SamvatsaraInfo {
-        // Before April (approx Ugadi), use previous year's samvatsara
-        val samvatsaraYear = if (month <= 3) year - 1 else year
+    private fun calculateSamvatsara(year: Int, masaIndex: Int): SamvatsaraInfo {
+        // Telugu year rolls over at Chaitra month start (Ugadi period).
+        // Magha/Phalguna still belong to previous samvatsara.
+        val samvatsaraYear = if (masaIndex >= 10) year - 1 else year
         // 2024 = Krodhi (index 37), so base offset is (samvatsaraYear - 2024 + 37) % 60
         val index = ((samvatsaraYear - 2024 + 37) % 60 + 60) % 60
         return SamvatsaraInfo(
@@ -927,16 +896,50 @@ class PanchangamViewModel(
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Masa (Telugu lunar month) — from Sun's sidereal longitude
-    // When Sun enters Mesha (0°) = Chaitra begins, etc.
+    // Masa (Telugu lunar month, Amanta tradition):
+    // Determine the month from the Sun's sidereal sign at the PREVIOUS new moon.
+    // Meena at Amavasya -> Chaitra, Mesha -> Vaishakha, ... Kumbha -> Phalguna.
+    // Also detect Adhika Masa if no Sankranti occurs between consecutive new moons.
     // ═══════════════════════════════════════════════════════════
 
-    private fun calculateMasa(sunSiderealLong: Double): MasaInfo {
-        val index = (sunSiderealLong / 30.0).toInt().coerceIn(0, 11)
-        return MasaInfo(
-            nameEnglish = MASA_NAMES_ENGLISH[index],
-            nameTelugu = MASA_NAMES_TELUGU[index],
+    private fun calculateMasa(jd: Double): MasaComputation {
+        val prevNewMoonJd = findPreviousNewMoonJd(jd)
+        val nextNewMoonJd = findNextNewMoonJd(prevNewMoonJd)
+
+        val prevNewMoonSunSidereal = siderealSunLongitude(prevNewMoonJd)
+        val nextNewMoonSunSidereal = siderealSunLongitude(nextNewMoonJd)
+
+        val prevSign = (prevNewMoonSunSidereal / 30.0).toInt().coerceIn(0, 11)
+        val nextSign = (nextNewMoonSunSidereal / 30.0).toInt().coerceIn(0, 11)
+
+        // Amanta month index is one sign ahead of Sun sign at Amavasya.
+        val masaIndex = (prevSign + 1) % 12
+        val isAdhikaMasa = prevSign == nextSign
+
+        val englishName = if (isAdhikaMasa) "Adhika ${MASA_NAMES_ENGLISH[masaIndex]}" else MASA_NAMES_ENGLISH[masaIndex]
+        val teluguName = if (isAdhikaMasa) "అధిక ${MASA_NAMES_TELUGU[masaIndex]}" else MASA_NAMES_TELUGU[masaIndex]
+
+        return MasaComputation(
+            info = MasaInfo(
+                nameEnglish = englishName,
+                nameTelugu = teluguName,
+            ),
+            masaIndex = masaIndex,
         )
+    }
+
+    private fun siderealSunLongitude(jd: Double): Double {
+        val ayanamsa = lahiriAyanamsa(jd)
+        return normalize360(sunLongitude(jd) - ayanamsa)
+    }
+
+    private fun findPreviousNewMoonJd(jd: Double): Double {
+        // One synodic month is ~29.53 days; search window safely spans one cycle.
+        return findCrossingJD(jd - 32.0, 0.0, 35.0) { siderealElongation(it) }
+    }
+
+    private fun findNextNewMoonJd(jd: Double): Double {
+        return findCrossingJD(jd + 0.05, 0.0, 35.0) { siderealElongation(it) }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -1151,9 +1154,13 @@ class PanchangamViewModel(
     }
 
     private fun formatTime(decimalHours: Double): String {
-        val clamped = decimalHours.coerceIn(0.0, 23.999)
-        val hours = clamped.toInt()
-        val minutes = ((clamped - hours) * 60 + 0.5).toInt().coerceIn(0, 59)
+        var wrapped = decimalHours % 24.0
+        if (wrapped < 0.0) wrapped += 24.0
+
+        val totalMinutesRounded = ((wrapped * 60.0) + 0.5).toInt()
+        val normalizedMinutes = ((totalMinutesRounded % (24 * 60)) + (24 * 60)) % (24 * 60)
+        val hours = normalizedMinutes / 60
+        val minutes = normalizedMinutes % 60
         val displayHour: Int
         val amPm: String
         if (hours < 12) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -24,6 +25,7 @@ fun StotramListScreen(
     viewModel: StotramViewModel = koinViewModel(),
     onStotramClick: (Int) -> Unit,
     onBack: () -> Unit,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val stotrams by viewModel.allStotrams.collectAsState()
 
@@ -76,7 +78,10 @@ fun StotramListScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(stotrams, key = { it.id }) { stotram ->
+                itemsIndexed(stotrams, key = { _, it -> it.id }) { index, stotram ->
+                    if (index == 3) {
+                        bannerAd?.invoke()
+                    }
                     StotramListItem(
                         stotram = stotram,
                         onClick = { onStotramClick(stotram.id) },

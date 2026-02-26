@@ -45,6 +45,7 @@ fun ChalisaDetailScreen(
     audioViewModel: AudioPlayerViewModel,
     viewModel: ChalisaViewModel = koinViewModel(),
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val chalisa by remember(chalisaId) {
         viewModel.getChalisaById(chalisaId)
@@ -54,6 +55,7 @@ fun ChalisaDetailScreen(
     val fontScale = fontSize / 16f
     val audioState by audioViewModel.state.collectAsState()
     val isSpotifyConnected by audioViewModel.isSpotifyConnected.collectAsState()
+    val isSpotifyLinked by audioViewModel.isSpotifyLinked.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -119,7 +121,7 @@ fun ChalisaDetailScreen(
 
                 FloatingActionButton(
                     onClick = {
-                        if (isSpotifyConnected) {
+                        if (isSpotifyConnected || isSpotifyLinked) {
                             if (isCurrentTrackPlaying) {
                                 audioViewModel.togglePlayPause()
                             } else {
@@ -136,8 +138,8 @@ fun ChalisaDetailScreen(
                             }
                         }
                     },
-                    containerColor = if (isSpotifyConnected) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (isSpotifyConnected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    containerColor = if (isSpotifyConnected || isSpotifyLinked) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (isSpotifyConnected || isSpotifyLinked) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
                     Icon(
                         if (isCurrentTrackPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -194,6 +196,8 @@ fun ChalisaDetailScreen(
                         modifier = Modifier.fillMaxWidth(0.7f),
                     )
                 }
+
+                bannerAd?.invoke()
 
                 // Doha (introductory verse)
                 val dohaTelugu = currentChalisa.dohaTelugu

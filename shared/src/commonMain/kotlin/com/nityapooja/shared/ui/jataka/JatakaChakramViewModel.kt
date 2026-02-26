@@ -55,12 +55,20 @@ class JatakaChakramViewModel : ViewModel() {
         minute: Int,
         latitude: Double,
         longitude: Double,
+        timezoneId: String,
         utcOffsetHours: Double,
     ) {
         _uiState.value = JatakaUiState(isCalculating = true)
 
-        val utHours = hour + minute / 60.0 - utcOffsetHours
-        val jd = AstronomicalCalculator.julianDay(year, month, day, utHours)
+        val jd = AstronomicalCalculator.julianDayFromLocalDateTime(
+            year = year,
+            month = month,
+            day = day,
+            hour = hour,
+            minute = minute,
+            timezoneId = timezoneId,
+            fallbackUtcOffsetHours = utcOffsetHours,
+        )
 
         // Calculate all 9 graha positions (sidereal)
         val grahaPositions = AstronomicalCalculator.allGrahaPositions(jd)

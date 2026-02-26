@@ -85,7 +85,3 @@ actual fun PlatformTimePicker(
     )
 }
 
-actual suspend fun searchPlaces(query: String): List<PlaceResult> {
-    // iOS: Use fallback cities (CLGeocoder would require platform-specific bridging)
-    return searchFallbackCities(query)
-}

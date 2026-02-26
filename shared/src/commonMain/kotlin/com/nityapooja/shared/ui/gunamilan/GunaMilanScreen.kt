@@ -55,7 +55,15 @@ fun GunaMilanScreen(
                     val groom = uiState.groomResult
                     if (result != null && bride != null && groom != null) {
                         IconButton(onClick = {
-                            shareText(buildGunaMilanShareText(bride, groom, result))
+                            shareText(
+                                buildGunaMilanShareText(
+                                    bride = bride,
+                                    groom = groom,
+                                    result = result,
+                                    checks = uiState.teluguChecks,
+                                    hasCriticalIssues = uiState.hasCriticalIssues,
+                                )
+                            )
                         }) {
                             Icon(Icons.Default.Share, "Share", tint = TempleGold)
                         }
@@ -99,11 +107,17 @@ fun GunaMilanScreen(
                             brideName = brideDetails.name,
                             brideYear = brideDetails.year, brideMonth = brideDetails.month, brideDay = brideDetails.day,
                             brideHour = brideDetails.hour, brideMinute = brideDetails.minute,
-                            brideLat = brideDetails.latitude, brideLng = brideDetails.longitude, brideTzOffset = brideDetails.timezoneOffsetHours,
+                            brideLat = brideDetails.latitude,
+                            brideLng = brideDetails.longitude,
+                            brideTimezoneId = brideDetails.timezoneId,
+                            brideTzOffset = brideDetails.timezoneOffsetHours,
                             groomName = groomDetails.name,
                             groomYear = groomDetails.year, groomMonth = groomDetails.month, groomDay = groomDetails.day,
                             groomHour = groomDetails.hour, groomMinute = groomDetails.minute,
-                            groomLat = groomDetails.latitude, groomLng = groomDetails.longitude, groomTzOffset = groomDetails.timezoneOffsetHours,
+                            groomLat = groomDetails.latitude,
+                            groomLng = groomDetails.longitude,
+                            groomTimezoneId = groomDetails.timezoneId,
+                            groomTzOffset = groomDetails.timezoneOffsetHours,
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -161,6 +175,25 @@ fun GunaMilanScreen(
 
                 items(result.kootaScores) { score ->
                     KootaScoreCard(score)
+                }
+
+                if (uiState.teluguChecks.isNotEmpty()) {
+                    item {
+                        Text(
+                            "తెలుగు జ్యోతిష్య పరిశీలనలు / Telugu Rule Checks",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = TempleGold,
+                        )
+                    }
+                    items(uiState.teluguChecks) { check ->
+                        TeluguCheckCard(check)
+                    }
+                    if (uiState.hasCriticalIssues) {
+                        item {
+                            CriticalWarningCard()
+                        }
+                    }
                 }
 
                 item { Spacer(Modifier.height(16.dp)) }
@@ -293,6 +326,8 @@ private fun buildGunaMilanShareText(
     bride: PersonResult,
     groom: PersonResult,
     result: AshtaKootaCalculator.GunaMilanResult,
+    checks: List<TeluguCompatibilityCheck>,
+    hasCriticalIssues: Boolean,
 ): String = buildString {
     appendLine("🪷 గుణ మిలనం / Compatibility Match")
     appendLine()
@@ -310,6 +345,18 @@ private fun buildGunaMilanShareText(
     appendLine("అష్ట కూట వివరాలు:")
     result.kootaScores.forEach { s ->
         appendLine("  ${s.nameTelugu} (${s.nameEnglish}): ${((s.obtainedPoints * 10).toInt() / 10.0)} / ${s.maxPoints.toInt()}")
+    }
+    if (checks.isNotEmpty()) {
+        appendLine()
+        appendLine("తెలుగు జ్యోతిష్య పరిశీలనలు:")
+        checks.forEach { c ->
+            val status = if (c.passed) "✔" else "✖"
+            appendLine("  $status ${c.titleTelugu}: ${c.detailsTelugu}")
+        }
+    }
+    if (hasCriticalIssues) {
+        appendLine()
+        appendLine("గమనిక: ముఖ్య దోష సూచనలు ఉన్నందున నిపుణుడితో సంప్రదించడం మంచిది.")
     }
     appendLine()
     append("Shared via NityaPooja")
@@ -375,5 +422,58 @@ private fun KootaScoreCard(score: AshtaKootaCalculator.KootaScore) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+@Composable
+private fun TeluguCheckCard(check: TeluguCompatibilityCheck) {
+    val color = when {
+        check.passed -> AuspiciousGreen
+        check.critical -> InauspiciousRed
+        else -> WarningAmber
+    }
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.12f)),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                check.titleTelugu,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = color,
+            )
+            Text(
+                check.titleEnglish,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                check.detailsTelugu,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CriticalWarningCard() {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = InauspiciousRed.copy(alpha = 0.12f)),
+    ) {
+        Text(
+            "గమనిక: ముఖ్య దోష సూచనలు ఉన్నాయి. తుది నిర్ణయానికి అనుభవజ్ఞుడైన తెలుగు జ్యోతిష్య నిపుణుడిని సంప్రదించండి.",
+            modifier = Modifier.padding(12.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = InauspiciousRed,
+            fontWeight = FontWeight.Medium,
+        )
     }
 }

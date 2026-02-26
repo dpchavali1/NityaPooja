@@ -43,6 +43,7 @@ fun BhajanDetailScreen(
     onBack: () -> Unit,
     audioViewModel: AudioPlayerViewModel,
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val bhajanFlow = remember(bhajanId) { viewModel.getBhajanById(bhajanId) }
     val bhajan by bhajanFlow.collectAsState(initial = null)
@@ -51,6 +52,7 @@ fun BhajanDetailScreen(
     val fontScale = fontSize / 16f
     val audioState by audioViewModel.state.collectAsState()
     val isSpotifyConnected by audioViewModel.isSpotifyConnected.collectAsState()
+    val isSpotifyLinked by audioViewModel.isSpotifyLinked.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -120,7 +122,7 @@ fun BhajanDetailScreen(
 
                 FloatingActionButton(
                     onClick = {
-                        if (isSpotifyConnected) {
+                        if (isSpotifyConnected || isSpotifyLinked) {
                             if (isCurrentTrackPlaying) {
                                 audioViewModel.togglePlayPause()
                             } else {
@@ -137,8 +139,8 @@ fun BhajanDetailScreen(
                             }
                         }
                     },
-                    containerColor = if (isSpotifyConnected) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (isSpotifyConnected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    containerColor = if (isSpotifyConnected || isSpotifyLinked) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (isSpotifyConnected || isSpotifyLinked) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
                     Icon(
                         if (isCurrentTrackPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -189,6 +191,8 @@ fun BhajanDetailScreen(
                 }
 
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+                bannerAd?.invoke()
 
                 b.lyricsTelugu?.let { lyrics ->
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

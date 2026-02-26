@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,6 +28,7 @@ fun BhajanListScreen(
     viewModel: BhajanViewModel = koinViewModel(),
     onBhajanClick: (Int) -> Unit,
     onBack: () -> Unit,
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val bhajans by viewModel.allBhajans.collectAsState()
 
@@ -80,7 +82,10 @@ fun BhajanListScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(bhajans, key = { it.id }) { bhajan ->
+                    itemsIndexed(bhajans, key = { _, it -> it.id }) { index, bhajan ->
+                        if (index == 3) {
+                            bannerAd?.invoke()
+                        }
                         BhajanListItem(
                             bhajan = bhajan,
                             onClick = { onBhajanClick(bhajan.id) },

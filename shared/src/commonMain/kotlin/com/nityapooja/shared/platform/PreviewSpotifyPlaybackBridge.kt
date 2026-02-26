@@ -26,6 +26,8 @@ class PreviewSpotifyPlaybackBridge(
     private val _isConnected = MutableStateFlow(true)
     override val isConnected: StateFlow<Boolean> = _isConnected
 
+    override val isLinked: StateFlow<Boolean> = MutableStateFlow(true)
+
     private val _playerState = MutableStateFlow(SpotifyBridgePlayerState())
     override val playerState: StateFlow<SpotifyBridgePlayerState> = _playerState
 

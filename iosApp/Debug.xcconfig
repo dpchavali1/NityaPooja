@@ -1,0 +1,3 @@
+// Debug.xcconfig — includes Secrets and CocoaPods config
+#include "Secrets.xcconfig"
+#include "Pods/Target Support Files/Pods-NityaPooja/Pods-NityaPooja.debug.xcconfig"

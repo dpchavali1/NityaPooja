@@ -45,6 +45,7 @@ fun AshtotraDetailScreen(
     onBack: () -> Unit,
     audioViewModel: AudioPlayerViewModel,
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val ashtotraFlow = remember(ashtotraId) { viewModel.getAshtotraById(ashtotraId) }
     val ashtotra by ashtotraFlow.collectAsState(initial = null)
@@ -53,6 +54,7 @@ fun AshtotraDetailScreen(
     val fontScale = fontSize / 16f
     val audioState by audioViewModel.state.collectAsState()
     val isSpotifyConnected by audioViewModel.isSpotifyConnected.collectAsState()
+    val isSpotifyLinked by audioViewModel.isSpotifyLinked.collectAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -123,7 +125,7 @@ fun AshtotraDetailScreen(
 
                 FloatingActionButton(
                     onClick = {
-                        if (isSpotifyConnected) {
+                        if (isSpotifyConnected || isSpotifyLinked) {
                             if (isCurrentTrackPlaying) {
                                 audioViewModel.togglePlayPause()
                             } else {
@@ -140,8 +142,8 @@ fun AshtotraDetailScreen(
                             }
                         }
                     },
-                    containerColor = if (isSpotifyConnected) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (isSpotifyConnected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    containerColor = if (isSpotifyConnected || isSpotifyLinked) SpotifyGreen else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (isSpotifyConnected || isSpotifyLinked) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 ) {
                     Icon(
                         if (isCurrentTrackPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
@@ -229,6 +231,8 @@ fun AshtotraDetailScreen(
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         Spacer(Modifier.height(8.dp))
                     }
+
+                    item { bannerAd?.invoke() }
 
                     // Names list using VerseBlock
                     itemsIndexed(

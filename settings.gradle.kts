@@ -17,10 +17,12 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         flatDir {
-            dirs("app/libs")
+            dirs("androidApp/libs")
         }
     }
 }
 
 rootProject.name = "NityaPooja"
-include(":app")
+include(":shared")
+include(":androidApp")
+include(":desktopApp")

@@ -1,0 +1,61 @@
+package com.nityapooja.shared.data.model
+
+data class IndianCity(
+    val name: String,
+    val nameTelugu: String,
+    val lat: Double,
+    val lng: Double,
+    val state: String,
+    val timezone: String = "Asia/Kolkata",
+)
+
+val indianCities = listOf(
+    // Telangana
+    IndianCity("Hyderabad", "\u0C39\u0C48\u0C26\u0C30\u0C3E\u0C2C\u0C3E\u0C26\u0C4D", 17.385, 78.4867, "Telangana"),
+    IndianCity("Warangal", "\u0C35\u0C30\u0C02\u0C17\u0C32\u0C4D", 17.9784, 79.5941, "Telangana"),
+    IndianCity("Nizamabad", "\u0C28\u0C3F\u0C1C\u0C3E\u0C2E\u0C3E\u0C2C\u0C3E\u0C26\u0C4D", 18.6725, 78.0940, "Telangana"),
+    IndianCity("Karimnagar", "\u0C15\u0C30\u0C40\u0C02\u0C28\u0C17\u0C30\u0C4D", 18.4386, 79.1288, "Telangana"),
+    IndianCity("Khammam", "\u0C16\u0C2E\u0C4D\u0C2E\u0C02", 17.2473, 80.1514, "Telangana"),
+    IndianCity("Mahbubnagar", "\u0C2E\u0C39\u0C2C\u0C42\u0C2C\u0C4D\u200C\u0C28\u0C17\u0C30\u0C4D", 16.7488, 77.9853, "Telangana"),
+    // Andhra Pradesh
+    IndianCity("Visakhapatnam", "\u0C35\u0C3F\u0C36\u0C3E\u0C16\u0C2A\u0C1F\u0C4D\u0C28\u0C02", 17.6868, 83.2185, "Andhra Pradesh"),
+    IndianCity("Vijayawada", "\u0C35\u0C3F\u0C1C\u0C2F\u0C35\u0C3E\u0C21", 16.5062, 80.6480, "Andhra Pradesh"),
+    IndianCity("Tirupati", "\u0C24\u0C3F\u0C30\u0C41\u0C2A\u0C24\u0C3F", 13.6288, 79.4192, "Andhra Pradesh"),
+    IndianCity("Guntur", "\u0C17\u0C41\u0C02\u0C1F\u0C42\u0C30\u0C41", 16.3067, 80.4365, "Andhra Pradesh"),
+    IndianCity("Nellore", "\u0C28\u0C46\u0C32\u0C4D\u0C32\u0C42\u0C30\u0C41", 14.4426, 79.9865, "Andhra Pradesh"),
+    IndianCity("Kurnool", "\u0C15\u0C30\u0C4D\u0C28\u0C42\u0C32\u0C41", 15.8281, 78.0373, "Andhra Pradesh"),
+    IndianCity("Rajahmundry", "\u0C30\u0C3E\u0C1C\u0C2E\u0C39\u0C47\u0C02\u0C26\u0C4D\u0C30\u0C35\u0C30\u0C02", 17.0005, 81.8040, "Andhra Pradesh"),
+    IndianCity("Kakinada", "\u0C15\u0C3E\u0C15\u0C3F\u0C28\u0C3E\u0C21", 16.9891, 82.2475, "Andhra Pradesh"),
+    IndianCity("Anantapur", "\u0C05\u0C28\u0C02\u0C24\u0C2A\u0C41\u0C30\u0C02", 14.6819, 77.6006, "Andhra Pradesh"),
+    IndianCity("Kadapa", "\u0C15\u0C21\u0C2A", 14.4674, 78.8241, "Andhra Pradesh"),
+    IndianCity("Ongole", "\u0C12\u0C02\u0C17\u0C4B\u0C32\u0C41", 15.5057, 80.0499, "Andhra Pradesh"),
+    IndianCity("Srikakulam", "\u0C36\u0C4D\u0C30\u0C40\u0C15\u0C3E\u0C15\u0C41\u0C33\u0C02", 18.2949, 83.8938, "Andhra Pradesh"),
+    IndianCity("Eluru", "\u0C0F\u0C32\u0C42\u0C30\u0C41", 16.7107, 81.0952, "Andhra Pradesh"),
+    // Other States
+    IndianCity("Chennai", "\u0C1A\u0C46\u0C28\u0C4D\u0C28\u0C48", 13.0827, 80.2707, "Tamil Nadu"),
+    IndianCity("Bangalore", "\u0C2C\u0C46\u0C02\u0C17\u0C33\u0C42\u0C30\u0C41", 12.9716, 77.5946, "Karnataka"),
+    IndianCity("Mumbai", "\u0C2E\u0C41\u0C02\u0C2C\u0C48", 19.0760, 72.8777, "Maharashtra"),
+    IndianCity("Delhi", "\u0C22\u0C3F\u0C32\u0C4D\u0C32\u0C40", 28.7041, 77.1025, "Delhi"),
+    IndianCity("Kolkata", "\u0C15\u0C4B\u0C32\u0C4D\u200C\u0C15\u0C24\u0C3E", 22.5726, 88.3639, "West Bengal"),
+    IndianCity("Pune", "\u0C2A\u0C42\u0C23\u0C47", 18.5204, 73.8567, "Maharashtra"),
+    IndianCity("Ahmedabad", "\u0C05\u0C39\u0C4D\u0C2E\u0C26\u0C3E\u0C2C\u0C3E\u0C26\u0C4D", 23.0225, 72.5714, "Gujarat"),
+    IndianCity("Jaipur", "\u0C1C\u0C2F\u0C2A\u0C42\u0C30\u0C4D", 26.9124, 75.7873, "Rajasthan"),
+    IndianCity("Lucknow", "\u0C32\u0C15\u0C4D\u0C28\u0C4B", 26.8467, 80.9462, "Uttar Pradesh"),
+    IndianCity("Bhopal", "\u0C2D\u0C4B\u0C2A\u0C3E\u0C32\u0C4D", 23.2599, 77.4126, "Madhya Pradesh"),
+    IndianCity("Varanasi", "\u0C35\u0C3E\u0C30\u0C23\u0C3E\u0C38\u0C3F", 25.3176, 82.9739, "Uttar Pradesh"),
+    // International cities (empty Telugu names)
+    IndianCity("Dubai", "", 25.2048, 55.2708, "UAE", "Asia/Dubai"),
+    IndianCity("Singapore", "", 1.3521, 103.8198, "Singapore", "Asia/Singapore"),
+    IndianCity("London", "", 51.5074, -0.1278, "United Kingdom", "Europe/London"),
+    IndianCity("New York", "", 40.7128, -74.0060, "USA", "America/New_York"),
+    IndianCity("San Francisco", "", 37.7749, -122.4194, "USA", "America/Los_Angeles"),
+    IndianCity("Chicago", "", 41.8781, -87.6298, "USA", "America/Chicago"),
+    IndianCity("Detroit", "", 42.3314, -83.0458, "USA", "America/Detroit"),
+    IndianCity("Houston", "", 29.7604, -95.3698, "USA", "America/Chicago"),
+    IndianCity("Dallas", "", 32.7767, -96.7970, "USA", "America/Chicago"),
+    IndianCity("Los Angeles", "", 34.0522, -118.2437, "USA", "America/Los_Angeles"),
+    IndianCity("Seattle", "", 47.6062, -122.3321, "USA", "America/Los_Angeles"),
+    IndianCity("Toronto", "", 43.6532, -79.3832, "Canada", "America/Toronto"),
+    IndianCity("Sydney", "", -33.8688, 151.2093, "Australia", "Australia/Sydney"),
+    IndianCity("Melbourne", "", -37.8136, 144.9631, "Australia", "Australia/Melbourne"),
+)

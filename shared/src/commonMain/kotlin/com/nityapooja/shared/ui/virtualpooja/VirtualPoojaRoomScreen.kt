@@ -111,7 +111,7 @@ fun VirtualPoojaRoomScreen(
 
                         when (item) {
                             PoojaItem.GHANTA -> {
-                                haptics.strongTap() // Extra strong for bell
+                                haptics.uiTap() // Mild haptic for bell
                                 soundEffect.playBellSound()
                             }
                             PoojaItem.HARATHI -> {

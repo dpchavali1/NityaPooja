@@ -9,10 +9,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import kotlinx.coroutines.delay
 import com.nityapooja.app.data.spotify.SpotifyConnectionStatus
 import com.nityapooja.app.data.spotify.SpotifyManager
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
@@ -27,7 +31,7 @@ class MainActivity : ComponentActivity() {
     private val preferencesManager: UserPreferencesManager by inject()
     private val spotifyManager: SpotifyManager by inject()
 
-    private var isReady = false
+    private var isReady by mutableStateOf(false)
 
     private val spotifyAuthLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -44,14 +48,19 @@ class MainActivity : ComponentActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        runBlocking { preferencesManager.onboardingCompleted.first() }
-        isReady = true
-
         splash.setKeepOnScreenCondition { !isReady }
         enableEdgeToEdge()
         requestNotificationPermission()
 
+        runBlocking { preferencesManager.onboardingCompleted.first() }
+
         setContent {
+            // Hold splash until Compose has rendered its first frame
+            LaunchedEffect(Unit) {
+                delay(800)
+                isReady = true
+            }
+
             val connectionStatus by spotifyManager.connectionStatus.collectAsState()
             val spotifyLinkedPref by preferencesManager.spotifyLinked.collectAsState(initial = false)
 

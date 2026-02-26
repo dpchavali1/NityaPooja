@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.nityapooja.app.di.androidAppModule
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.di.androidPlatformModule
@@ -30,6 +31,12 @@ class NityaPoojaApp : Application() {
         }
         createNotificationChannels()
         scheduleNotificationsFromPreferences()
+        MobileAds.setRequestConfiguration(
+            RequestConfiguration.Builder()
+                .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G)
+                .setTagForChildDirectedTreatment(RequestConfiguration.TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE)
+                .build()
+        )
         MobileAds.initialize(this)
     }
 

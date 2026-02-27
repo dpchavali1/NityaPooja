@@ -3,6 +3,7 @@ package com.nityapooja.app.worker
 import android.content.Context
 import androidx.work.*
 import java.util.Calendar
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 object NotificationScheduler {
@@ -14,7 +15,7 @@ object NotificationScheduler {
     private const val EVENING_NOTIFICATION_ID = 1002
     private const val PANCHANG_NOTIFICATION_ID = 1003
 
-    fun scheduleMorningReminder(context: Context, hour: Int, minute: Int) {
+    fun scheduleMorningReminder(context: Context, hour: Int, minute: Int, timezoneId: String = "") {
         val inputData = workDataOf(
             NotificationWorker.KEY_NOTIFICATION_BODY to "Time for morning prayers",
             NotificationWorker.KEY_NOTIFICATION_ID to MORNING_NOTIFICATION_ID,
@@ -25,11 +26,12 @@ object NotificationScheduler {
             workName = MORNING_WORK_NAME,
             hour = hour,
             minute = minute,
+            timezoneId = timezoneId,
             inputData = inputData,
         )
     }
 
-    fun scheduleEveningReminder(context: Context, hour: Int, minute: Int) {
+    fun scheduleEveningReminder(context: Context, hour: Int, minute: Int, timezoneId: String = "") {
         val inputData = workDataOf(
             NotificationWorker.KEY_NOTIFICATION_BODY to "Time for evening aarti",
             NotificationWorker.KEY_NOTIFICATION_ID to EVENING_NOTIFICATION_ID,
@@ -40,11 +42,12 @@ object NotificationScheduler {
             workName = EVENING_WORK_NAME,
             hour = hour,
             minute = minute,
+            timezoneId = timezoneId,
             inputData = inputData,
         )
     }
 
-    fun schedulePanchangReminder(context: Context) {
+    fun schedulePanchangReminder(context: Context, timezoneId: String = "") {
         val inputData = workDataOf(
             NotificationWorker.KEY_NOTIFICATION_BODY to "Check today's Panchangam for auspicious timings",
             NotificationWorker.KEY_NOTIFICATION_ID to PANCHANG_NOTIFICATION_ID,
@@ -55,6 +58,7 @@ object NotificationScheduler {
             workName = PANCHANG_WORK_NAME,
             hour = 6,
             minute = 0,
+            timezoneId = timezoneId,
             inputData = inputData,
         )
     }
@@ -76,9 +80,10 @@ object NotificationScheduler {
         workName: String,
         hour: Int,
         minute: Int,
+        timezoneId: String,
         inputData: Data,
     ) {
-        val initialDelay = calculateInitialDelay(hour, minute)
+        val initialDelay = calculateInitialDelay(hour, minute, timezoneId)
 
         val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
             24, TimeUnit.HOURS,
@@ -99,9 +104,20 @@ object NotificationScheduler {
         )
     }
 
-    private fun calculateInitialDelay(hour: Int, minute: Int): Long {
-        val now = Calendar.getInstance()
-        val target = Calendar.getInstance().apply {
+    /**
+     * Calculate the delay from now until the next occurrence of [hour]:[minute]
+     * in the user's selected timezone. If [timezoneId] is blank, falls back to
+     * the device's default timezone.
+     */
+    private fun calculateInitialDelay(hour: Int, minute: Int, timezoneId: String): Long {
+        val tz = if (timezoneId.isNotBlank()) {
+            TimeZone.getTimeZone(timezoneId)
+        } else {
+            TimeZone.getDefault()
+        }
+
+        val now = Calendar.getInstance(tz)
+        val target = Calendar.getInstance(tz).apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)

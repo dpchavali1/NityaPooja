@@ -71,6 +71,7 @@ sealed class Screen(val route: String) {
 
     data object JatakaChakram : Screen("jataka_chakram")
     data object GunaMilan : Screen("guna_milan")
+    data object SavedProfiles : Screen("saved_profiles")
 
     data object VirtualPoojaRoom : Screen("virtual_pooja_room")
     data object PrivacyPolicy : Screen("privacy_policy")

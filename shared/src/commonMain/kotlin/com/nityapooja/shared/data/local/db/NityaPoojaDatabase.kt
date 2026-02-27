@@ -1,5 +1,6 @@
 package com.nityapooja.shared.data.local.db
 
+import androidx.room.AutoMigration
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -32,9 +33,13 @@ expect object NityaPoojaDatabaseConstructor : RoomDatabaseConstructor<NityaPooja
         RashiEntity::class,
         PujaStepEntity::class,
         ReadingHistoryEntity::class,
+        SavedProfileEntity::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 8, to = 9),
+    ],
 )
 @ConstructedBy(NityaPoojaDatabaseConstructor::class)
 abstract class NityaPoojaDatabase : RoomDatabase() {
@@ -55,4 +60,5 @@ abstract class NityaPoojaDatabase : RoomDatabase() {
     abstract fun rashiDao(): RashiDao
     abstract fun pujaStepDao(): PujaStepDao
     abstract fun readingHistoryDao(): ReadingHistoryDao
+    abstract fun savedProfileDao(): SavedProfileDao
 }

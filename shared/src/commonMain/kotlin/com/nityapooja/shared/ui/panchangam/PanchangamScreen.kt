@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -251,13 +252,16 @@ fun PanchangamScreen(
 
             PanchangDetailCardWithTime("తిథి", "Tithi", panchangam.tithi.nameTelugu, panchangam.tithi.nameEnglish,
                 "${panchangam.tithi.pakshaTelugu} (${panchangam.tithi.paksha})", panchangam.tithi.endTime,
-                Icons.Default.Brightness2, TempleGold, fontScale)
+                Icons.Default.Brightness2, TempleGold, fontScale,
+                nextValueTelugu = panchangam.tithi.nextNameTelugu, nextValueEnglish = panchangam.tithi.nextNameEnglish)
 
             PanchangDetailCardWithTime("నక్షత్రం", "Nakshatra", panchangam.nakshatra.nameTelugu, panchangam.nakshatra.nameEnglish,
-                endTime = panchangam.nakshatra.endTime, icon = Icons.Default.Star, accentColor = TempleGold, fontScale = fontScale)
+                endTime = panchangam.nakshatra.endTime, icon = Icons.Default.Star, accentColor = TempleGold, fontScale = fontScale,
+                nextValueTelugu = panchangam.nakshatra.nextNameTelugu, nextValueEnglish = panchangam.nakshatra.nextNameEnglish)
 
             PanchangDetailCardWithTime("యోగం", "Yoga", panchangam.yoga.nameTelugu, panchangam.yoga.nameEnglish,
-                endTime = panchangam.yoga.endTime, icon = Icons.Default.AllInclusive, accentColor = TempleGold, fontScale = fontScale)
+                endTime = panchangam.yoga.endTime, icon = Icons.Default.AllInclusive, accentColor = TempleGold, fontScale = fontScale,
+                nextValueTelugu = panchangam.yoga.nextNameTelugu, nextValueEnglish = panchangam.yoga.nextNameEnglish)
 
             // Karana card
             GlassmorphicCard(accentColor = TempleGold, cornerRadius = 14.dp, contentPadding = 14.dp) {
@@ -441,12 +445,12 @@ private fun CalendarInfoRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column {
-            Text(labelTelugu, style = MaterialTheme.typography.labelMedium, color = TempleGold, fontWeight = FontWeight.Bold)
-            Text(labelEnglish, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Column(horizontalAlignment = Alignment.End) {
             Text(valueTelugu, style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp), fontWeight = FontWeight.Bold)
             Text(valueEnglish, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(labelTelugu, style = MaterialTheme.typography.labelMedium, color = TempleGold, fontWeight = FontWeight.Bold)
+            Text(labelEnglish, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -506,6 +510,7 @@ private fun PanchangDetailCard(
 private fun PanchangDetailCardWithTime(
     titleTelugu: String, titleEnglish: String, valueTelugu: String, valueEnglish: String,
     subtitle: String? = null, endTime: String, icon: ImageVector, accentColor: androidx.compose.ui.graphics.Color, fontScale: Float = 1f,
+    nextValueTelugu: String? = null, nextValueEnglish: String? = null,
 ) {
     GlassmorphicCard(accentColor = accentColor, cornerRadius = 14.dp, contentPadding = 14.dp) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -528,6 +533,14 @@ private fun PanchangDetailCardWithTime(
                     Icon(Icons.Default.Schedule, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(12.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("వరకు: $endTime", style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (nextValueTelugu != null && nextValueEnglish != null) {
+                    Spacer(Modifier.height(2.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = accentColor.copy(alpha = 0.6f), modifier = Modifier.size(12.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("తర్వాత: $nextValueTelugu ($nextValueEnglish)", style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp), color = accentColor.copy(alpha = 0.7f))
+                    }
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
@@ -654,10 +667,13 @@ private fun buildPanchangamShareText(panchangam: PanchangamData, city: String): 
     appendLine("📿 పంచాంగ వివరాలు:")
     appendLine("  తిథి: ${panchangam.tithi.nameTelugu} (${panchangam.tithi.nameEnglish})")
     appendLine("    ${panchangam.tithi.pakshaTelugu} (${panchangam.tithi.paksha}) · వరకు ${panchangam.tithi.endTime}")
+    appendLine("    → తర్వాత: ${panchangam.tithi.nextNameTelugu} (${panchangam.tithi.nextNameEnglish})")
     appendLine("  నక్షత్రం: ${panchangam.nakshatra.nameTelugu} (${panchangam.nakshatra.nameEnglish})")
     appendLine("    వరకు ${panchangam.nakshatra.endTime}")
+    appendLine("    → తర్వాత: ${panchangam.nakshatra.nextNameTelugu} (${panchangam.nakshatra.nextNameEnglish})")
     appendLine("  యోగం: ${panchangam.yoga.nameTelugu} (${panchangam.yoga.nameEnglish})")
     appendLine("    వరకు ${panchangam.yoga.endTime}")
+    appendLine("    → తర్వాత: ${panchangam.yoga.nextNameTelugu} (${panchangam.yoga.nextNameEnglish})")
     appendLine("  కరణం: ${panchangam.karana.firstNameTelugu} (${panchangam.karana.firstNameEnglish})")
     appendLine("    2వ: ${panchangam.karana.secondNameTelugu} (${panchangam.karana.secondNameEnglish})")
     appendLine()

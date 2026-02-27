@@ -2,9 +2,9 @@ package com.nityapooja.shared.platform
 
 /** No-op — iOS notifications require UNUserNotificationCenter (future work). */
 class NoOpNotificationScheduler : NotificationScheduler {
-    override fun scheduleMorningReminder(hour: Int, minute: Int) {}
-    override fun scheduleEveningReminder(hour: Int, minute: Int) {}
-    override fun schedulePanchangReminder() {}
+    override fun scheduleMorningReminder(hour: Int, minute: Int, timezoneId: String) {}
+    override fun scheduleEveningReminder(hour: Int, minute: Int, timezoneId: String) {}
+    override fun schedulePanchangReminder(timezoneId: String) {}
     override fun cancelMorningReminder() {}
     override fun cancelEveningReminder() {}
     override fun cancelPanchangReminder() {}

@@ -13,7 +13,7 @@ class OnboardingViewModel(
     val onboardingCompleted: StateFlow<Boolean> = preferencesManager.onboardingCompleted
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    fun completeOnboarding(
+    suspend fun completeOnboarding(
         userName: String = "",
         city: String = "",
         lat: Double = 17.385,
@@ -22,12 +22,10 @@ class OnboardingViewModel(
         morningNotification: Boolean = true,
         eveningNotification: Boolean = true,
     ) {
-        viewModelScope.launch {
-            if (userName.isNotBlank()) preferencesManager.setUserName(userName)
-            if (city.isNotBlank()) preferencesManager.setLocation(city, lat, lng, timezone)
-            preferencesManager.setMorningNotification(morningNotification)
-            preferencesManager.setEveningNotification(eveningNotification)
-            preferencesManager.setOnboardingCompleted(true)
-        }
+        if (userName.isNotBlank()) preferencesManager.setUserName(userName)
+        if (city.isNotBlank()) preferencesManager.setLocation(city, lat, lng, timezone)
+        preferencesManager.setMorningNotification(morningNotification)
+        preferencesManager.setEveningNotification(eveningNotification)
+        preferencesManager.setOnboardingCompleted(true)
     }
 }

@@ -64,23 +64,38 @@ class SettingsViewModel(
     fun setNakshatra(nakshatra: String) { viewModelScope.launch { preferencesManager.setNakshatra(nakshatra) } }
     fun setLocation(city: String, lat: Double, lng: Double, timezone: String = "Asia/Kolkata") {
         viewModelScope.launch { preferencesManager.setLocation(city, lat, lng, timezone) }
+        // Reschedule notifications with the new timezone
+        rescheduleNotifications(timezone)
     }
     fun setMorningNotification(enabled: Boolean) {
         viewModelScope.launch { preferencesManager.setMorningNotification(enabled) }
-        if (enabled) notificationScheduler.scheduleMorningReminder(5, 30)
+        if (enabled) notificationScheduler.scheduleMorningReminder(5, 30, locationTimezone.value)
         else notificationScheduler.cancelMorningReminder()
     }
     fun setEveningNotification(enabled: Boolean) {
         viewModelScope.launch { preferencesManager.setEveningNotification(enabled) }
-        if (enabled) notificationScheduler.scheduleEveningReminder(18, 30)
+        if (enabled) notificationScheduler.scheduleEveningReminder(18, 30, locationTimezone.value)
         else notificationScheduler.cancelEveningReminder()
     }
     fun setFontSize(size: Int) { viewModelScope.launch { preferencesManager.setFontSize(size) } }
     fun setAutoDarkMode(enabled: Boolean) { viewModelScope.launch { preferencesManager.setAutoDarkMode(enabled) } }
     fun setPanchangNotifications(enabled: Boolean) {
         viewModelScope.launch { preferencesManager.setPanchangNotifications(enabled) }
-        if (enabled) notificationScheduler.schedulePanchangReminder()
+        if (enabled) notificationScheduler.schedulePanchangReminder(locationTimezone.value)
         else notificationScheduler.cancelPanchangReminder()
+    }
+
+    /** Re-schedule all active notifications when timezone changes */
+    private fun rescheduleNotifications(timezone: String) {
+        if (morningNotification.value) {
+            notificationScheduler.scheduleMorningReminder(5, 30, timezone)
+        }
+        if (eveningNotification.value) {
+            notificationScheduler.scheduleEveningReminder(18, 30, timezone)
+        }
+        if (panchangNotifications.value) {
+            notificationScheduler.schedulePanchangReminder(timezone)
+        }
     }
 
     fun clearAllUserData() {

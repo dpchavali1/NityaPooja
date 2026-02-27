@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nityapooja.shared.ui.navigation.BottomNavItem
@@ -33,7 +34,9 @@ fun PremiumBottomBar(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .graphicsLayer { clip = false },
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
         shadowElevation = 16.dp,
@@ -42,47 +45,43 @@ fun PremiumBottomBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .graphicsLayer { clip = false }
+                .padding(horizontal = 4.dp, vertical = 8.dp)
                 .navigationBarsPadding(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // First two items (Home, Aarti)
-            items.take(2).forEach { item ->
-                PremiumNavItem(
-                    item = item,
-                    isSelected = currentRoute == item.screen.route,
-                    onClick = { onItemClick(item) },
-                    modifier = Modifier.weight(1f),
-                )
-            }
+            // Insert FAB in the middle: items[0], items[1], FAB, items[2], items[3], items[4]
+            val fabIndex = items.size / 2  // insert FAB at center position
 
-            // Center Japa FAB
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .offset(y = (-12).dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                FloatingActionButton(
-                    onClick = onJapaClick,
-                    containerColor = TempleGold,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    shape = CircleShape,
-                    modifier = Modifier
-                        .size(56.dp)
-                        .shadow(8.dp, CircleShape, ambientColor = TempleGold.copy(alpha = 0.4f)),
-                ) {
-                    Icon(
-                        Icons.Default.SelfImprovement,
-                        contentDescription = "Japa",
-                        modifier = Modifier.size(28.dp),
-                    )
+            items.forEachIndexed { index, item ->
+                // Insert FAB before the center item
+                if (index == fabIndex) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .graphicsLayer { clip = false }
+                            .offset(y = (-6).dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        FloatingActionButton(
+                            onClick = onJapaClick,
+                            containerColor = TempleGold,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            shape = CircleShape,
+                            modifier = Modifier
+                                .size(56.dp)
+                                .shadow(8.dp, CircleShape, ambientColor = TempleGold.copy(alpha = 0.4f)),
+                        ) {
+                            Icon(
+                                Icons.Default.SelfImprovement,
+                                contentDescription = "Japa",
+                                modifier = Modifier.size(28.dp),
+                            )
+                        }
+                    }
                 }
-            }
 
-            // Last three items (Panchangam, Pooja, More)
-            items.drop(2).forEach { item ->
                 PremiumNavItem(
                     item = item,
                     isSelected = currentRoute == item.screen.route,

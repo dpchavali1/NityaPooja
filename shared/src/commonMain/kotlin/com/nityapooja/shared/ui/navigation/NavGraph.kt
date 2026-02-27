@@ -49,6 +49,7 @@ import com.nityapooja.shared.ui.rashifal.RashifalScreen
 import com.nityapooja.shared.ui.puja.GuidedPujaScreen
 import com.nityapooja.shared.ui.timer.PoojaTimerScreen
 import com.nityapooja.shared.ui.jataka.JatakaChakramScreen
+import com.nityapooja.shared.ui.jataka.SavedProfilesScreen
 import com.nityapooja.shared.ui.gunamilan.GunaMilanScreen
 import com.nityapooja.shared.ui.virtualpooja.VirtualPoojaRoomScreen
 import com.nityapooja.shared.ui.audio.AudioMiniPlayer
@@ -203,6 +204,7 @@ fun NityaPoojaNavHost(
                     onNavigateToPoojaTimer = { navController.navigate(Screen.PoojaTimer.route) },
                     onNavigateToJatakaChakram = { navController.navigate(Screen.JatakaChakram.route) },
                     onNavigateToGunaMilan = { navController.navigate(Screen.GunaMilan.route) },
+                    onNavigateToSavedProfiles = { navController.navigate(Screen.SavedProfiles.route) },
                     onNavigateToVirtualPoojaRoom = { navController.navigate(Screen.VirtualPoojaRoom.route) },
                     bannerAd = bannerAd,
                 )
@@ -468,10 +470,16 @@ fun NityaPoojaNavHost(
             composable(Screen.JatakaChakram.route) {
                 JatakaChakramScreen(
                     onBack = { navController.popBackStack() },
+                    onNavigateToSavedProfiles = { navController.navigate(Screen.SavedProfiles.route) },
                 )
             }
             composable(Screen.GunaMilan.route) {
                 GunaMilanScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(Screen.SavedProfiles.route) {
+                SavedProfilesScreen(
                     onBack = { navController.popBackStack() },
                 )
             }

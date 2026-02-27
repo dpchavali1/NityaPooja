@@ -7,16 +7,16 @@ class AndroidNotificationScheduler(
     private val context: Context,
 ) : SharedNotificationScheduler {
 
-    override fun scheduleMorningReminder(hour: Int, minute: Int) {
-        NotificationScheduler.scheduleMorningReminder(context, hour, minute)
+    override fun scheduleMorningReminder(hour: Int, minute: Int, timezoneId: String) {
+        NotificationScheduler.scheduleMorningReminder(context, hour, minute, timezoneId)
     }
 
-    override fun scheduleEveningReminder(hour: Int, minute: Int) {
-        NotificationScheduler.scheduleEveningReminder(context, hour, minute)
+    override fun scheduleEveningReminder(hour: Int, minute: Int, timezoneId: String) {
+        NotificationScheduler.scheduleEveningReminder(context, hour, minute, timezoneId)
     }
 
-    override fun schedulePanchangReminder() {
-        NotificationScheduler.schedulePanchangReminder(context)
+    override fun schedulePanchangReminder(timezoneId: String) {
+        NotificationScheduler.schedulePanchangReminder(context, timezoneId)
     }
 
     override fun cancelMorningReminder() {

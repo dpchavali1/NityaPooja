@@ -24,6 +24,7 @@ import com.nityapooja.shared.ui.gunamilan.GunaMilanViewModel
 import com.nityapooja.shared.ui.home.HomeViewModel
 import com.nityapooja.shared.ui.japa.JapaViewModel
 import com.nityapooja.shared.ui.jataka.JatakaChakramViewModel
+import com.nityapooja.shared.ui.jataka.SavedProfilesViewModel
 import com.nityapooja.shared.ui.keertana.KeertanaViewModel
 import com.nityapooja.shared.ui.mantra.MantraChantingViewModel
 import com.nityapooja.shared.ui.mantra.MantraViewModel
@@ -47,6 +48,7 @@ val sharedModule = module {
     single<NityaPoojaDatabase> {
         get<RoomDatabase.Builder<NityaPoojaDatabase>>()
             .setDriver(BundledSQLiteDriver())
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
 
@@ -68,6 +70,7 @@ val sharedModule = module {
     single { get<NityaPoojaDatabase>().rashiDao() }
     single { get<NityaPoojaDatabase>().pujaStepDao() }
     single { get<NityaPoojaDatabase>().readingHistoryDao() }
+    single { get<NityaPoojaDatabase>().savedProfileDao() }
 
     // Database Seeder
     single { DatabaseSeeder(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
@@ -106,6 +109,7 @@ val sharedModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::JapaViewModel)
     viewModelOf(::JatakaChakramViewModel)
+    viewModelOf(::SavedProfilesViewModel)
     viewModelOf(::KeertanaViewModel)
     viewModelOf(::MantraChantingViewModel)
     viewModelOf(::MantraViewModel)

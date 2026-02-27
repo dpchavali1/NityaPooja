@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,10 +27,13 @@ import com.nityapooja.shared.platform.shareText
 @Composable
 fun JatakaChakramScreen(
     onBack: () -> Unit,
+    onNavigateToSavedProfiles: () -> Unit = {},
     viewModel: JatakaChakramViewModel = koinViewModel(),
+    savedProfilesViewModel: SavedProfilesViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var birthDetails by remember { mutableStateOf(BirthDetails()) }
+    var showProfilePicker by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -45,6 +50,9 @@ fun JatakaChakramScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showProfilePicker = true }) {
+                        Icon(Icons.Default.People, "Saved Profiles", tint = TempleGold)
+                    }
                     uiState.result?.let { result ->
                         IconButton(onClick = {
                             shareText(buildJatakaShareText(result))
@@ -72,32 +80,60 @@ fun JatakaChakramScreen(
                 )
             }
 
-            // Calculate button
+            // Calculate + Save buttons
             item {
-                Button(
-                    onClick = {
-                        viewModel.calculateChart(
-                            year = birthDetails.year,
-                            month = birthDetails.month,
-                            day = birthDetails.day,
-                            hour = birthDetails.hour,
-                            minute = birthDetails.minute,
-                            latitude = birthDetails.latitude,
-                            longitude = birthDetails.longitude,
-                            timezoneId = birthDetails.timezoneId,
-                            utcOffsetHours = birthDetails.timezoneOffsetHours,
-                        )
-                    },
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = TempleGold),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text(
-                        "చక్రం చూడండి / View Chart",
-                        fontWeight = FontWeight.Bold,
-                        color = DarkTeak,
-                        modifier = Modifier.padding(vertical = 4.dp),
-                    )
+                    Button(
+                        onClick = {
+                            viewModel.calculateChart(
+                                year = birthDetails.year,
+                                month = birthDetails.month,
+                                day = birthDetails.day,
+                                hour = birthDetails.hour,
+                                minute = birthDetails.minute,
+                                latitude = birthDetails.latitude,
+                                longitude = birthDetails.longitude,
+                                timezoneId = birthDetails.timezoneId,
+                                utcOffsetHours = birthDetails.timezoneOffsetHours,
+                            )
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = TempleGold),
+                    ) {
+                        Text(
+                            "చక్రం చూడండి / View Chart",
+                            fontWeight = FontWeight.Bold,
+                            color = DarkTeak,
+                            modifier = Modifier.padding(vertical = 4.dp),
+                        )
+                    }
+                    if (birthDetails.name.isNotBlank()) {
+                        FilledTonalButton(
+                            onClick = {
+                                savedProfilesViewModel.saveProfile(
+                                    existingId = null,
+                                    name = birthDetails.name,
+                                    year = birthDetails.year,
+                                    month = birthDetails.month,
+                                    day = birthDetails.day,
+                                    hour = birthDetails.hour,
+                                    minute = birthDetails.minute,
+                                    city = birthDetails.city,
+                                    latitude = birthDetails.latitude,
+                                    longitude = birthDetails.longitude,
+                                    timezoneId = birthDetails.timezoneId,
+                                    timezoneOffsetHours = birthDetails.timezoneOffsetHours,
+                                )
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Icon(Icons.Default.Save, null, modifier = Modifier.size(18.dp))
+                        }
+                    }
                 }
             }
 
@@ -153,6 +189,29 @@ fun JatakaChakramScreen(
                 }
             }
         }
+    }
+
+    // Profile picker bottom sheet
+    if (showProfilePicker) {
+        ProfilePickerSheet(
+            onDismiss = { showProfilePicker = false },
+            onProfileSelected = { profile ->
+                birthDetails = BirthDetails(
+                    name = profile.name,
+                    year = profile.year,
+                    month = profile.month,
+                    day = profile.day,
+                    hour = profile.hour,
+                    minute = profile.minute,
+                    city = profile.city,
+                    latitude = profile.latitude,
+                    longitude = profile.longitude,
+                    timezoneId = profile.timezoneId,
+                    timezoneOffsetHours = profile.timezoneOffsetHours,
+                )
+            },
+            onNavigateToSavedProfiles = onNavigateToSavedProfiles,
+        )
     }
 }
 

@@ -21,6 +21,7 @@ class DevotionalRepository(
     private val rashiDao: RashiDao,
     private val pujaStepDao: PujaStepDao,
     private val readingHistoryDao: ReadingHistoryDao,
+    private val savedProfileDao: SavedProfileDao,
 ) {
     // Deities
     fun getAllDeities(): Flow<List<DeityEntity>> = deityDao.getAllDeities()
@@ -132,4 +133,13 @@ class DevotionalRepository(
         }
     }
     suspend fun clearHistory() = readingHistoryDao.clearAll()
+
+    // Saved Profiles (for Jataka Chakram / Guna Milan)
+    fun getSavedProfiles(): Flow<List<SavedProfileEntity>> = savedProfileDao.getAllProfiles()
+    suspend fun getSavedProfileById(id: Long): SavedProfileEntity? = savedProfileDao.getProfileById(id)
+    suspend fun insertProfile(profile: SavedProfileEntity): Long = savedProfileDao.insertProfile(profile)
+    suspend fun updateProfile(profile: SavedProfileEntity) = savedProfileDao.updateProfile(profile)
+    suspend fun deleteProfile(profile: SavedProfileEntity) = savedProfileDao.deleteProfile(profile)
+    suspend fun findProfileByNameAndBirth(name: String, year: Int, month: Int, day: Int, hour: Int, minute: Int): SavedProfileEntity? =
+        savedProfileDao.findByNameAndBirth(name, year, month, day, hour, minute)
 }

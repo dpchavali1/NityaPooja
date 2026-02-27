@@ -38,6 +38,7 @@ fun MoreScreen(
     onNavigateToPoojaTimer: () -> Unit = {},
     onNavigateToJatakaChakram: () -> Unit = {},
     onNavigateToGunaMilan: () -> Unit = {},
+    onNavigateToSavedProfiles: () -> Unit = {},
     onNavigateToVirtualPoojaRoom: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
@@ -97,6 +98,7 @@ fun MoreScreen(
             }
             item { MoreMenuItem("జాతక చక్రం", "Birth Chart", Icons.Default.AutoAwesome, onNavigateToJatakaChakram) }
             item { MoreMenuItem("గుణ మిలనం", "Compatibility Match", Icons.Default.Favorite, onNavigateToGunaMilan) }
+            item { MoreMenuItem("కుటుంబ ప్రొఫైల్స్", "Family Profiles", Icons.Default.People, onNavigateToSavedProfiles) }
 
             item {
                 Spacer(Modifier.height(16.dp))

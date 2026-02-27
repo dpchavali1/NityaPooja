@@ -21,6 +21,7 @@ import kotlinx.datetime.offsetIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import com.nityapooja.shared.utils.AstronomicalCalculator
 import kotlin.math.*
 
 // ═══════════════════════════════════════════════════════════════
@@ -48,6 +49,10 @@ data class TithiInfo(
     val paksha: String,
     val pakshaTelugu: String,
     val endTime: String,      // when this tithi ends
+    val nextNameEnglish: String = "",
+    val nextNameTelugu: String = "",
+    val nextPaksha: String = "",
+    val nextPakshaTelugu: String = "",
 )
 
 data class NakshatraInfo(
@@ -55,6 +60,8 @@ data class NakshatraInfo(
     val nameEnglish: String,
     val nameTelugu: String,
     val endTime: String,      // when this nakshatra ends
+    val nextNameEnglish: String = "",
+    val nextNameTelugu: String = "",
 )
 
 data class YogaInfo(
@@ -62,6 +69,8 @@ data class YogaInfo(
     val nameEnglish: String,
     val nameTelugu: String,
     val endTime: String,
+    val nextNameEnglish: String = "",
+    val nextNameTelugu: String = "",
 )
 
 data class KaranaInfo(
@@ -554,19 +563,11 @@ class PanchangamViewModel(
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Lahiri Ayanamsa (Chitrapaksha — Govt. of India standard)
-    // Reference: Lahiri's Indian Ephemeris, Chitra at 0° Libra
-    // Ayanamsa on J2000.0 (1 Jan 2000) ≈ 23.853°
-    // Precession rate ≈ 50.29" per year
+    // Lahiri Ayanamsa — delegates to AstronomicalCalculator
+    // (IAU 2006 precession + nutation, GoI official base 23.856°)
     // ═══════════════════════════════════════════════════════════
 
-    private fun lahiriAyanamsa(jd: Double): Double {
-        val t = centuriesSinceJ2000(jd)
-        // Lahiri ayanamsa at J2000.0 = 23.853 degrees
-        // Precession: ~50.2882" per year = 0.01396628° per year
-        // With small quadratic correction
-        return 23.853 + 1.396628 * t + 0.000308 * t * t
-    }
+    private fun lahiriAyanamsa(jd: Double): Double = AstronomicalCalculator.lahiriAyanamsa(jd)
 
     // ═══════════════════════════════════════════════════════════
     // Julian Day calculation
@@ -593,56 +594,18 @@ class PanchangamViewModel(
     private fun centuriesSinceJ2000(jd: Double): Double = (jd - 2451545.0) / 36525.0
 
     // ═══════════════════════════════════════════════════════════
-    // Sun longitude (simplified Meeus — tropical)
+    // Sun longitude — delegates to AstronomicalCalculator
+    // (Full nutation + aberration corrections)
     // ═══════════════════════════════════════════════════════════
 
-    private fun sunLongitude(jd: Double): Double {
-        val t = centuriesSinceJ2000(jd)
-        val l0 = normalize360(280.46646 + 36000.76983 * t + 0.0003032 * t * t)
-        val m = normalize360(357.52911 + 35999.05029 * t - 0.0001537 * t * t)
-        val mRad = m * PI / 180.0
-        val c = (1.914602 - 0.004817 * t - 0.000014 * t * t) * sin(mRad) +
-                (0.019993 - 0.000101 * t) * sin(2 * mRad) +
-                0.000289 * sin(3 * mRad)
-        val sunTrueLong = l0 + c
-        val omega = 125.04 - 1934.136 * t
-        val apparent = sunTrueLong - 0.00569 - 0.00478 * sin(omega * PI / 180.0)
-        return normalize360(apparent)
-    }
+    private fun sunLongitude(jd: Double): Double = AstronomicalCalculator.sunLongitude(jd)
 
     // ═══════════════════════════════════════════════════════════
-    // Moon longitude (simplified Meeus — tropical)
+    // Moon longitude — delegates to AstronomicalCalculator
+    // (60-term ELP2000 Meeus series, ~0.003° accuracy)
     // ═══════════════════════════════════════════════════════════
 
-    private fun moonLongitude(jd: Double): Double {
-        val t = centuriesSinceJ2000(jd)
-        val lPrime = normalize360(218.3165 + 481267.8813 * t)
-        val d = normalize360(297.8502 + 445267.1115 * t)
-        val dRad = d * PI / 180.0
-        val m = normalize360(357.5291 + 35999.0503 * t)
-        val mRad = m * PI / 180.0
-        val mPrime = normalize360(134.9634 + 477198.8676 * t)
-        val mPrimeRad = mPrime * PI / 180.0
-        val f = normalize360(93.2720 + 483202.0175 * t)
-        val fRad = f * PI / 180.0
-
-        val longitude = lPrime +
-                6.289 * sin(mPrimeRad) +
-                1.274 * sin(2 * dRad - mPrimeRad) +
-                0.658 * sin(2 * dRad) +
-                0.214 * sin(2 * mPrimeRad) +
-                -0.186 * sin(mRad) +
-                -0.114 * sin(2 * fRad) +
-                0.059 * sin(2 * dRad - 2 * mPrimeRad) +
-                0.057 * sin(2 * dRad - mRad - mPrimeRad) +
-                0.053 * sin(2 * dRad + mPrimeRad) +
-                0.046 * sin(2 * dRad - mRad) +
-                -0.041 * sin(mRad - mPrimeRad) +
-                -0.035 * sin(dRad) +
-                -0.030 * sin(mRad + mPrimeRad)
-
-        return normalize360(longitude)
-    }
+    private fun moonLongitude(jd: Double): Double = AstronomicalCalculator.moonLongitude(jd)
 
     // ═══════════════════════════════════════════════════════════
     // Sidereal elongation at a given JD (for tithi end time search)
@@ -683,7 +646,9 @@ class PanchangamViewModel(
     /**
      * Finds the JD when [angleFunction] crosses [targetDegree].
      * Searches forward from [jdStart] up to [maxDaysAhead].
-     * Uses binary search with 1-minute precision.
+     *
+     * Uses 15-minute coarse scan + 30 binary search iterations.
+     * 30 iterations on a 15-min bracket: 15*60 / 2^30 ≈ 0.0008 seconds precision.
      */
     private fun findCrossingJD(
         jdStart: Double,
@@ -695,7 +660,7 @@ class PanchangamViewModel(
         var targetDelta = normalize360(targetDegree - startAngle)
         if (targetDelta == 0.0) targetDelta = 360.0
 
-        val stepDays = 1.0 / 24.0 // 1 hour
+        val stepDays = 1.0 / 96.0 // 15 minutes — finer coarse scan
         val maxJd = jdStart + maxDaysAhead
         var lo = jdStart
         var hi = jdStart
@@ -713,7 +678,8 @@ class PanchangamViewModel(
 
         if (!found) return jdStart + 1.0
 
-        repeat(24) {
+        // 30 iterations: converges to sub-second precision
+        repeat(30) {
             val mid = (lo + hi) / 2.0
             val delta = normalize360(angleFunction(mid) - startAngle)
             if (delta >= targetDelta) {
@@ -772,6 +738,11 @@ class PanchangamViewModel(
         val endJd = findCrossingJD(jd, nextBoundary, 2.0) { siderealElongation(it) }
         val endTimeStr = jdToLocalTimeWithDay(endJd, timezone, referenceDate)
 
+        // Next tithi after current one ends
+        val nextIndex = (tithiIndex + 1) % 30
+        val nextPaksha = if (nextIndex < 15) "Shukla Paksha" else "Krishna Paksha"
+        val nextPakshaTelugu = if (nextIndex < 15) "శుక్ల పక్షం" else "కృష్ణ పక్షం"
+
         return TithiInfo(
             index = tithiIndex,
             nameEnglish = TITHI_NAMES_ENGLISH[tithiIndex],
@@ -779,6 +750,10 @@ class PanchangamViewModel(
             paksha = paksha,
             pakshaTelugu = pakshaTelugu,
             endTime = endTimeStr,
+            nextNameEnglish = TITHI_NAMES_ENGLISH[nextIndex],
+            nextNameTelugu = TITHI_NAMES_TELUGU[nextIndex],
+            nextPaksha = nextPaksha,
+            nextPakshaTelugu = nextPakshaTelugu,
         )
     }
 
@@ -800,11 +775,16 @@ class PanchangamViewModel(
         val endJd = findCrossingJD(jd, nextBoundary, 2.0) { siderealMoonLong(it) }
         val endTimeStr = jdToLocalTimeWithDay(endJd, timezone, referenceDate)
 
+        // Next nakshatra after current one ends
+        val nextIndex = (index + 1) % 27
+
         return NakshatraInfo(
             index = index,
             nameEnglish = NAKSHATRA_NAMES_ENGLISH[index],
             nameTelugu = NAKSHATRA_NAMES_TELUGU[index],
             endTime = endTimeStr,
+            nextNameEnglish = NAKSHATRA_NAMES_ENGLISH[nextIndex],
+            nextNameTelugu = NAKSHATRA_NAMES_TELUGU[nextIndex],
         )
     }
 
@@ -828,11 +808,16 @@ class PanchangamViewModel(
         val endJd = findCrossingJD(jd, nextBoundary, 2.0) { siderealSunMoonSum(it) }
         val endTimeStr = jdToLocalTimeWithDay(endJd, timezone, referenceDate)
 
+        // Next yoga after current one ends
+        val nextYogaIndex = (index + 1) % 27
+
         return YogaInfo(
             index = index,
             nameEnglish = YOGA_NAMES_ENGLISH[index],
             nameTelugu = YOGA_NAMES_TELUGU[index],
             endTime = endTimeStr,
+            nextNameEnglish = YOGA_NAMES_ENGLISH[nextYogaIndex],
+            nextNameTelugu = YOGA_NAMES_TELUGU[nextYogaIndex],
         )
     }
 

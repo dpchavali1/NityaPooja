@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -68,21 +69,39 @@ class SettingsViewModel(
         rescheduleNotifications(timezone)
     }
     fun setMorningNotification(enabled: Boolean) {
-        viewModelScope.launch { preferencesManager.setMorningNotification(enabled) }
-        if (enabled) notificationScheduler.scheduleMorningReminder(5, 30, locationTimezone.value)
-        else notificationScheduler.cancelMorningReminder()
+        viewModelScope.launch {
+            preferencesManager.setMorningNotification(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                notificationScheduler.scheduleMorningReminder(5, 30, tz)
+            } else {
+                notificationScheduler.cancelMorningReminder()
+            }
+        }
     }
     fun setEveningNotification(enabled: Boolean) {
-        viewModelScope.launch { preferencesManager.setEveningNotification(enabled) }
-        if (enabled) notificationScheduler.scheduleEveningReminder(18, 30, locationTimezone.value)
-        else notificationScheduler.cancelEveningReminder()
+        viewModelScope.launch {
+            preferencesManager.setEveningNotification(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                notificationScheduler.scheduleEveningReminder(18, 30, tz)
+            } else {
+                notificationScheduler.cancelEveningReminder()
+            }
+        }
     }
     fun setFontSize(size: Int) { viewModelScope.launch { preferencesManager.setFontSize(size) } }
     fun setAutoDarkMode(enabled: Boolean) { viewModelScope.launch { preferencesManager.setAutoDarkMode(enabled) } }
     fun setPanchangNotifications(enabled: Boolean) {
-        viewModelScope.launch { preferencesManager.setPanchangNotifications(enabled) }
-        if (enabled) notificationScheduler.schedulePanchangReminder(locationTimezone.value)
-        else notificationScheduler.cancelPanchangReminder()
+        viewModelScope.launch {
+            preferencesManager.setPanchangNotifications(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                notificationScheduler.schedulePanchangReminder(tz)
+            } else {
+                notificationScheduler.cancelPanchangReminder()
+            }
+        }
     }
 
     /** Re-schedule all active notifications when timezone changes */

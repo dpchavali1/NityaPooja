@@ -151,6 +151,10 @@ dependencies {
     // Lottie
     implementation(libs.lottie.compose)
 
+    // Glance (App Widgets)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+
     // Ads — Google AdMob
     implementation(libs.play.ads)
 

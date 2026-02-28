@@ -50,6 +50,9 @@ fun SettingsScreen(
     val fontSize by viewModel.fontSize.collectAsState()
     val autoDarkMode by viewModel.autoDarkMode.collectAsState()
     val panchangNotifications by viewModel.panchangNotifications.collectAsState()
+    val quizNotification by viewModel.quizNotification.collectAsState()
+    val quizNotificationHour by viewModel.quizNotificationHour.collectAsState()
+    val quizNotificationMinute by viewModel.quizNotificationMinute.collectAsState()
 
     val dataCleared by viewModel.dataCleared.collectAsState()
 
@@ -268,8 +271,8 @@ fun SettingsScreen(
                     Slider(
                         value = fontSize.toFloat(),
                         onValueChange = { viewModel.setFontSize(it.toInt()) },
-                        valueRange = 12f..28f,
-                        steps = 7,
+                        valueRange = 14f..32f,
+                        steps = 8,
                         modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
                         colors = SliderDefaults.colors(
                             thumbColor = TempleGold,
@@ -370,6 +373,57 @@ fun SettingsScreen(
                         onCheckedChange = { viewModel.setPanchangNotifications(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
+                }
+                Spacer(Modifier.height(12.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("\u0C2A\u0C41\u0C30\u0C3E\u0C23\u0C3E\u0C32 \u0C15\u0C4D\u0C35\u0C3F\u0C1C\u0C4D", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        val timeLabel = "${if (quizNotificationHour >= 12) quizNotificationHour - 12 else quizNotificationHour}:${quizNotificationMinute.toString().padStart(2, '0')} ${if (quizNotificationHour >= 12) "PM" else "AM"}"
+                        Text("Puranas Quiz \u00B7 $timeLabel", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = quizNotification,
+                        onCheckedChange = { viewModel.setQuizNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
+                if (quizNotification) {
+                    Spacer(Modifier.height(12.dp))
+                    Text("\u0C38\u0C2E\u0C2F\u0C02 / Time", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf(18 to "6 PM", 19 to "7 PM", 20 to "8 PM", 21 to "9 PM").forEach { (h, label) ->
+                            FilterChip(
+                                selected = quizNotificationHour == h,
+                                onClick = { viewModel.setQuizNotificationTime(h, quizNotificationMinute) },
+                                label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = TempleGold.copy(alpha = 0.15f),
+                                    selectedLabelColor = TempleGold,
+                                ),
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf(0 to ":00", 30 to ":30").forEach { (m, label) ->
+                            FilterChip(
+                                selected = quizNotificationMinute == m,
+                                onClick = { viewModel.setQuizNotificationTime(quizNotificationHour, m) },
+                                label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = TempleGold.copy(alpha = 0.15f),
+                                    selectedLabelColor = TempleGold,
+                                ),
+                            )
+                        }
+                    }
                 }
             }
 

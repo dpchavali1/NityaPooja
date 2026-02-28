@@ -10,7 +10,7 @@ actual class UserPreferencesManager {
 
     // Backing state flows — setters update these so UI reacts immediately
     private val _themeMode = MutableStateFlow(prefs.get("theme_mode", "system"))
-    private val _fontSize = MutableStateFlow(prefs.getInt("font_size", 16))
+    private val _fontSize = MutableStateFlow(prefs.getInt("font_size", 18))
     private val _userName = MutableStateFlow(prefs.get("user_name", ""))
     private val _gotra = MutableStateFlow(prefs.get("gotra", ""))
     private val _nakshatra = MutableStateFlow(prefs.get("nakshatra", ""))
@@ -22,6 +22,9 @@ actual class UserPreferencesManager {
     private val _eveningNotification = MutableStateFlow(prefs.getBoolean("evening_notification", true))
     private val _autoDarkMode = MutableStateFlow(prefs.getBoolean("auto_dark_mode", false))
     private val _panchangNotifications = MutableStateFlow(prefs.getBoolean("panchang_notifications", false))
+    private val _quizNotification = MutableStateFlow(prefs.getBoolean("quiz_notification", true))
+    private val _quizNotificationHour = MutableStateFlow(prefs.getInt("quiz_notification_hour", 19))
+    private val _quizNotificationMinute = MutableStateFlow(prefs.getInt("quiz_notification_minute", 30))
     private val _japaTargetMalas = MutableStateFlow(prefs.getInt("japa_target_malas", 3))
     private val _onboardingCompleted = MutableStateFlow(prefs.getBoolean("onboarding_completed", false))
     private val _spotifyLinked = MutableStateFlow(prefs.getBoolean("spotify_linked", false))
@@ -43,6 +46,9 @@ actual class UserPreferencesManager {
     actual val eveningNotification: Flow<Boolean> = _eveningNotification
     actual val autoDarkMode: Flow<Boolean> = _autoDarkMode
     actual val panchangNotifications: Flow<Boolean> = _panchangNotifications
+    actual val quizNotification: Flow<Boolean> = _quizNotification
+    actual val quizNotificationHour: Flow<Int> = _quizNotificationHour
+    actual val quizNotificationMinute: Flow<Int> = _quizNotificationMinute
     actual val japaTargetMalas: Flow<Int> = _japaTargetMalas
     actual val onboardingCompleted: Flow<Boolean> = _onboardingCompleted
     actual val spotifyLinked: Flow<Boolean> = _spotifyLinked
@@ -54,7 +60,7 @@ actual class UserPreferencesManager {
         prefs.put("theme_mode", str); _themeMode.value = str
     }
     actual suspend fun setFontSize(size: Int) {
-        val clamped = size.coerceIn(12, 28)
+        val clamped = size.coerceIn(14, 32)
         prefs.putInt("font_size", clamped); _fontSize.value = clamped
     }
     actual suspend fun setUserName(name: String) { prefs.put("user_name", name); _userName.value = name }
@@ -70,6 +76,11 @@ actual class UserPreferencesManager {
     actual suspend fun setEveningNotification(enabled: Boolean) { prefs.putBoolean("evening_notification", enabled); _eveningNotification.value = enabled }
     actual suspend fun setAutoDarkMode(enabled: Boolean) { prefs.putBoolean("auto_dark_mode", enabled); _autoDarkMode.value = enabled }
     actual suspend fun setPanchangNotifications(enabled: Boolean) { prefs.putBoolean("panchang_notifications", enabled); _panchangNotifications.value = enabled }
+    actual suspend fun setQuizNotification(enabled: Boolean) { prefs.putBoolean("quiz_notification", enabled); _quizNotification.value = enabled }
+    actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
+        prefs.putInt("quiz_notification_hour", hour); _quizNotificationHour.value = hour
+        prefs.putInt("quiz_notification_minute", minute); _quizNotificationMinute.value = minute
+    }
     actual suspend fun setJapaTargetMalas(target: Int) { prefs.putInt("japa_target_malas", target); _japaTargetMalas.value = target }
     actual suspend fun setOnboardingCompleted(completed: Boolean) { prefs.putBoolean("onboarding_completed", completed); _onboardingCompleted.value = completed }
     actual suspend fun setSpotifyToken(token: String, expiresIn: Int) {

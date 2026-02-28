@@ -11,9 +11,11 @@ object NotificationScheduler {
     private const val MORNING_WORK_NAME = "morning_reminder"
     private const val EVENING_WORK_NAME = "evening_reminder"
     private const val PANCHANG_WORK_NAME = "panchang_reminder"
+    private const val QUIZ_WORK_NAME = "quiz_reminder"
     private const val MORNING_NOTIFICATION_ID = 1001
     private const val EVENING_NOTIFICATION_ID = 1002
     private const val PANCHANG_NOTIFICATION_ID = 1003
+    private const val QUIZ_NOTIFICATION_ID = 1004
 
     fun scheduleMorningReminder(context: Context, hour: Int, minute: Int, timezoneId: String = "") {
         val inputData = workDataOf(
@@ -85,6 +87,30 @@ object NotificationScheduler {
 
     fun cancelPanchangReminder(context: Context) {
         WorkManager.getInstance(context).cancelUniqueWork(PANCHANG_WORK_NAME)
+    }
+
+    fun scheduleQuizReminder(context: Context, hour: Int, minute: Int, timezoneId: String = "") {
+        val inputData = workDataOf(
+            NotificationWorker.KEY_NOTIFICATION_BODY to "పురాణాల క్విజ్ సమయం 📖 / Time for your Puranas Quiz!",
+            NotificationWorker.KEY_NOTIFICATION_ID to QUIZ_NOTIFICATION_ID,
+            NotificationWorker.KEY_NOTIFICATION_TYPE to NotificationWorker.TYPE_QUIZ,
+            NotificationWorker.KEY_HOUR to hour,
+            NotificationWorker.KEY_MINUTE to minute,
+            NotificationWorker.KEY_TIMEZONE to timezoneId,
+            NotificationWorker.KEY_WORK_NAME to QUIZ_WORK_NAME,
+        )
+        scheduleReminder(
+            context = context,
+            workName = QUIZ_WORK_NAME,
+            hour = hour,
+            minute = minute,
+            timezoneId = timezoneId,
+            inputData = inputData,
+        )
+    }
+
+    fun cancelQuizReminder(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(QUIZ_WORK_NAME)
     }
 
     private fun scheduleReminder(

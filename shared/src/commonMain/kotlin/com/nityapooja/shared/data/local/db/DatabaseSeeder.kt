@@ -3,6 +3,7 @@ package com.nityapooja.shared.data.local.db
 import com.nityapooja.shared.data.local.dao.*
 import com.nityapooja.shared.data.local.db.content.*
 import com.nityapooja.shared.data.local.entity.*
+import kotlinx.coroutines.flow.first
 
 class DatabaseSeeder(
     private val deityDao: DeityDao,
@@ -19,12 +20,13 @@ class DatabaseSeeder(
     private val chalisaDao: ChalisaDao,
     private val rashiDao: RashiDao,
     private val pujaStepDao: PujaStepDao,
+    private val puranaQuizDao: PuranaQuizDao,
     private val preferencesManager: com.nityapooja.shared.data.preferences.UserPreferencesManager,
 ) {
 
     companion object {
         // Bump this whenever content changes to force re-seed on existing installs
-        const val CONTENT_VERSION = 4
+        const val CONTENT_VERSION = 6
 
         // Audio hosted via GitHub releases — upload MP3s to this release tag
         private const val GH_AUDIO = "https://raw.githubusercontent.com/dpchavali1/NityaPoojaAudio/main/"
@@ -46,11 +48,16 @@ class DatabaseSeeder(
         seedSuprabhatam()
         seedAshtotra()
         seedTemples()
+        val existingFestival = festivalDao.getFestivalById(1).first()
+        if (existingFestival == null || existingFestival.significance == null) {
+            festivalDao.clearAll()
+        }
         seedFestivals()
         seedShlokas()
         seedChalisas()
         seedRashis()
         seedPujaSteps()
+        seedPuranaQuizzes()
 
         preferencesManager.setSeededVersion(CONTENT_VERSION)
     }
@@ -530,44 +537,64 @@ class DatabaseSeeder(
     private suspend fun seedFestivals() {
         festivalDao.insertAll(listOf(
             FestivalEntity(1, "Ugadi", "ఉగాది",
-                description = "Telugu New Year, celebrated with Ugadi Pachadi",
-                descriptionTelugu = "తెలుగు నూతన సంవత్సరం, ఉగాది పచ్చడితో జరుపుకుంటారు",
+                description = "Telugu people celebrate Ugadi as their New Year on Chaitra Shudda Padyami. The famous Ugadi Pachadi — a chutney made of six tastes — symbolises that life is a blend of joy, sorrow, anger, disgust, surprise, and fear. The Panchangam (almanac) is read aloud by priests, predicting the fortunes of the year ahead.",
+                descriptionTelugu = "చైత్ర శుద్ధ పాడ్యమి నాడు తెలుగు ప్రజలు ఉగాదిని నూతన సంవత్సరంగా జరుపుకుంటారు. ఆరు రుచులతో చేసిన ఉగాది పచ్చడి జీవితంలో సుఖ దుఃఖాల మిళితానికి చిహ్నం. పురోహితులు పంచాంగం చదివి సంవత్సరఫలాన్ని వినిపిస్తారు.",
+                significance = "Ugadi is the most important festival for Telugu and Kannada people, marking the start of a new Hindu lunar calendar year. It is observed in Andhra Pradesh, Telangana, and Karnataka with new clothes, home cleaning, and community gatherings. The festival embodies the philosophy that life's beauty lies in embracing all its flavors.",
+                significanceTelugu = "ఉగాది తెలుగు మరియు కన్నడ ప్రజలకు అత్యంత ముఖ్యమైన పండుగ, హిందూ చాంద్రమాన నూతన సంవత్సర ప్రారంభాన్ని సూచిస్తుంది. ఆంధ్రప్రదేశ్, తెలంగాణ మరియు కర్ణాటకలో కొత్త బట్టలు, ఇల్లు శుభ్రపరచడం, సమాజ సమావేశాలతో జరుపుకుంటారు. జీవితపు అందం దాని అన్ని రుచులను స్వీకరించడంలో ఉందని ఈ పండుగ బోధిస్తుంది.",
                 dateThisYear = "2026-03-19", dateNextYear = "2027-04-07"),
             FestivalEntity(2, "Sri Rama Navami", "శ్రీ రామ నవమి",
-                description = "Birthday of Lord Rama",
-                descriptionTelugu = "శ్రీరాముని జన్మదినం",
+                description = "Telugu households celebrate Sri Rama Navami on Chaitra Shudda Navami as the birthday of Lord Rama. Families fast and conduct Kalyanotsavam — a ceremonial wedding of Rama and Sita — in temples and homes. The Ramayana is recited and bhajans praising Rama are sung throughout the day.",
+                descriptionTelugu = "చైత్ర శుద్ధ నవమి నాడు తెలుగు ఇళ్ళలో శ్రీరాముని జన్మదినాన్ని జరుపుకుంటారు. కుటుంబాలు ఉపవాసం పాటించి దేవాలయాలలో రామ-సీతల కళ్యాణోత్సవం నిర్వహిస్తాయి. రోజంతా రామాయణ పారాయణం మరియు భజనలు జరుగుతాయి.",
+                significance = "Lord Rama is the ideal king, ideal son, and embodiment of dharma in Hindu tradition — qualities deeply revered in Telugu culture. The Telugu Ramayana by Valmiki and later by Bammera Pothana holds a special place in Telugu literature. Bhadrachalam Rama temple in Telangana is one of the most sacred Rama shrines, drawing lakhs of pilgrims on this day.",
+                significanceTelugu = "శ్రీరాముడు హిందూ సంప్రదాయంలో ఆదర్శ రాజు, ఆదర్శ కుమారుడు, ధర్మ స్వరూపుడు — తెలుగు సంస్కృతిలో అత్యంత పూజ్యమైన గుణాలు. వాల్మీకి రామాయణం మరియు బమ్మెర పోతన రచనలు తెలుగు సాహిత్యంలో విశేష స్థానం కలిగి ఉన్నాయి. తెలంగాణలోని భద్రాచలం రాముని దేవాలయం ఈ రోజున లక్షలాది మంది భక్తులను ఆకర్షిస్తుంది.",
                 dateThisYear = "2026-03-28", dateNextYear = "2027-04-16"),
             FestivalEntity(3, "Vinayaka Chavithi", "వినాయక చవితి",
-                description = "Birthday of Lord Ganesha, grand celebrations across Telugu states",
-                descriptionTelugu = "గణేశుని జన్మదినం, తెలుగు రాష్ట్రాలలో అంగరంగ వైభవంగా జరుపుతారు",
+                description = "Vinayaka Chavithi falls on Bhadrapada Shudda Chavithi and is celebrated for 11 days with elaborate clay Ganesha idols installed in homes and public pandals. The idols are immersed in water on the final day in a grand procession called Ganesh Visarjan. Telugu states are famous for their large, artistic Ganesha idols and community celebrations.",
+                descriptionTelugu = "వినాయక చవితి భాద్రపద శుద్ధ చవితి నాడు జరుగుతుంది, 11 రోజుల పాటు మట్టి గణేశ విగ్రహాలను ఇళ్ళలో మరియు పందిళ్ళలో ప్రతిష్ఠిస్తారు. చివరి రోజున గణేశ విసర్జన పేరుతో ఊరేగింపుతో నీటిలో నిమజ్జనం చేస్తారు. తెలుగు రాష్ట్రాలు పెద్ద కళాత్మక గణేశ విగ్రహాలు మరియు సమాజ వేడుకలకు ప్రసిద్ధి.",
+                significance = "Lord Ganesha is the remover of obstacles and is always invoked first in any Telugu ritual, making him the most universally worshipped deity in Telugu households. Vinayaka Chavithi is a community festival that brings families, neighbours, and entire towns together. The tradition of public Ganesha celebrations was revived by Bal Gangadhar Tilak to foster national unity and remains a vibrant social tradition.",
+                significanceTelugu = "శ్రీ గణేశుడు విఘ్నాలను తొలగించే దేవుడు, ప్రతి తెలుగు పూజలో మొదట ఆహ్వానించబడతారు, దీనివల్ల ఆయన తెలుగు ఇళ్ళలో అత్యంత విశ్వవ్యాప్తంగా పూజించబడే దేవుడు. వినాయక చవితి కుటుంబాలు, పొరుగువారు మరియు మొత్తం పట్టణాలను ఒక్కచోటకు చేర్చే సమాజ పండుగ. బాలగంగాధర తిలక్ జాతీయ ఐక్యత కోసం పునరుద్ధరించిన ఈ సంప్రదాయం ఇప్పటికీ చైతన్యవంతమైన సామాజిక వేడుకగా నిలిచింది.",
                 dateThisYear = "2026-09-12", dateNextYear = "2027-09-01"),
             FestivalEntity(4, "Dasara / Vijayadashami", "దసరా / విజయదశమి",
-                description = "Victory of good over evil, Goddess Durga worshipped",
-                descriptionTelugu = "మంచిపై చెడు యొక్క విజయం, దుర్గాదేవిని ఆరాధిస్తారు",
+                description = "Dasara celebrates the victory of Goddess Durga over the demon Mahishasura and Lord Rama's triumph over Ravana. In Telangana, Bathukamma — a unique floral festival — is the highlight of the nine-day Navaratri leading to Vijayadashami. Telugu people also observe Ayudha Puja, worshipping their tools, vehicles, and instruments on this day.",
+                descriptionTelugu = "దసరా దేవి దుర్గ మహిషాసురుని వధించిన విజయాన్ని మరియు రాముడు రావణుని జయించిన విజయాన్ని జరుపుకుంటుంది. తెలంగాణలో, నవరాత్రులలో బతుకమ్మ పండుగ ప్రత్యేక ఆకర్షణగా నిలుస్తుంది. తెలుగు ప్రజలు ఈ రోజు తమ పనిముట్లు, వాహనాలు, పరికరాలకు ఆయుధ పూజ కూడా చేస్తారు.",
+                significance = "Vijayadashami — the day of victory — is considered the most auspicious day in the Hindu calendar, ideal for beginning new ventures, education, or work. Bathukamma is a uniquely Telugu tradition where women create towering floral arrangements and celebrate womanhood with songs and dance. The festival reinforces the Telugu cultural values of courage, community, and reverence for nature.",
+                significanceTelugu = "విజయదశమి — విజయం యొక్క రోజు — హిందూ పంచాంగంలో అత్యంత శుభకరమైన రోజుగా భావిస్తారు, కొత్త వ్యాపారాలు, విద్య లేదా పని ప్రారంభించడానికి ఉత్తమం. బతుకమ్మ అనేది మహిళలు పూలతో ఎత్తైన అమరికలు చేసి పాటలు పాడే విశిష్టమైన తెలుగు సంప్రదాయం. ఈ పండుగ తెలుగు సంస్కృతిలో ధైర్యం, సమాజం మరియు ప్రకృతి పట్ల గౌరవం అనే విలువలను పటిష్ఠపరుస్తుంది.",
                 dateThisYear = "2026-10-20", dateNextYear = "2027-10-09"),
             FestivalEntity(5, "Deepavali", "దీపావళి",
-                description = "Festival of lights celebrating Lord Rama's return to Ayodhya",
-                descriptionTelugu = "రాముడు అయోధ్యకు తిరిగి వచ్చిన సందర్భంగా జరుపుకునే దీపాల పండుగ",
+                description = "Telugu families celebrate Deepavali as the day Lord Rama returned to Ayodhya after 14 years of exile, and the people lit oil lamps to welcome him. Naraka Chaturdashi — the day before Deepavali — is especially prominent as it marks Lord Krishna's victory over the demon Narakasura. Homes are decorated with rows of diyas, rangoli, and fireworks fill the night sky.",
+                descriptionTelugu = "రాముడు 14 సంవత్సరాల వనవాసం ముగించి అయోధ్యకు తిరిగి వచ్చిన రోజుగా తెలుగు కుటుంబాలు దీపావళి జరుపుకుంటాయి. నరక చతుర్దశి — దీపావళికి ముందు రోజు — శ్రీకృష్ణుడు నరకాసురుని వధించిన రోజుగా విశేషంగా జరుపుకుంటారు. ఇళ్ళను దీపాలు, రంగోలీలతో అలంకరించి, పటాసులతో రాత్రి ఆనందిస్తారు.",
+                significance = "Deepavali is the festival of lights — a triumph of light over darkness and knowledge over ignorance. In Telugu homes, Lakshmi Puja is performed on the main Deepavali day to invoke the goddess of wealth and prosperity. The festival is a time for family reunions, exchanging sweets, and sharing gifts, reinforcing the bonds of community and love.",
+                significanceTelugu = "దీపావళి వెలుతురు పండుగ — చీకటిపై వెలుతురు మరియు అజ్ఞానంపై జ్ఞానం యొక్క విజయం. తెలుగు ఇళ్ళలో సంపద మరియు సమృద్ధి దేవతను ఆహ్వానించేందుకు ప్రధాన దీపావళి రోజు లక్ష్మీ పూజ చేస్తారు. ఈ పండుగ కుటుంబ సమ్మేళనాలు, మిఠాయిల పంపకం, కానుకలు ఇచ్చుకోవడం ద్వారా సమాజ మరియు ప్రేమ బంధాలను బలపరుస్తుంది.",
                 dateThisYear = "2026-11-08", dateNextYear = "2027-10-29"),
             FestivalEntity(6, "Makara Sankranti", "మకర సంక్రాంతి",
-                description = "Harvest festival, kite flying, and Pongal celebrations",
-                descriptionTelugu = "పంట పండుగ, గాలిపటాలు ఎగురవేయడం, పొంగల్ వేడుకలు",
+                description = "Makara Sankranti marks the sun's northward journey (Uttarayana) and is the biggest harvest festival for Telugu people. It is a three-day celebration: Bhogi (bonfire of old possessions), Sankranti (main day with Pongal sweet rice), and Kanuma (worship of cattle). Colourful kite festivals fill Telugu skies, and women draw intricate muggulu (rangoli) designs at doorsteps.",
+                descriptionTelugu = "మకర సంక్రాంతి సూర్యుని ఉత్తరాయణ ప్రయాణాన్ని సూచిస్తుంది మరియు తెలుగు ప్రజలకు అతిపెద్ద పంట పండుగ. ఇది మూడు రోజుల వేడుక: భోగి (పాత వస్తువుల మంట), సంక్రాంతి (పొంగల్ వంటకంతో ప్రధాన రోజు), మరియు కానుమ (పశువుల పూజ). రంగురంగుల గాలిపటాలు తెలుగు ఆకాశాన్ని నింపుతాయి, మహిళలు ద్వారాల వద్ద ముగ్గులు పెడతారు.",
+                significance = "Sankranti is the most culturally rich Telugu festival, celebrating the agrarian roots of Telugu society with gratitude for a successful harvest. The festival honours the sun, cattle, and nature — the pillars of agricultural life. It is also when Telugu families perform Haridasu (folk music) traditions and visit ancestral temples, strengthening cultural and family identity.",
+                significanceTelugu = "సంక్రాంతి తెలుగు సమాజం యొక్క వ్యవసాయ మూలాలను విజయవంతమైన పంటకు కృతజ్ఞతలు చెబుతూ జరుపుకునే అత్యంత సాంస్కృతికంగా సంపన్నమైన తెలుగు పండుగ. ఈ పండుగ సూర్యుడు, పశువులు మరియు ప్రకృతిని — వ్యవసాయ జీవితపు స్తంభాలను — గౌరవిస్తుంది. హరిదాసు సంప్రదాయాలు మరియు వంశపారంపర్య దేవాలయ సందర్శనలు సాంస్కృతిక మరియు కుటుంబ గుర్తింపును బలపరుస్తాయి.",
                 dateThisYear = "2026-01-14", dateNextYear = "2027-01-14"),
             FestivalEntity(7, "Maha Shivaratri", "మహా శివరాత్రి",
-                description = "Night of Lord Shiva, observed with fasting and all-night vigil",
-                descriptionTelugu = "శివుని రాత్రి, ఉపవాసం మరియు రాత్రి జాగరణతో ఆచరిస్తారు",
+                description = "Maha Shivaratri is the night Lord Shiva is said to have performed the Tandava — the cosmic dance of creation and destruction. Devotees fast all day and observe a night-long vigil (jagarana), chanting 'Om Namah Shivaya' through the four watches of the night. Bilva leaves, milk, honey, and bhasma (sacred ash) are offered to the Shivalingam.",
+                descriptionTelugu = "మహా శివరాత్రి నాడు శివుడు తాండవం — సృష్టి మరియు ప్రళయం యొక్క విశ్వ నృత్యం — చేసినట్లు చెప్పబడుతుంది. భక్తులు రోజంతా ఉపవాసం పాటించి రాత్రి నాలుగు జాముల పాటు 'ఓం నమః శివాయ' జపిస్తూ జాగరణ చేస్తారు. శివలింగానికి బిల్వ పత్రాలు, పాలు, తేనె మరియు భస్మం అర్పిస్తారు.",
+                significance = "Maha Shivaratri is one of the most sacred nights in the Hindu calendar, when the cosmic energies are believed to be at their peak. For Telugu devotees, Srisailam Mallikarjuna — one of the 12 Jyotirlingas — is the most revered Shiva shrine, drawing hundreds of thousands of pilgrims on this night. The festival teaches the values of inner discipline, surrender to the divine, and transcendence of ego.",
+                significanceTelugu = "మహా శివరాత్రి హిందూ పంచాంగంలో అత్యంత పవిత్రమైన రాత్రులలో ఒకటి, విశ్వ శక్తులు తమ గరిష్ఠంగా ఉంటాయని భావిస్తారు. తెలుగు భక్తులకు, 12 జ్యోతిర్లింగాలలో ఒకటైన శ్రీశైల మల్లికార్జునుడు అత్యంత పూజ్యమైన శివ క్షేత్రం, ఈ రాత్రి లక్షల మంది భక్తులు వస్తారు. ఈ పండుగ అంతర్గత అనుశాసనం, దైవానికి శరణాగతి మరియు అహంకార అతిక్రమణ విలువలను బోధిస్తుంది.",
                 dateThisYear = "2026-02-15", dateNextYear = "2027-03-06"),
             FestivalEntity(8, "Hanuman Jayanti", "హనుమాన్ జయంతి",
-                description = "Birthday of Lord Hanuman",
-                descriptionTelugu = "హనుమంతుని జన్మదినం",
+                description = "Telugu people celebrate Hanuman Jayanti on Chaitra Pournami (Full Moon) with special Sundara Kanda parayanams — recitation of the chapter of Valmiki Ramayana where Hanuman finds Sita in Lanka. Hanuman shrines are found in virtually every Telugu village and neighbourhood, reflecting his immense popularity. Devotees observe fast and offer garlands of jasmine and red flowers.",
+                descriptionTelugu = "చైత్ర పౌర్ణమి రోజున తెలుగు ప్రజలు హనుమాన్ జయంతిని సుందరకాండ పారాయణంతో జరుపుకుంటారు — హనుమంతుడు లంకలో సీతను కనుగొన్న వాల్మీకి రామాయణ అధ్యాయాన్ని పఠిస్తారు. హనుమంతుని గుళ్ళు దాదాపు ప్రతి తెలుగు గ్రామంలో మరియు ఇరుగు పొరుగున కనిపిస్తాయి, అతని అపారమైన ప్రజాదరణను ప్రతిబింబిస్తాయి. భక్తులు ఉపవాసం పాటించి మల్లె మరియు ఎర్రని పువ్వుల దండలు అర్పిస్తారు.",
+                significance = "Hanuman is believed to grant strength, courage, protection, and fearlessness — qualities that Telugu people traditionally pray for. He is the ideal devotee (bhakta) and is revered as both a warrior and a spiritual master. Sundara Kanda parayanam is a weekly and festival practice in Telugu households, believed to remove all obstacles and bring peace to the family.",
+                significanceTelugu = "హనుమంతుడు బలం, ధైర్యం, రక్షణ మరియు నిర్భయత్వాన్ని ప్రసాదిస్తాడని నమ్మకం — తెలుగు ప్రజలు సంప్రదాయకంగా ప్రార్థించే గుణాలు. ఆయన ఆదర్శ భక్తుడు మరియు యోధుడు మరియు ఆధ్యాత్మిక గురువు రెండుగా పూజించబడతారు. సుందరకాండ పారాయణం తెలుగు ఇళ్ళలో వారపు మరియు పండుగ పద్ధతి, ఇది అన్ని విఘ్నాలను తొలగించి కుటుంబానికి శాంతి తెస్తుందని నమ్ముతారు.",
                 dateThisYear = "2026-04-04", dateNextYear = "2027-04-24"),
             FestivalEntity(9, "Krishna Janmashtami", "కృష్ణ జన్మాష్టమి",
-                description = "Birthday of Lord Krishna, celebrated at midnight",
-                descriptionTelugu = "శ్రీకృష్ణుని జన్మదినం, అర్ధరాత్రి జరుపుతారు",
+                description = "Krishna Janmashtami celebrates Lord Krishna's birth at midnight on Bhadrapada Krishna Ashtami. Telugu families observe a day-long fast broken only at midnight when Krishna is believed to have been born, followed by bhajans and Dahi Handi (pot-breaking) celebrations. Temples are beautifully decorated with cradles, flowers, and peacock feathers.",
+                descriptionTelugu = "కృష్ణ జన్మాష్టమి భాద్రపద కృష్ణ అష్టమి అర్ధరాత్రి శ్రీకృష్ణుని జన్మను జరుపుకుంటుంది. తెలుగు కుటుంబాలు పగటంతా ఉపవాసం పాటించి కృష్ణుడు జన్మించినట్లు భావించే అర్ధరాత్రి వ్రతం వదులుకుంటారు, తర్వాత భజనలు మరియు దహి హండి వేడుకలు జరుపుతారు. దేవాలయాలను ఊయలలు, పువ్వులు మరియు నెమలి పింఛాలతో అందంగా అలంకరిస్తారు.",
+                significance = "Lord Krishna's Bhagavad Gita teachings — delivered on the battlefield of Kurukshetra — are especially revered in Telugu households and form the philosophical backbone of Telugu devotional culture. Krishna is worshipped as the playful child (Bal Krishna), the romantic hero (Radha-Krishna), and the divine teacher (Jagadguru). The Pothana Bhagavatam — a Telugu classic — vividly narrates Krishna's life and is recited in every Telugu household.",
+                significanceTelugu = "కురుక్షేత్ర రణక్షేత్రంలో అందించిన శ్రీకృష్ణుని భగవద్గీత బోధనలు తెలుగు ఇళ్ళలో విశేష గౌరవం పొందుతాయి మరియు తెలుగు భక్తి సంస్కృతికి తాత్విక వెన్నెముకను అందిస్తాయి. కృష్ణుడు బాలకృష్ణుడు, రాధాకృష్ణుడు మరియు జగద్గురువుగా పూజించబడతారు. పోతన భాగవతం — తెలుగు క్లాసిక్ — కృష్ణుని జీవితాన్ని వివరంగా వర్ణిస్తుంది, ప్రతి తెలుగు ఇంట్లో పఠించబడుతుంది.",
                 dateThisYear = "2026-08-25", dateNextYear = "2027-08-15"),
             FestivalEntity(10, "Varalakshmi Vratam", "వరలక్ష్మీ వ్రతం",
-                description = "Worship of Goddess Lakshmi for prosperity",
-                descriptionTelugu = "సంపద కోసం లక్ష్మీదేవిని పూజించే వ్రతం",
+                description = "Varalakshmi Vratam is observed by Telugu women on the Friday before Shravan Pournami. Goddess Lakshmi is worshipped in her boon-giving form (Varalakshmi) to bring wealth, health, and happiness to the family. The vratam involves creating a kalasam (pot) decorated with turmeric, kumkum, and mango leaves, and performing elaborate puja with stories and songs.",
+                descriptionTelugu = "వరలక్ష్మీ వ్రతం శ్రావణ పౌర్ణమికి ముందు శుక్రవారం తెలుగు మహిళలు ఆచరిస్తారు. కుటుంబానికి సంపద, ఆరోగ్యం మరియు సంతోషం తేవడానికి లక్ష్మీదేవిని వరలక్ష్మి రూపంలో పూజిస్తారు. పసుపు, కుంకుమ, మామిడి ఆకులతో అలంకరించిన కలశంతో పూజ చేసి కథలు మరియు పాటలతో వేడుక జరుపుకుంటారు.",
+                significance = "Varalakshmi Vratam is unique to Telugu and Kannada communities and holds deep family-bonding significance, as women pray for the well-being of their entire family. It is one of the few festivals exclusively led by women, reflecting the matriarchal devotional tradition in Telugu culture. The festival reinforces the spiritual role of women as guardians of family prosperity and dharma.",
+                significanceTelugu = "వరలక్ష్మీ వ్రతం తెలుగు మరియు కన్నడ సమాజాలకు విశిష్టమైనది మరియు మహిళలు తమ మొత్తం కుటుంబ శ్రేయస్సు కోసం ప్రార్థించే లోతైన కుటుంబ బంధ ప్రాముఖ్యతను కలిగి ఉంది. మహిళలు మాత్రమే నేతృత్వం వహించే కొన్ని పండుగలలో ఇది ఒకటి, తెలుగు సంస్కృతిలో మాతృ భక్తి సంప్రదాయాన్ని ప్రతిబింబిస్తుంది. కుటుంబ సంపద మరియు ధర్మానికి సంరక్షకులుగా మహిళల ఆధ్యాత్మిక పాత్రను ఈ పండుగ బలపరుస్తుంది.",
                 dateThisYear = "2026-08-07", dateNextYear = "2027-07-30"),
         ))
     }
@@ -2258,5 +2285,10 @@ class DatabaseSeeder(
                 itemsNeeded = "Camphor, Lamp", itemsNeededTelugu = "కర్పూరం, దీపం",
                 mantra = "ఓం జయ లక్ష్మీ రమణా స్వామీ జయ లక్ష్మీ రమణా\n\nఅనయా షోడశోపచార పూజయా శ్రీ సత్యనారాయణ స్వామి సుప్రీతో వరదో భవతు", durationSeconds = 180),
         ))
+    }
+
+    private suspend fun seedPuranaQuizzes() {
+        if (puranaQuizDao.getCount() > 0) return
+        puranaQuizDao.insertAll(PuranaQuizContent.allQuizzes)
     }
 }

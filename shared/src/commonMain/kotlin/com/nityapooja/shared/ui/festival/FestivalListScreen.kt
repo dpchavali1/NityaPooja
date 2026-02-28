@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -50,6 +52,8 @@ fun FestivalListScreen(
 ) {
     val festivals by viewModel.allFestivals.collectAsState()
     var showCalendar by remember { mutableStateOf(false) }
+    var selectedFestival by remember { mutableStateOf<FestivalEntity?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         topBar = {
@@ -123,10 +127,22 @@ fun FestivalListScreen(
                         if (index == 3) {
                             bannerAd?.invoke()
                         }
-                        FestivalListItem(festival = festival)
+                        FestivalListItem(
+                            festival = festival,
+                            onClick = { selectedFestival = festival },
+                        )
                     }
                 }
             }
+        }
+    }
+
+    selectedFestival?.let { festival ->
+        ModalBottomSheet(
+            onDismissRequest = { selectedFestival = null },
+            sheetState = sheetState,
+        ) {
+            FestivalDetailSheet(festival = festival)
         }
     }
 }
@@ -352,10 +368,11 @@ private fun FestivalCalendarView(
 @Composable
 private fun FestivalListItem(
     festival: FestivalEntity,
+    onClick: () -> Unit = {},
 ) {
     val dateInfo = remember(festival) { festival.getUpcomingDateInfo() }
 
-    GlassmorphicCard {
+    GlassmorphicCard(onClick = onClick) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top,
@@ -450,6 +467,124 @@ private fun FestivalListItem(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FestivalDetailSheet(festival: FestivalEntity) {
+    val dateInfo = remember(festival) { festival.getUpcomingDateInfo() }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 32.dp),
+    ) {
+        // Header row: names + date chip
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    festival.nameTelugu,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    festival.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            dateInfo?.let { info ->
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = TempleGold.copy(alpha = 0.15f),
+                    modifier = Modifier.padding(start = 12.dp),
+                ) {
+                    Text(
+                        info.displayDate,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = TempleGold,
+                    )
+                }
+            }
+        }
+
+        // Countdown
+        dateInfo?.let { info ->
+            val countdownText = when {
+                info.daysUntil == 0 -> "Today!"
+                info.daysUntil == 1 -> "Tomorrow!"
+                info.daysUntil <= 30 -> "${info.daysUntil} days away"
+                else -> if (info.isPastThisYear) "Next year" else "${info.daysUntil} days away"
+            }
+            val countdownColor = when {
+                info.daysUntil <= 1 -> AuspiciousGreen
+                info.daysUntil <= 30 -> TempleGold
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
+            }
+            Spacer(Modifier.height(6.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Icon(Icons.Default.Schedule, null, modifier = Modifier.size(14.dp), tint = countdownColor)
+                Text(countdownText, style = MaterialTheme.typography.labelMedium, color = countdownColor, fontWeight = FontWeight.Medium)
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        // Why Telugu People Celebrate section
+        val description = festival.description
+        val descriptionTelugu = festival.descriptionTelugu
+        if (description != null || descriptionTelugu != null) {
+            GlassmorphicCard(accentColor = TempleGold) {
+                Text(
+                    "Why Telugu People Celebrate",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = TempleGold,
+                )
+                Spacer(Modifier.height(8.dp))
+                descriptionTelugu?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium)
+                }
+                description?.let {
+                    if (descriptionTelugu != null) Spacer(Modifier.height(6.dp))
+                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+
+        // Significance section
+        val significance = festival.significance
+        val significanceTelugu = festival.significanceTelugu
+        if (significance != null || significanceTelugu != null) {
+            Spacer(Modifier.height(12.dp))
+            GlassmorphicCard(accentColor = TempleGold) {
+                Text(
+                    "Significance",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = TempleGold,
+                )
+                Spacer(Modifier.height(8.dp))
+                significanceTelugu?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium)
+                }
+                significance?.let {
+                    if (significanceTelugu != null) Spacer(Modifier.height(6.dp))
+                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

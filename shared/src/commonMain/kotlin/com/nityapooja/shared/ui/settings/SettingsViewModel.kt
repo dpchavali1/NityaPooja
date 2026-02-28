@@ -51,13 +51,22 @@ class SettingsViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     val fontSize: StateFlow<Int> = preferencesManager.fontSize
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 16)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 18)
 
     val autoDarkMode: StateFlow<Boolean> = preferencesManager.autoDarkMode
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val panchangNotifications: StateFlow<Boolean> = preferencesManager.panchangNotifications
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val quizNotification: StateFlow<Boolean> = preferencesManager.quizNotification
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    val quizNotificationHour: StateFlow<Int> = preferencesManager.quizNotificationHour
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 19)
+
+    val quizNotificationMinute: StateFlow<Int> = preferencesManager.quizNotificationMinute
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 30)
 
     fun setThemeMode(mode: ThemeMode) { viewModelScope.launch { preferencesManager.setThemeMode(mode) } }
     fun setUserName(name: String) { viewModelScope.launch { preferencesManager.setUserName(name) } }
@@ -104,6 +113,30 @@ class SettingsViewModel(
         }
     }
 
+    fun setQuizNotification(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesManager.setQuizNotification(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                val hour = preferencesManager.quizNotificationHour.first()
+                val minute = preferencesManager.quizNotificationMinute.first()
+                notificationScheduler.scheduleQuizReminder(hour, minute, tz)
+            } else {
+                notificationScheduler.cancelQuizReminder()
+            }
+        }
+    }
+
+    fun setQuizNotificationTime(hour: Int, minute: Int) {
+        viewModelScope.launch {
+            preferencesManager.setQuizNotificationTime(hour, minute)
+            if (quizNotification.value) {
+                val tz = preferencesManager.locationTimezone.first()
+                notificationScheduler.scheduleQuizReminder(hour, minute, tz)
+            }
+        }
+    }
+
     /** Re-schedule all active notifications when timezone changes */
     private fun rescheduleNotifications(timezone: String) {
         if (morningNotification.value) {
@@ -114,6 +147,9 @@ class SettingsViewModel(
         }
         if (panchangNotifications.value) {
             notificationScheduler.schedulePanchangReminder(timezone)
+        }
+        if (quizNotification.value) {
+            notificationScheduler.scheduleQuizReminder(quizNotificationHour.value, quizNotificationMinute.value, timezone)
         }
     }
 

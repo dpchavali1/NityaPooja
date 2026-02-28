@@ -26,6 +26,9 @@ actual class UserPreferencesManager(private val context: Context) {
         val FONT_SIZE = intPreferencesKey("font_size")
         val AUTO_DARK_MODE = booleanPreferencesKey("auto_dark_mode")
         val PANCHANG_NOTIFICATIONS = booleanPreferencesKey("panchang_notifications")
+        val QUIZ_NOTIFICATION = booleanPreferencesKey("quiz_notification")
+        val QUIZ_NOTIFICATION_HOUR = intPreferencesKey("quiz_notification_hour")
+        val QUIZ_NOTIFICATION_MINUTE = intPreferencesKey("quiz_notification_minute")
         val JAPA_TARGET_MALAS = intPreferencesKey("japa_target_malas")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val GOTRA = stringPreferencesKey("gotra")
@@ -55,7 +58,7 @@ actual class UserPreferencesManager(private val context: Context) {
         }
     }
 
-    actual val fontSize: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.FONT_SIZE] ?: 16 }
+    actual val fontSize: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.FONT_SIZE] ?: 18 }
     actual val userName: Flow<String> = context.dataStore.data.map { prefs -> prefs[Keys.USER_NAME] ?: "" }
     actual val gotra: Flow<String> = context.dataStore.data.map { prefs -> prefs[Keys.GOTRA] ?: "" }
     actual val nakshatra: Flow<String> = context.dataStore.data.map { prefs -> prefs[Keys.NAKSHATRA] ?: "" }
@@ -67,6 +70,9 @@ actual class UserPreferencesManager(private val context: Context) {
     actual val eveningNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.EVENING_NOTIFICATION] ?: true }
     actual val autoDarkMode: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.AUTO_DARK_MODE] ?: false }
     actual val panchangNotifications: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.PANCHANG_NOTIFICATIONS] ?: false }
+    actual val quizNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION] ?: true }
+    actual val quizNotificationHour: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION_HOUR] ?: 19 }
+    actual val quizNotificationMinute: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION_MINUTE] ?: 30 }
     actual val japaTargetMalas: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.JAPA_TARGET_MALAS] ?: 3 }
     actual val onboardingCompleted: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.ONBOARDING_COMPLETED] ?: false }
     actual val spotifyLinked: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SPOTIFY_LINKED] ?: false }
@@ -83,7 +89,7 @@ actual class UserPreferencesManager(private val context: Context) {
             }
         }
     }
-    actual suspend fun setFontSize(size: Int) { context.dataStore.edit { it[Keys.FONT_SIZE] = size.coerceIn(12, 28) } }
+    actual suspend fun setFontSize(size: Int) { context.dataStore.edit { it[Keys.FONT_SIZE] = size.coerceIn(14, 32) } }
     actual suspend fun setUserName(name: String) { context.dataStore.edit { it[Keys.USER_NAME] = name } }
     actual suspend fun setGotra(gotra: String) { context.dataStore.edit { it[Keys.GOTRA] = gotra } }
     actual suspend fun setNakshatra(nakshatra: String) { context.dataStore.edit { it[Keys.NAKSHATRA] = nakshatra } }
@@ -99,6 +105,10 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setEveningNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.EVENING_NOTIFICATION] = enabled } }
     actual suspend fun setAutoDarkMode(enabled: Boolean) { context.dataStore.edit { it[Keys.AUTO_DARK_MODE] = enabled } }
     actual suspend fun setPanchangNotifications(enabled: Boolean) { context.dataStore.edit { it[Keys.PANCHANG_NOTIFICATIONS] = enabled } }
+    actual suspend fun setQuizNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.QUIZ_NOTIFICATION] = enabled } }
+    actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
+        context.dataStore.edit { it[Keys.QUIZ_NOTIFICATION_HOUR] = hour; it[Keys.QUIZ_NOTIFICATION_MINUTE] = minute }
+    }
     actual suspend fun setJapaTargetMalas(target: Int) { context.dataStore.edit { it[Keys.JAPA_TARGET_MALAS] = target } }
     actual suspend fun setOnboardingCompleted(completed: Boolean) { context.dataStore.edit { it[Keys.ONBOARDING_COMPLETED] = completed } }
     actual suspend fun setSpotifyToken(token: String, expiresIn: Int) {

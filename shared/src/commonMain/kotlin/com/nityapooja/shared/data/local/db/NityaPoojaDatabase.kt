@@ -34,11 +34,13 @@ expect object NityaPoojaDatabaseConstructor : RoomDatabaseConstructor<NityaPooja
         PujaStepEntity::class,
         ReadingHistoryEntity::class,
         SavedProfileEntity::class,
+        PuranaQuizEntity::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 9, to = 10),
     ],
 )
 @ConstructedBy(NityaPoojaDatabaseConstructor::class)
@@ -61,4 +63,5 @@ abstract class NityaPoojaDatabase : RoomDatabase() {
     abstract fun pujaStepDao(): PujaStepDao
     abstract fun readingHistoryDao(): ReadingHistoryDao
     abstract fun savedProfileDao(): SavedProfileDao
+    abstract fun puranaQuizDao(): PuranaQuizDao
 }

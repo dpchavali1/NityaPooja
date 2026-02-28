@@ -51,6 +51,9 @@
     <string name="continue_listening">Continue Listening</string>
     <string name="continue_listening_te">వినడం కొనసాగించండి</string>
 
+    <!-- Widget -->
+    <string name="panchangam_widget_description">Daily Panchangam (Tithi, Nakshatra, Yoga, Karana, Sunrise/Sunset)</string>
+
     <!-- Streak -->
     <string name="bhakti_streak">Bhakti Streak</string>
     <string name="day_streak">%d Day Streak!</string>

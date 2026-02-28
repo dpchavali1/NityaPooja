@@ -34,6 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.collectAsState
 import com.nityapooja.shared.platform.KeepScreenOn
 import com.nityapooja.shared.platform.PlatformHaptics
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.theme.*
@@ -55,6 +56,10 @@ fun JapaCounterScreen(
     val selectedMantra by viewModel.selectedMantra.collectAsState()
     val currentStreak by viewModel.currentStreak.collectAsState()
     val activeDaysCount by viewModel.activeDaysCount.collectAsState()
+
+    val fontSizeViewModel: FontSizeViewModel = koinViewModel()
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
+    val fontScale = fontSize / 16f
 
     val beadInMala = count % 108
     val progress by animateFloatAsState(
@@ -375,7 +380,7 @@ fun JapaCounterScreen(
                                     style = MaterialTheme.typography.displayLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    fontSize = 52.sp,
+                                    fontSize = (52 * fontScale).sp,
                                 )
                             }
                             Text(

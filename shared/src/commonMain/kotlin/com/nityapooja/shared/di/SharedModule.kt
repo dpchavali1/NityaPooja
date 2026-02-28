@@ -38,6 +38,7 @@ import com.nityapooja.shared.ui.settings.SettingsViewModel
 import com.nityapooja.shared.ui.stotram.StotramViewModel
 import com.nityapooja.shared.ui.suprabhatam.SuprabhatamViewModel
 import com.nityapooja.shared.ui.temple.TempleViewModel
+import com.nityapooja.shared.ui.quiz.PuranaQuizViewModel
 import com.nityapooja.shared.ui.virtualpooja.VirtualPoojaRoomViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -71,9 +72,10 @@ val sharedModule = module {
     single { get<NityaPoojaDatabase>().pujaStepDao() }
     single { get<NityaPoojaDatabase>().readingHistoryDao() }
     single { get<NityaPoojaDatabase>().savedProfileDao() }
+    single { get<NityaPoojaDatabase>().puranaQuizDao() }
 
     // Database Seeder
-    single { DatabaseSeeder(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { DatabaseSeeder(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 
     // Repository
     singleOf(::DevotionalRepository)
@@ -124,4 +126,5 @@ val sharedModule = module {
     viewModelOf(::SuprabhatamViewModel)
     viewModelOf(::TempleViewModel)
     viewModelOf(::VirtualPoojaRoomViewModel)
+    viewModelOf(::PuranaQuizViewModel)
 }

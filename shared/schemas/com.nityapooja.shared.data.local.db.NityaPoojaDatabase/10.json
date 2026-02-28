@@ -1,0 +1,1829 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 10,
+    "identityHash": "1de81c1d7f693d7f19873dbd1f52c967",
+    "entities": [
+      {
+        "tableName": "deities",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `nameTelugu` TEXT NOT NULL, `imageUrl` TEXT, `description` TEXT, `descriptionTelugu` TEXT, `dayOfWeek` TEXT, `colorTheme` TEXT, `imageResName` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameTelugu",
+            "columnName": "nameTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "descriptionTelugu",
+            "columnName": "descriptionTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dayOfWeek",
+            "columnName": "dayOfWeek",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "colorTheme",
+            "columnName": "colorTheme",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageResName",
+            "columnName": "imageResName",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "aartis",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `lyricsTelugu` TEXT, `lyricsEnglish` TEXT, `audioUrl` TEXT, `duration` INTEGER NOT NULL, `archiveOrgUrl` TEXT, `localAssetName` TEXT, `audioSource` TEXT, `isCached` INTEGER NOT NULL, `cachedFilePath` TEXT, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lyricsTelugu",
+            "columnName": "lyricsTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lyricsEnglish",
+            "columnName": "lyricsEnglish",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archiveOrgUrl",
+            "columnName": "archiveOrgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localAssetName",
+            "columnName": "localAssetName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isCached",
+            "columnName": "isCached",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedFilePath",
+            "columnName": "cachedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_aartis_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_aartis_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "stotrams",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `textSanskrit` TEXT, `textTelugu` TEXT, `textEnglish` TEXT, `audioUrl` TEXT, `duration` INTEGER NOT NULL, `verseCount` INTEGER NOT NULL, `archiveOrgUrl` TEXT, `localAssetName` TEXT, `audioSource` TEXT, `isCached` INTEGER NOT NULL, `cachedFilePath` TEXT, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textSanskrit",
+            "columnName": "textSanskrit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "textTelugu",
+            "columnName": "textTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "textEnglish",
+            "columnName": "textEnglish",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verseCount",
+            "columnName": "verseCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archiveOrgUrl",
+            "columnName": "archiveOrgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localAssetName",
+            "columnName": "localAssetName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isCached",
+            "columnName": "isCached",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedFilePath",
+            "columnName": "cachedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_stotrams_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stotrams_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "keertanalu",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `lyricsTelugu` TEXT, `lyricsEnglish` TEXT, `composer` TEXT, `composerTelugu` TEXT, `ragam` TEXT, `talam` TEXT, `audioUrl` TEXT, `duration` INTEGER NOT NULL, `category` TEXT, `archiveOrgUrl` TEXT, `localAssetName` TEXT, `audioSource` TEXT, `isCached` INTEGER NOT NULL, `cachedFilePath` TEXT, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lyricsTelugu",
+            "columnName": "lyricsTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lyricsEnglish",
+            "columnName": "lyricsEnglish",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "composer",
+            "columnName": "composer",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "composerTelugu",
+            "columnName": "composerTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ragam",
+            "columnName": "ragam",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "talam",
+            "columnName": "talam",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "archiveOrgUrl",
+            "columnName": "archiveOrgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localAssetName",
+            "columnName": "localAssetName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isCached",
+            "columnName": "isCached",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedFilePath",
+            "columnName": "cachedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_keertanalu_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_keertanalu_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "mantras",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `sanskrit` TEXT, `meaningTelugu` TEXT, `meaningEnglish` TEXT, `benefits` TEXT, `benefitsTelugu` TEXT, `audioUrl` TEXT, `category` TEXT, `recommendedCount` INTEGER NOT NULL, `archiveOrgUrl` TEXT, `localAssetName` TEXT, `audioSource` TEXT, `isCached` INTEGER NOT NULL, `cachedFilePath` TEXT, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sanskrit",
+            "columnName": "sanskrit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "meaningTelugu",
+            "columnName": "meaningTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "meaningEnglish",
+            "columnName": "meaningEnglish",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "benefits",
+            "columnName": "benefits",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "benefitsTelugu",
+            "columnName": "benefitsTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "recommendedCount",
+            "columnName": "recommendedCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archiveOrgUrl",
+            "columnName": "archiveOrgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localAssetName",
+            "columnName": "localAssetName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isCached",
+            "columnName": "isCached",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedFilePath",
+            "columnName": "cachedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_mantras_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_mantras_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "bhajans",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `lyricsTelugu` TEXT, `lyricsEnglish` TEXT, `audioUrl` TEXT, `duration` INTEGER NOT NULL, `category` TEXT, `language` TEXT, `archiveOrgUrl` TEXT, `localAssetName` TEXT, `audioSource` TEXT, `isCached` INTEGER NOT NULL, `cachedFilePath` TEXT, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lyricsTelugu",
+            "columnName": "lyricsTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lyricsEnglish",
+            "columnName": "lyricsEnglish",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "archiveOrgUrl",
+            "columnName": "archiveOrgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localAssetName",
+            "columnName": "localAssetName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isCached",
+            "columnName": "isCached",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedFilePath",
+            "columnName": "cachedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_bhajans_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_bhajans_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "suprabhatam",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `textSanskrit` TEXT, `textTelugu` TEXT, `textEnglish` TEXT, `audioUrl` TEXT, `duration` INTEGER NOT NULL, `verseCount` INTEGER NOT NULL, `archiveOrgUrl` TEXT, `localAssetName` TEXT, `audioSource` TEXT, `isCached` INTEGER NOT NULL, `cachedFilePath` TEXT, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textSanskrit",
+            "columnName": "textSanskrit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "textTelugu",
+            "columnName": "textTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "textEnglish",
+            "columnName": "textEnglish",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verseCount",
+            "columnName": "verseCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archiveOrgUrl",
+            "columnName": "archiveOrgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localAssetName",
+            "columnName": "localAssetName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isCached",
+            "columnName": "isCached",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedFilePath",
+            "columnName": "cachedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_suprabhatam_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_suprabhatam_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ashtotra",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `names` TEXT, `namesTelugu` TEXT, `audioUrl` TEXT, `duration` INTEGER NOT NULL, `archiveOrgUrl` TEXT, `localAssetName` TEXT, `audioSource` TEXT, `isCached` INTEGER NOT NULL, `cachedFilePath` TEXT, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "names",
+            "columnName": "names",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "namesTelugu",
+            "columnName": "namesTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archiveOrgUrl",
+            "columnName": "archiveOrgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "localAssetName",
+            "columnName": "localAssetName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isCached",
+            "columnName": "isCached",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedFilePath",
+            "columnName": "cachedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ashtotra_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ashtotra_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "temples",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `nameTelugu` TEXT NOT NULL, `location` TEXT, `locationTelugu` TEXT, `state` TEXT, `youtubeUrl` TEXT, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `timings` TEXT, `imageUrl` TEXT, `description` TEXT, `descriptionTelugu` TEXT, `hasLiveDarshan` INTEGER NOT NULL, `bookingUrl` TEXT, `websiteUrl` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameTelugu",
+            "columnName": "nameTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "locationTelugu",
+            "columnName": "locationTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timings",
+            "columnName": "timings",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "descriptionTelugu",
+            "columnName": "descriptionTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hasLiveDarshan",
+            "columnName": "hasLiveDarshan",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookingUrl",
+            "columnName": "bookingUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "websiteUrl",
+            "columnName": "websiteUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "festivals",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `nameTelugu` TEXT NOT NULL, `date` TEXT, `description` TEXT, `descriptionTelugu` TEXT, `significance` TEXT, `significanceTelugu` TEXT, `imageUrl` TEXT, `specialAartiId` INTEGER NOT NULL, `dateThisYear` TEXT, `dateNextYear` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameTelugu",
+            "columnName": "nameTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "descriptionTelugu",
+            "columnName": "descriptionTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "significance",
+            "columnName": "significance",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "significanceTelugu",
+            "columnName": "significanceTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "specialAartiId",
+            "columnName": "specialAartiId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateThisYear",
+            "columnName": "dateThisYear",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dateNextYear",
+            "columnName": "dateNextYear",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "bookmarks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `contentType` TEXT NOT NULL, `contentId` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentType",
+            "columnName": "contentType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentId",
+            "columnName": "contentId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "shlokas",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textSanskrit` TEXT NOT NULL, `textTelugu` TEXT, `meaningTelugu` TEXT, `meaningEnglish` TEXT, `source` TEXT, `dayOfYear` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textSanskrit",
+            "columnName": "textSanskrit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textTelugu",
+            "columnName": "textTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "meaningTelugu",
+            "columnName": "meaningTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "meaningEnglish",
+            "columnName": "meaningEnglish",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dayOfYear",
+            "columnName": "dayOfYear",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "japa_sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mantraName` TEXT NOT NULL, `mantraNameTelugu` TEXT NOT NULL, `count` INTEGER NOT NULL, `malasCompleted` INTEGER NOT NULL, `date` TEXT NOT NULL, `durationSeconds` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mantraName",
+            "columnName": "mantraName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mantraNameTelugu",
+            "columnName": "mantraNameTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "count",
+            "columnName": "count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "malasCompleted",
+            "columnName": "malasCompleted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationSeconds",
+            "columnName": "durationSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "chalisas",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deityId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `doha` TEXT, `dohaTelugu` TEXT, `chaupai` TEXT, `chaupaiTelugu` TEXT, `audioUrl` TEXT, `duration` INTEGER NOT NULL, `audioSource` TEXT, `verseCount` INTEGER NOT NULL, `youtubeUrl` TEXT, FOREIGN KEY(`deityId`) REFERENCES `deities`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deityId",
+            "columnName": "deityId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doha",
+            "columnName": "doha",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dohaTelugu",
+            "columnName": "dohaTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "chaupai",
+            "columnName": "chaupai",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "chaupaiTelugu",
+            "columnName": "chaupaiTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioSource",
+            "columnName": "audioSource",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "verseCount",
+            "columnName": "verseCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "youtubeUrl",
+            "columnName": "youtubeUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_chalisas_deityId",
+            "unique": false,
+            "columnNames": [
+              "deityId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_chalisas_deityId` ON `${TABLE_NAME}` (`deityId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deities",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deityId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "rashis",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `nameTelugu` TEXT NOT NULL, `symbol` TEXT NOT NULL, `dateRange` TEXT NOT NULL, `dateRangeTelugu` TEXT NOT NULL, `element` TEXT NOT NULL, `rulingPlanet` TEXT NOT NULL, `rulingPlanetTelugu` TEXT NOT NULL, `predictionSun` TEXT, `predictionSunTelugu` TEXT, `predictionMon` TEXT, `predictionMonTelugu` TEXT, `predictionTue` TEXT, `predictionTueTelugu` TEXT, `predictionWed` TEXT, `predictionWedTelugu` TEXT, `predictionThu` TEXT, `predictionThuTelugu` TEXT, `predictionFri` TEXT, `predictionFriTelugu` TEXT, `predictionSat` TEXT, `predictionSatTelugu` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameTelugu",
+            "columnName": "nameTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "symbol",
+            "columnName": "symbol",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateRange",
+            "columnName": "dateRange",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateRangeTelugu",
+            "columnName": "dateRangeTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "element",
+            "columnName": "element",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rulingPlanet",
+            "columnName": "rulingPlanet",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rulingPlanetTelugu",
+            "columnName": "rulingPlanetTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "predictionSun",
+            "columnName": "predictionSun",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionSunTelugu",
+            "columnName": "predictionSunTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionMon",
+            "columnName": "predictionMon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionMonTelugu",
+            "columnName": "predictionMonTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionTue",
+            "columnName": "predictionTue",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionTueTelugu",
+            "columnName": "predictionTueTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionWed",
+            "columnName": "predictionWed",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionWedTelugu",
+            "columnName": "predictionWedTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionThu",
+            "columnName": "predictionThu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionThuTelugu",
+            "columnName": "predictionThuTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionFri",
+            "columnName": "predictionFri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionFriTelugu",
+            "columnName": "predictionFriTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionSat",
+            "columnName": "predictionSat",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "predictionSatTelugu",
+            "columnName": "predictionSatTelugu",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "puja_steps",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pujaType` TEXT NOT NULL, `tier` TEXT NOT NULL, `stepNumber` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `instruction` TEXT NOT NULL, `instructionTelugu` TEXT NOT NULL, `itemsNeeded` TEXT, `itemsNeededTelugu` TEXT, `mantra` TEXT, `mantraTelugu` TEXT, `durationSeconds` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pujaType",
+            "columnName": "pujaType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tier",
+            "columnName": "tier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepNumber",
+            "columnName": "stepNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instruction",
+            "columnName": "instruction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "instructionTelugu",
+            "columnName": "instructionTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemsNeeded",
+            "columnName": "itemsNeeded",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "itemsNeededTelugu",
+            "columnName": "itemsNeededTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mantra",
+            "columnName": "mantra",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mantraTelugu",
+            "columnName": "mantraTelugu",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "durationSeconds",
+            "columnName": "durationSeconds",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "reading_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `contentType` TEXT NOT NULL, `contentId` INTEGER NOT NULL, `title` TEXT NOT NULL, `titleTelugu` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentType",
+            "columnName": "contentType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentId",
+            "columnName": "contentId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleTelugu",
+            "columnName": "titleTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "saved_profiles",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `year` INTEGER NOT NULL, `month` INTEGER NOT NULL, `day` INTEGER NOT NULL, `hour` INTEGER NOT NULL, `minute` INTEGER NOT NULL, `city` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `timezoneId` TEXT NOT NULL, `timezoneOffsetHours` REAL NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "year",
+            "columnName": "year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "month",
+            "columnName": "month",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "day",
+            "columnName": "day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hour",
+            "columnName": "hour",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minute",
+            "columnName": "minute",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "city",
+            "columnName": "city",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timezoneId",
+            "columnName": "timezoneId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timezoneOffsetHours",
+            "columnName": "timezoneOffsetHours",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "purana_quizzes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `question` TEXT NOT NULL, `questionTelugu` TEXT NOT NULL, `option1` TEXT NOT NULL, `option1Telugu` TEXT NOT NULL, `option2` TEXT NOT NULL, `option2Telugu` TEXT NOT NULL, `option3` TEXT NOT NULL, `option3Telugu` TEXT NOT NULL, `option4` TEXT NOT NULL, `option4Telugu` TEXT NOT NULL, `correctOption` INTEGER NOT NULL, `puranam` TEXT NOT NULL, `puranamTelugu` TEXT NOT NULL, `chapter` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "question",
+            "columnName": "question",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questionTelugu",
+            "columnName": "questionTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option1",
+            "columnName": "option1",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option1Telugu",
+            "columnName": "option1Telugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option2",
+            "columnName": "option2",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option2Telugu",
+            "columnName": "option2Telugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option3",
+            "columnName": "option3",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option3Telugu",
+            "columnName": "option3Telugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option4",
+            "columnName": "option4",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "option4Telugu",
+            "columnName": "option4Telugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correctOption",
+            "columnName": "correctOption",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puranam",
+            "columnName": "puranam",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "puranamTelugu",
+            "columnName": "puranamTelugu",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapter",
+            "columnName": "chapter",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1de81c1d7f693d7f19873dbd1f52c967')"
+    ]
+  }
+}

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import com.nityapooja.shared.data.local.entity.RashiEntity
 import com.nityapooja.shared.ui.components.EmptyState
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.theme.TempleGold
 
@@ -35,6 +36,10 @@ fun RashifalScreen(
     val rashis by viewModel.rashis.collectAsState()
     val selectedRashi by viewModel.selectedRashi.collectAsState()
 
+    val fontSizeViewModel: FontSizeViewModel = koinViewModel()
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
+    val fontScale = fontSize / 16f
+
     // Show prediction dialog when a rashi is selected
     selectedRashi?.let { rashi ->
         val (predictionTelugu, predictionEnglish) = viewModel.getTodayPrediction(rashi)
@@ -42,6 +47,7 @@ fun RashifalScreen(
             rashi = rashi,
             predictionTelugu = predictionTelugu,
             predictionEnglish = predictionEnglish,
+            fontScale = fontScale,
             onDismiss = { viewModel.clearSelection() },
         )
     }
@@ -164,6 +170,7 @@ private fun RashiPredictionDialog(
     rashi: RashiEntity,
     predictionTelugu: String?,
     predictionEnglish: String?,
+    fontScale: Float = 1f,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -196,8 +203,8 @@ private fun RashiPredictionDialog(
                     Text(
                         predictionTelugu,
                         style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 18.sp,
-                            lineHeight = 28.sp,
+                            fontSize = (18 * fontScale).sp,
+                            lineHeight = (28 * fontScale).sp,
                         ),
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.primary,
@@ -208,8 +215,8 @@ private fun RashiPredictionDialog(
                     Text(
                         predictionEnglish,
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 14.sp,
-                            lineHeight = 22.sp,
+                            fontSize = (14 * fontScale).sp,
+                            lineHeight = (22 * fontScale).sp,
                         ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

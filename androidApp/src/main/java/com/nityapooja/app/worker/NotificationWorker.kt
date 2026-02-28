@@ -38,6 +38,7 @@ class NotificationWorker(
         const val KEY_WORK_NAME = "work_name"
         const val TYPE_MORNING = "morning"
         const val TYPE_EVENING = "evening"
+        const val TYPE_QUIZ = "quiz"
     }
 
     override suspend fun doWork(): Result {
@@ -132,6 +133,7 @@ class NotificationWorker(
         val title = when (type) {
             TYPE_MORNING -> "NityaPooja - Morning Blessing"
             TYPE_EVENING -> "NityaPooja - Evening Aarti"
+            TYPE_QUIZ -> "NityaPooja - Puranas Quiz 📖"
             else -> "NityaPooja"
         }
 

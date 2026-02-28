@@ -20,4 +20,7 @@ interface FestivalDao {
 
     @Query("SELECT COUNT(*) FROM festivals")
     suspend fun getCount(): Int
+
+    @Query("DELETE FROM festivals")
+    suspend fun clearAll()
 }

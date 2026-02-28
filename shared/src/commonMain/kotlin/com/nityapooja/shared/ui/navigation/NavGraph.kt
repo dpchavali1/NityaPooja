@@ -58,6 +58,7 @@ import com.nityapooja.shared.ui.components.PremiumBottomBar
 import com.nityapooja.shared.ui.mantra.MantraChantingScreen
 import com.nityapooja.shared.ui.onboarding.OnboardingScreen
 import com.nityapooja.shared.ui.store.DevotionalStoreScreen
+import com.nityapooja.shared.ui.quiz.PuranaQuizScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -206,6 +207,7 @@ fun NityaPoojaNavHost(
                     onNavigateToGunaMilan = { navController.navigate(Screen.GunaMilan.route) },
                     onNavigateToSavedProfiles = { navController.navigate(Screen.SavedProfiles.route) },
                     onNavigateToVirtualPoojaRoom = { navController.navigate(Screen.VirtualPoojaRoom.route) },
+                    onNavigateToPuranaQuiz = { navController.navigate(Screen.PuranaQuiz.route) },
                     bannerAd = bannerAd,
                 )
             }
@@ -487,6 +489,13 @@ fun NityaPoojaNavHost(
             // Devotional Store
             composable(Screen.DevotionalStore.route) {
                 DevotionalStoreScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            // Puranas Quiz
+            composable(Screen.PuranaQuiz.route) {
+                PuranaQuizScreen(
                     onBack = { navController.popBackStack() },
                 )
             }

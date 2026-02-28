@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import com.nityapooja.shared.ui.components.*
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
@@ -374,13 +375,19 @@ private fun PujaStepContent(
             Spacer(Modifier.height(8.dp))
             Text(
                 currentStep.instructionTelugu,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = (16 * fontScale).sp,
+                    lineHeight = (26 * fontScale).sp,
+                ),
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 currentStep.instruction,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = (14 * fontScale).sp,
+                    lineHeight = (22 * fontScale).sp,
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
@@ -397,14 +404,20 @@ private fun PujaStepContent(
                 if (!currentStep.itemsNeededTelugu.isNullOrBlank()) {
                     Text(
                         currentStep.itemsNeededTelugu,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = (16 * fontScale).sp,
+                            lineHeight = (26 * fontScale).sp,
+                        ),
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(Modifier.height(4.dp))
                 }
                 Text(
                     currentStep.itemsNeeded,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = (14 * fontScale).sp,
+                        lineHeight = (22 * fontScale).sp,
+                    ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -426,7 +439,10 @@ private fun PujaStepContent(
                 if (!currentStep.mantraTelugu.isNullOrBlank()) {
                     Text(
                         currentStep.mantraTelugu,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = (18 * fontScale).sp,
+                            lineHeight = (30 * fontScale).sp,
+                        ),
                         fontWeight = FontWeight.Medium,
                         color = TempleGold,
                     )
@@ -434,7 +450,10 @@ private fun PujaStepContent(
                 }
                 Text(
                     currentStep.mantra,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = (16 * fontScale).sp,
+                        lineHeight = (26 * fontScale).sp,
+                    ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

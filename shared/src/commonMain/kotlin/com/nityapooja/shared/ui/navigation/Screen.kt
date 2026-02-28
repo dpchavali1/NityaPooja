@@ -81,6 +81,8 @@ sealed class Screen(val route: String) {
     data object MantraChanting : Screen("mantra_chanting/{id}/{type}") {
         fun createRoute(id: Int, type: String) = "mantra_chanting/$id/$type"
     }
+
+    data object PuranaQuiz : Screen("purana_quiz")
 }
 
 data class BottomNavItem(

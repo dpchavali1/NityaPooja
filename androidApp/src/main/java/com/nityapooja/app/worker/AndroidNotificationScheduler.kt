@@ -31,9 +31,18 @@ class AndroidNotificationScheduler(
         NotificationScheduler.cancelPanchangReminder(context)
     }
 
+    override fun scheduleQuizReminder(hour: Int, minute: Int, timezoneId: String) {
+        NotificationScheduler.scheduleQuizReminder(context, hour, minute, timezoneId)
+    }
+
+    override fun cancelQuizReminder() {
+        NotificationScheduler.cancelQuizReminder(context)
+    }
+
     override fun cancelAll() {
         cancelMorningReminder()
         cancelEveningReminder()
         cancelPanchangReminder()
+        cancelQuizReminder()
     }
 }

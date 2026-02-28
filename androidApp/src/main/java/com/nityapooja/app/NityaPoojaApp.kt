@@ -9,6 +9,7 @@ import com.nityapooja.app.di.androidAppModule
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.di.androidPlatformModule
 import com.nityapooja.shared.di.sharedModule
+import com.nityapooja.app.widget.PanchangamWidgetUpdateWorker
 import com.nityapooja.shared.platform.NotificationScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,7 @@ class NityaPoojaApp : Application() {
         }
         createNotificationChannels()
         scheduleNotificationsFromPreferences()
+        PanchangamWidgetUpdateWorker.schedule(this)
         MobileAds.setRequestConfiguration(
             RequestConfiguration.Builder()
                 .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G)
@@ -44,15 +46,21 @@ class NityaPoojaApp : Application() {
         appScope.launch {
             val prefs = getKoin().get<UserPreferencesManager>()
             val scheduler = getKoin().get<NotificationScheduler>()
+            val timezone = prefs.locationTimezone.first()
 
             if (prefs.morningNotification.first()) {
-                scheduler.scheduleMorningReminder(5, 30)
+                scheduler.scheduleMorningReminder(5, 30, timezone)
             }
             if (prefs.eveningNotification.first()) {
-                scheduler.scheduleEveningReminder(18, 30)
+                scheduler.scheduleEveningReminder(18, 30, timezone)
             }
             if (prefs.panchangNotifications.first()) {
-                scheduler.schedulePanchangReminder()
+                scheduler.schedulePanchangReminder(timezone)
+            }
+            if (prefs.quizNotification.first()) {
+                val hour = prefs.quizNotificationHour.first()
+                val minute = prefs.quizNotificationMinute.first()
+                scheduler.scheduleQuizReminder(hour, minute, timezone)
             }
         }
     }

@@ -40,6 +40,7 @@ fun MoreScreen(
     onNavigateToGunaMilan: () -> Unit = {},
     onNavigateToSavedProfiles: () -> Unit = {},
     onNavigateToVirtualPoojaRoom: () -> Unit = {},
+    onNavigateToPuranaQuiz: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
     Scaffold(
@@ -90,6 +91,7 @@ fun MoreScreen(
             item { MoreMenuItem("పూజా విధానం", "Guided Puja", Icons.Default.Spa, onNavigateToGuidedPuja) }
             item { MoreMenuItem("పూజా టైమర్", "Pooja Timer", Icons.Default.Timer, onNavigateToPoojaTimer) }
             item { MoreMenuItem("పూజా గది", "Virtual Pooja Room", Icons.Default.VolunteerActivism, onNavigateToVirtualPoojaRoom) }
+            item { MoreMenuItem("పురాణాల క్విజ్", "Puranas Quiz", Icons.Default.Quiz, onNavigateToPuranaQuiz) }
 
             item {
                 Spacer(Modifier.height(16.dp))

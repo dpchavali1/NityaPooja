@@ -20,6 +20,10 @@ object NotificationScheduler {
             NotificationWorker.KEY_NOTIFICATION_BODY to "Time for morning prayers",
             NotificationWorker.KEY_NOTIFICATION_ID to MORNING_NOTIFICATION_ID,
             NotificationWorker.KEY_NOTIFICATION_TYPE to NotificationWorker.TYPE_MORNING,
+            NotificationWorker.KEY_HOUR to hour,
+            NotificationWorker.KEY_MINUTE to minute,
+            NotificationWorker.KEY_TIMEZONE to timezoneId,
+            NotificationWorker.KEY_WORK_NAME to MORNING_WORK_NAME,
         )
         scheduleReminder(
             context = context,
@@ -36,6 +40,10 @@ object NotificationScheduler {
             NotificationWorker.KEY_NOTIFICATION_BODY to "Time for evening aarti",
             NotificationWorker.KEY_NOTIFICATION_ID to EVENING_NOTIFICATION_ID,
             NotificationWorker.KEY_NOTIFICATION_TYPE to NotificationWorker.TYPE_EVENING,
+            NotificationWorker.KEY_HOUR to hour,
+            NotificationWorker.KEY_MINUTE to minute,
+            NotificationWorker.KEY_TIMEZONE to timezoneId,
+            NotificationWorker.KEY_WORK_NAME to EVENING_WORK_NAME,
         )
         scheduleReminder(
             context = context,
@@ -52,6 +60,10 @@ object NotificationScheduler {
             NotificationWorker.KEY_NOTIFICATION_BODY to "Check today's Panchangam for auspicious timings",
             NotificationWorker.KEY_NOTIFICATION_ID to PANCHANG_NOTIFICATION_ID,
             NotificationWorker.KEY_NOTIFICATION_TYPE to "panchang",
+            NotificationWorker.KEY_HOUR to 6,
+            NotificationWorker.KEY_MINUTE to 0,
+            NotificationWorker.KEY_TIMEZONE to timezoneId,
+            NotificationWorker.KEY_WORK_NAME to PANCHANG_WORK_NAME,
         )
         scheduleReminder(
             context = context,
@@ -83,12 +95,10 @@ object NotificationScheduler {
         timezoneId: String,
         inputData: Data,
     ) {
-        val initialDelay = calculateInitialDelay(hour, minute, timezoneId)
+        val delay = calculateDelayMillis(hour, minute, timezoneId)
 
-        val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
-            24, TimeUnit.HOURS,
-        )
-            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             .setInputData(inputData)
             .setConstraints(
                 Constraints.Builder()
@@ -97,25 +107,19 @@ object NotificationScheduler {
             )
             .build()
 
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        WorkManager.getInstance(context).enqueueUniqueWork(
             workName,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingWorkPolicy.REPLACE,
             workRequest,
         )
     }
 
     /**
-     * Calculate the delay from now until the next occurrence of [hour]:[minute]
-     * in the user's selected timezone. If [timezoneId] is blank, falls back to
-     * the device's default timezone.
+     * Calculates milliseconds until the next occurrence of [hour]:[minute] in [timezoneId].
+     * Falls back to the device timezone if [timezoneId] is blank.
      */
-    private fun calculateInitialDelay(hour: Int, minute: Int, timezoneId: String): Long {
-        val tz = if (timezoneId.isNotBlank()) {
-            TimeZone.getTimeZone(timezoneId)
-        } else {
-            TimeZone.getDefault()
-        }
-
+    internal fun calculateDelayMillis(hour: Int, minute: Int, timezoneId: String): Long {
+        val tz = if (timezoneId.isNotBlank()) TimeZone.getTimeZone(timezoneId) else TimeZone.getDefault()
         val now = Calendar.getInstance(tz)
         val target = Calendar.getInstance(tz).apply {
             set(Calendar.HOUR_OF_DAY, hour)
@@ -123,11 +127,7 @@ object NotificationScheduler {
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
-
-        if (target.before(now)) {
-            target.add(Calendar.DAY_OF_YEAR, 1)
-        }
-
+        if (!target.after(now)) target.add(Calendar.DAY_OF_YEAR, 1)
         return target.timeInMillis - now.timeInMillis
     }
 }

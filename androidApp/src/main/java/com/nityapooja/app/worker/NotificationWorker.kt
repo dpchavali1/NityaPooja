@@ -7,11 +7,15 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.nityapooja.app.MainActivity
 import com.nityapooja.app.R
 import com.nityapooja.shared.data.local.db.NityaPoojaDatabase
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -28,6 +32,10 @@ class NotificationWorker(
         const val KEY_NOTIFICATION_BODY = "notification_body"
         const val KEY_NOTIFICATION_ID = "notification_id"
         const val KEY_NOTIFICATION_TYPE = "notification_type"
+        const val KEY_HOUR = "hour"
+        const val KEY_MINUTE = "minute"
+        const val KEY_TIMEZONE = "timezone"
+        const val KEY_WORK_NAME = "work_name"
         const val TYPE_MORNING = "morning"
         const val TYPE_EVENING = "evening"
     }
@@ -46,8 +54,30 @@ class NotificationWorker(
 
         createNotificationChannel()
         showNotification(body, notificationId, type)
+        rescheduleForTomorrow()
 
         return Result.success()
+    }
+
+    /**
+     * Enqueues a new one-shot work request for the same time tomorrow,
+     * re-anchoring to the exact clock time rather than drifting on a 24h interval.
+     */
+    private fun rescheduleForTomorrow() {
+        val workName = inputData.getString(KEY_WORK_NAME) ?: return
+        val hour = inputData.getInt(KEY_HOUR, -1).takeIf { it >= 0 } ?: return
+        val minute = inputData.getInt(KEY_MINUTE, -1).takeIf { it >= 0 } ?: return
+        val timezoneId = inputData.getString(KEY_TIMEZONE) ?: ""
+
+        val delay = NotificationScheduler.calculateDelayMillis(hour, minute, timezoneId)
+
+        val next = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setInputData(inputData)
+            .build()
+
+        WorkManager.getInstance(applicationContext)
+            .enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, next)
     }
 
     private suspend fun enrichNotificationBody(type: String, fallback: String): String {

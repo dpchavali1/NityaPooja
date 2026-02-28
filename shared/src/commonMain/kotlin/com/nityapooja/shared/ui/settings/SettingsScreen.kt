@@ -568,7 +568,7 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Version 1.2.1",
+                        "Version 1.3.0",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -586,6 +586,13 @@ fun SettingsScreen(
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                     Spacer(Modifier.height(8.dp))
+                    Text(
+                        "🆕 v1.3.0 · Panchangam widget, Puranas Quiz, larger fonts",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(4.dp))
                     Text(
                         "✨ v1.2.0 · Festival write-ups & cultural significance",
                         style = MaterialTheme.typography.labelSmall,

@@ -90,6 +90,10 @@ val NeutralGrayLight = Color(0xFFBDBDBD)
 val WarningAmber = Color(0xFFF57F17)
 val WarningAmberLight = Color(0xFFFFE082)
 
+// Grahanam (Eclipse) — adaptive: use GrahanamLight on dark bg, GrahanamDark on light bg
+val GrahanamLight = Color(0xFF9FA8DA)  // Indigo 200 — visible on dark backgrounds
+val GrahanamDark  = Color(0xFF3949AB)  // Indigo 600 — visible on light backgrounds
+
 // Spotify
 val SpotifyGreen = Color(0xFF1DB954)
 

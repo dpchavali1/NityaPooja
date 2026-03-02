@@ -2,6 +2,8 @@ package com.nityapooja.app.worker
 
 import android.content.Context
 import androidx.work.*
+import com.nityapooja.shared.data.grahanam.GrahanamData
+import com.nityapooja.shared.data.grahanam.GrahanamType
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
@@ -16,6 +18,9 @@ object NotificationScheduler {
     private const val EVENING_NOTIFICATION_ID = 1002
     private const val PANCHANG_NOTIFICATION_ID = 1003
     private const val QUIZ_NOTIFICATION_ID = 1004
+    const val GRAHANAM_TAG = "grahanam"
+    private const val GRAHANAM_NOTIFICATION_ID_BEFORE = 2001
+    private const val GRAHANAM_NOTIFICATION_ID_ON = 2002
 
     fun scheduleMorningReminder(context: Context, hour: Int, minute: Int, timezoneId: String = "") {
         val inputData = workDataOf(
@@ -111,6 +116,88 @@ object NotificationScheduler {
 
     fun cancelQuizReminder(context: Context) {
         WorkManager.getInstance(context).cancelUniqueWork(QUIZ_WORK_NAME)
+    }
+
+    fun scheduleGrahanamNotifications(context: Context, grahanamList: List<GrahanamData>, timezoneId: String) {
+        val wm = WorkManager.getInstance(context)
+        val tz = if (timezoneId.isNotBlank()) TimeZone.getTimeZone(timezoneId) else TimeZone.getDefault()
+        val now = System.currentTimeMillis()
+
+        for (grahanam in grahanamList) {
+            val sparthaMs = grahanam.sparthaUtc.toEpochMilliseconds()
+            val mokshamMs = grahanam.mokshamUtc.toEpochMilliseconds()
+            if (mokshamMs <= now) continue
+
+            val sparthaFormatted = formatInstantLocal(sparthaMs, tz)
+            val madhyamFormatted = formatInstantLocal(grahanam.madhyamUtc.toEpochMilliseconds(), tz)
+            val mokshamFormatted = formatInstantLocal(mokshamMs, tz)
+            val typeLabel = if (grahanam.type == GrahanamType.SURYA) "Surya Grahanam" else "Chandra Grahanam"
+
+            // Day-before: 8 AM local time the day before Sparsha
+            val dayBeforeAt8 = Calendar.getInstance(tz).apply {
+                timeInMillis = sparthaMs
+                add(Calendar.DAY_OF_YEAR, -1)
+                set(Calendar.HOUR_OF_DAY, 8)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            if (dayBeforeAt8.timeInMillis > now) {
+                val body = "రేపు ${if (grahanam.type == GrahanamType.SURYA) "సూర్య" else "చంద్ర"} గ్రహణం · $typeLabel · స్పర్శ: $sparthaFormatted"
+                val inputData = workDataOf(
+                    NotificationWorker.KEY_NOTIFICATION_BODY to body,
+                    NotificationWorker.KEY_NOTIFICATION_ID to GRAHANAM_NOTIFICATION_ID_BEFORE,
+                    NotificationWorker.KEY_NOTIFICATION_TYPE to NotificationWorker.TYPE_GRAHANAM_BEFORE,
+                    NotificationWorker.KEY_SPARSHA to sparthaFormatted,
+                    NotificationWorker.KEY_MADHYAM to madhyamFormatted,
+                    NotificationWorker.KEY_MOKSHAM to mokshamFormatted,
+                )
+                val request = OneTimeWorkRequestBuilder<NotificationWorker>()
+                    .setInitialDelay(dayBeforeAt8.timeInMillis - now, TimeUnit.MILLISECONDS)
+                    .setInputData(inputData)
+                    .addTag(GRAHANAM_TAG)
+                    .build()
+                wm.enqueueUniqueWork("grahanam_before_${grahanam.id}", ExistingWorkPolicy.REPLACE, request)
+            }
+
+            // Day-of: 60 minutes before Sparsha
+            val oneHourBefore = sparthaMs - 60 * 60 * 1000L
+            if (oneHourBefore > now) {
+                val body = "స్పర్శ: $sparthaFormatted · మధ్యం: $madhyamFormatted · మోక్షం: $mokshamFormatted"
+                val inputData = workDataOf(
+                    NotificationWorker.KEY_NOTIFICATION_BODY to body,
+                    NotificationWorker.KEY_NOTIFICATION_ID to GRAHANAM_NOTIFICATION_ID_ON,
+                    NotificationWorker.KEY_NOTIFICATION_TYPE to NotificationWorker.TYPE_GRAHANAM_ON,
+                    NotificationWorker.KEY_SPARSHA to sparthaFormatted,
+                    NotificationWorker.KEY_MADHYAM to madhyamFormatted,
+                    NotificationWorker.KEY_MOKSHAM to mokshamFormatted,
+                )
+                val request = OneTimeWorkRequestBuilder<NotificationWorker>()
+                    .setInitialDelay(oneHourBefore - now, TimeUnit.MILLISECONDS)
+                    .setInputData(inputData)
+                    .addTag(GRAHANAM_TAG)
+                    .build()
+                wm.enqueueUniqueWork("grahanam_on_${grahanam.id}", ExistingWorkPolicy.REPLACE, request)
+            }
+        }
+    }
+
+    fun cancelGrahanamNotifications(context: Context) {
+        WorkManager.getInstance(context).cancelAllWorkByTag(GRAHANAM_TAG)
+    }
+
+    private fun formatInstantLocal(epochMs: Long, tz: TimeZone): String {
+        val cal = Calendar.getInstance(tz)
+        cal.timeInMillis = epochMs
+        val hour = cal.get(Calendar.HOUR_OF_DAY)
+        val minute = cal.get(Calendar.MINUTE)
+        val period = if (hour >= 12) "PM" else "AM"
+        val displayHour = when {
+            hour == 0 -> 12
+            hour > 12 -> hour - 12
+            else -> hour
+        }
+        return "$displayHour:${minute.toString().padStart(2, '0')} $period"
     }
 
     private fun scheduleReminder(

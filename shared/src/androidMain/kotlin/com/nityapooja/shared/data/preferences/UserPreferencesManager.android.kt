@@ -29,6 +29,7 @@ actual class UserPreferencesManager(private val context: Context) {
         val QUIZ_NOTIFICATION = booleanPreferencesKey("quiz_notification")
         val QUIZ_NOTIFICATION_HOUR = intPreferencesKey("quiz_notification_hour")
         val QUIZ_NOTIFICATION_MINUTE = intPreferencesKey("quiz_notification_minute")
+        val GRAHANAM_NOTIFICATION = booleanPreferencesKey("grahanam_notification")
         val JAPA_TARGET_MALAS = intPreferencesKey("japa_target_malas")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val GOTRA = stringPreferencesKey("gotra")
@@ -73,6 +74,7 @@ actual class UserPreferencesManager(private val context: Context) {
     actual val quizNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION] ?: true }
     actual val quizNotificationHour: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION_HOUR] ?: 19 }
     actual val quizNotificationMinute: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION_MINUTE] ?: 30 }
+    actual val grahanamNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.GRAHANAM_NOTIFICATION] ?: true }
     actual val japaTargetMalas: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.JAPA_TARGET_MALAS] ?: 3 }
     actual val onboardingCompleted: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.ONBOARDING_COMPLETED] ?: false }
     actual val spotifyLinked: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SPOTIFY_LINKED] ?: false }
@@ -106,6 +108,7 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setAutoDarkMode(enabled: Boolean) { context.dataStore.edit { it[Keys.AUTO_DARK_MODE] = enabled } }
     actual suspend fun setPanchangNotifications(enabled: Boolean) { context.dataStore.edit { it[Keys.PANCHANG_NOTIFICATIONS] = enabled } }
     actual suspend fun setQuizNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.QUIZ_NOTIFICATION] = enabled } }
+    actual suspend fun setGrahanamNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.GRAHANAM_NOTIFICATION] = enabled } }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
         context.dataStore.edit { it[Keys.QUIZ_NOTIFICATION_HOUR] = hour; it[Keys.QUIZ_NOTIFICATION_MINUTE] = minute }
     }

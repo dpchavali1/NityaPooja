@@ -21,12 +21,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
-import com.nityapooja.shared.data.model.IndianCity
-import com.nityapooja.shared.data.model.indianCities
 import com.nityapooja.shared.ui.components.GlassmorphicCard
+import com.nityapooja.shared.ui.components.PlaceResult
+import com.nityapooja.shared.ui.components.searchPlaces
+import kotlinx.coroutines.Job
 import com.nityapooja.shared.ui.components.GoldGradientButton
 import com.nityapooja.shared.ui.theme.NityaPoojaTextStyles
 import com.nityapooja.shared.ui.theme.TempleGold
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -39,7 +41,10 @@ fun OnboardingScreen(
     val scope = rememberCoroutineScope()
 
     var userName by remember { mutableStateOf("") }
-    var selectedCity by remember { mutableStateOf(indianCities.first()) }
+    var selectedCityName by remember { mutableStateOf("Hyderabad") }
+    var selectedCityLat by remember { mutableStateOf(17.385) }
+    var selectedCityLng by remember { mutableStateOf(78.4867) }
+    var selectedCityTimezone by remember { mutableStateOf("Asia/Kolkata") }
     var morningNotification by remember { mutableStateOf(true) }
     var eveningNotification by remember { mutableStateOf(true) }
 
@@ -86,8 +91,13 @@ fun OnboardingScreen(
                         onUserNameChange = { userName = it },
                     )
                     1 -> CitySelectionPage(
-                        selectedCity = selectedCity,
-                        onCitySelected = { selectedCity = it },
+                        selectedCityName = selectedCityName,
+                        onCitySelected = { name, lat, lng, timezone ->
+                            selectedCityName = name
+                            selectedCityLat = lat
+                            selectedCityLng = lng
+                            selectedCityTimezone = timezone
+                        },
                     )
                     2 -> RemindersPage(
                         morningEnabled = morningNotification,
@@ -131,10 +141,10 @@ fun OnboardingScreen(
                             scope.launch {
                                 viewModel.completeOnboarding(
                                     userName = userName,
-                                    city = selectedCity.name,
-                                    lat = selectedCity.lat,
-                                    lng = selectedCity.lng,
-                                    timezone = selectedCity.timezone,
+                                    city = selectedCityName,
+                                    lat = selectedCityLat,
+                                    lng = selectedCityLng,
+                                    timezone = selectedCityTimezone,
                                     morningNotification = morningNotification,
                                     eveningNotification = eveningNotification,
                                 )
@@ -211,18 +221,14 @@ private fun WelcomePage(
 
 @Composable
 private fun CitySelectionPage(
-    selectedCity: IndianCity,
-    onCitySelected: (IndianCity) -> Unit,
+    selectedCityName: String,
+    onCitySelected: (name: String, lat: Double, lng: Double, timezone: String) -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val filteredCities = remember(searchQuery) {
-        if (searchQuery.isBlank()) indianCities
-        else indianCities.filter {
-            it.name.contains(searchQuery, ignoreCase = true) ||
-            it.nameTelugu.contains(searchQuery) ||
-            it.state.contains(searchQuery, ignoreCase = true)
-        }
-    }
+    var suggestions by remember { mutableStateOf<List<PlaceResult>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+    var searchJob by remember { mutableStateOf<Job?>(null) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -246,36 +252,75 @@ private fun CitySelectionPage(
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "\u0C2E\u0C40 \u0C28\u0C17\u0C30\u0C02: $selectedCityName",
+            style = MaterialTheme.typography.bodySmall,
+            color = TempleGold,
+        )
+        Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
+            onValueChange = { newQuery ->
+                searchQuery = newQuery
+                searchJob?.cancel()
+                if (newQuery.length >= 2) {
+                    isLoading = true
+                    searchJob = scope.launch {
+                        delay(300)
+                        suggestions = searchPlaces(newQuery)
+                        isLoading = false
+                    }
+                } else {
+                    suggestions = emptyList()
+                    isLoading = false
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Search city...") },
+            placeholder = { Text("Type city name to search worldwide...") },
             singleLine = true,
-            leadingIcon = { Icon(Icons.Default.Search, null) },
+            leadingIcon = { Icon(Icons.Default.Search, null, tint = TempleGold) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = TempleGold,
                 cursorColor = TempleGold,
             ),
         )
-        Spacer(Modifier.height(12.dp))
+        if (isLoading) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                color = TempleGold,
+            )
+        }
+        Spacer(Modifier.height(8.dp))
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            items(filteredCities) { city ->
-                val isSelected = city.name == selectedCity.name
+            if (suggestions.isEmpty() && !isLoading) {
+                item {
+                    Text(
+                        if (searchQuery.length < 2)
+                            "Search any city worldwide — type to begin"
+                        else
+                            "No results found · Try a different spelling",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 8.dp),
+                    )
+                }
+            }
+            items(suggestions) { place ->
+                val isSelected = place.displayName == selectedCityName
                 ListItem(
                     headlineContent = {
                         Text(
-                            city.name,
+                            place.displayName,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             color = if (isSelected) TempleGold else MaterialTheme.colorScheme.onSurface,
                         )
                     },
                     supportingContent = {
                         Text(
-                            if (city.nameTelugu.isNotBlank()) "${city.nameTelugu} \u00B7 ${city.state}" else city.state,
+                            place.subtitle,
                             style = MaterialTheme.typography.labelSmall,
                         )
                     },
@@ -287,11 +332,11 @@ private fun CitySelectionPage(
                         )
                     },
                     trailingContent = {
-                        if (isSelected) {
-                            Icon(Icons.Default.Check, null, tint = TempleGold)
-                        }
+                        if (isSelected) Icon(Icons.Default.Check, null, tint = TempleGold)
                     },
-                    modifier = Modifier.clickable { onCitySelected(city) },
+                    modifier = Modifier.clickable {
+                        onCitySelected(place.displayName, place.lat, place.lng, place.timezoneId)
+                    },
                 )
             }
         }

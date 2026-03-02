@@ -21,6 +21,7 @@ expect class UserPreferencesManager {
     val quizNotification: Flow<Boolean>
     val quizNotificationHour: Flow<Int>
     val quizNotificationMinute: Flow<Int>
+    val grahanamNotification: Flow<Boolean>
     val japaTargetMalas: Flow<Int>
     val onboardingCompleted: Flow<Boolean>
     val spotifyLinked: Flow<Boolean>
@@ -39,6 +40,7 @@ expect class UserPreferencesManager {
     suspend fun setPanchangNotifications(enabled: Boolean)
     suspend fun setQuizNotification(enabled: Boolean)
     suspend fun setQuizNotificationTime(hour: Int, minute: Int)
+    suspend fun setGrahanamNotification(enabled: Boolean)
     suspend fun setJapaTargetMalas(target: Int)
     suspend fun setOnboardingCompleted(completed: Boolean)
     suspend fun setSpotifyToken(token: String, expiresIn: Int)

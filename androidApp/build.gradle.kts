@@ -122,6 +122,9 @@ dependencies {
     // Coroutines
     implementation(libs.coroutines.android)
 
+    // kotlinx.datetime (needed for GrahanamRepository API)
+    implementation(libs.kotlinx.datetime)
+
     // Coil 3
     implementation(libs.coil.compose)
 

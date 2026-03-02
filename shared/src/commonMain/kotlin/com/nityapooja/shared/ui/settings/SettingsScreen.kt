@@ -11,19 +11,22 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
-import com.nityapooja.shared.data.model.indianCities
 import com.nityapooja.shared.data.preferences.ThemeMode
 import com.nityapooja.shared.ui.panchangam.NAKSHATRA_NAMES_ENGLISH
 import com.nityapooja.shared.ui.panchangam.NAKSHATRA_NAMES_TELUGU
 import com.nityapooja.shared.ui.components.GlassmorphicCard
+import com.nityapooja.shared.ui.components.PlaceResult
 import com.nityapooja.shared.ui.components.SectionHeader
+import com.nityapooja.shared.ui.components.searchPlaces
 import com.nityapooja.shared.ui.theme.SpotifyGreen
 import com.nityapooja.shared.ui.theme.TempleGold
 import com.nityapooja.shared.ui.theme.NityaPoojaTextStyles
@@ -53,6 +56,7 @@ fun SettingsScreen(
     val quizNotification by viewModel.quizNotification.collectAsState()
     val quizNotificationHour by viewModel.quizNotificationHour.collectAsState()
     val quizNotificationMinute by viewModel.quizNotificationMinute.collectAsState()
+    val grahanamNotification by viewModel.grahanamNotification.collectAsState()
 
     val dataCleared by viewModel.dataCleared.collectAsState()
 
@@ -425,6 +429,24 @@ fun SettingsScreen(
                         }
                     }
                 }
+                Spacer(Modifier.height(12.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("\u0C17\u0C4D\u0C30\u0C39\u0C23\u0C02 \u0C28\u0C4B\u0C1F\u0C3F\u0C2B\u0C3F\u0C15\u0C47\u0C37\u0C28\u0C4D", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Grahanam \u00B7 Day before & day of", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = grahanamNotification,
+                        onCheckedChange = { viewModel.setGrahanamNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
             }
 
             // Music / Spotify (Android only)
@@ -659,8 +681,8 @@ fun SettingsScreen(
         CityPickerDialog(
             currentCity = locationCity,
             onDismiss = { showCityPicker = false },
-            onCitySelected = { city ->
-                viewModel.setLocation(city.name, city.lat, city.lng, city.timezone)
+            onCitySelected = { name, lat, lng, timezoneId ->
+                viewModel.setLocation(name, lat, lng, timezoneId)
                 showCityPicker = false
             },
         )
@@ -671,17 +693,13 @@ fun SettingsScreen(
 private fun CityPickerDialog(
     currentCity: String,
     onDismiss: () -> Unit,
-    onCitySelected: (com.nityapooja.shared.data.model.IndianCity) -> Unit,
+    onCitySelected: (name: String, lat: Double, lng: Double, timezoneId: String) -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val filteredCities = remember(searchQuery) {
-        if (searchQuery.isBlank()) indianCities
-        else indianCities.filter {
-            it.name.contains(searchQuery, ignoreCase = true) ||
-            it.nameTelugu.contains(searchQuery) ||
-            it.state.contains(searchQuery, ignoreCase = true)
-        }
-    }
+    var suggestions by remember { mutableStateOf<List<PlaceResult>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+    var searchJob by remember { mutableStateOf<Job?>(null) }
+    val scope = rememberCoroutineScope()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -695,33 +713,66 @@ private fun CityPickerDialog(
             Column(modifier = Modifier.heightIn(max = 400.dp)) {
                 OutlinedTextField(
                     value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                    onValueChange = { newQuery ->
+                        searchQuery = newQuery
+                        searchJob?.cancel()
+                        if (newQuery.length >= 2) {
+                            isLoading = true
+                            searchJob = scope.launch {
+                                delay(300)
+                                suggestions = searchPlaces(newQuery)
+                                isLoading = false
+                            }
+                        } else {
+                            suggestions = emptyList()
+                            isLoading = false
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search city...") },
+                    placeholder = { Text("Type city name to search worldwide...") },
                     singleLine = true,
-                    leadingIcon = { Icon(Icons.Default.Search, null) },
+                    leadingIcon = { Icon(Icons.Default.Search, null, tint = TempleGold) },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = TempleGold,
                         cursorColor = TempleGold,
                     ),
                 )
+                if (isLoading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                        color = TempleGold,
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
-                    items(filteredCities) { city ->
-                        val isSelected = city.name == currentCity
+                    if (suggestions.isEmpty() && !isLoading) {
+                        item {
+                            Text(
+                                if (searchQuery.length < 2)
+                                    "\u0C35\u0C47\u0C21\u0C41\u0C15\u0C41\u0C28\u0C47 \u0C28\u0C17\u0C30\u0C02 \u0C1F\u0C48\u0C2A\u0C4D \u0C1A\u0C47\u0C2F\u0C02\u0C21\u0C3F · Type a city name to search"
+                                else
+                                    "No results found · Try a different name",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(vertical = 8.dp),
+                            )
+                        }
+                    }
+                    items(suggestions) { place ->
+                        val isSelected = place.displayName == currentCity
                         ListItem(
                             headlineContent = {
                                 Text(
-                                    city.name,
+                                    place.displayName,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     color = if (isSelected) TempleGold else MaterialTheme.colorScheme.onSurface,
                                 )
                             },
                             supportingContent = {
                                 Text(
-                                    if (city.nameTelugu.isNotBlank()) "${city.nameTelugu} \u00B7 ${city.state}" else city.state,
+                                    place.subtitle,
                                     style = MaterialTheme.typography.labelSmall,
                                 )
                             },
@@ -733,11 +784,11 @@ private fun CityPickerDialog(
                                 )
                             },
                             trailingContent = {
-                                if (isSelected) {
-                                    Icon(Icons.Default.Check, null, tint = TempleGold)
-                                }
+                                if (isSelected) Icon(Icons.Default.Check, null, tint = TempleGold)
                             },
-                            modifier = Modifier.clickable { onCitySelected(city) },
+                            modifier = Modifier.clickable {
+                                onCitySelected(place.displayName, place.lat, place.lng, place.timezoneId)
+                            },
                         )
                     }
                 }

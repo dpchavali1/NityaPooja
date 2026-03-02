@@ -39,6 +39,11 @@ class NotificationWorker(
         const val TYPE_MORNING = "morning"
         const val TYPE_EVENING = "evening"
         const val TYPE_QUIZ = "quiz"
+        const val TYPE_GRAHANAM_BEFORE = "grahanam_before"
+        const val TYPE_GRAHANAM_ON = "grahanam_on"
+        const val KEY_SPARSHA = "sparsha_time"
+        const val KEY_MADHYAM = "madhyam_time"
+        const val KEY_MOKSHAM = "moksham_time"
     }
 
     override suspend fun doWork(): Result {
@@ -55,7 +60,9 @@ class NotificationWorker(
 
         createNotificationChannel()
         showNotification(body, notificationId, type)
-        rescheduleForTomorrow()
+
+        val isGrahanam = type == TYPE_GRAHANAM_BEFORE || type == TYPE_GRAHANAM_ON
+        if (!isGrahanam) rescheduleForTomorrow()
 
         return Result.success()
     }
@@ -134,15 +141,22 @@ class NotificationWorker(
             TYPE_MORNING -> "NityaPooja - Morning Blessing"
             TYPE_EVENING -> "NityaPooja - Evening Aarti"
             TYPE_QUIZ -> "NityaPooja - Puranas Quiz 📖"
+            TYPE_GRAHANAM_BEFORE -> "రేపు గ్రహణం / Eclipse Tomorrow"
+            TYPE_GRAHANAM_ON -> "గ్రహణ కాలం / Grahanam Today"
             else -> "NityaPooja"
         }
 
-        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+        val channelId = when (type) {
+            TYPE_GRAHANAM_BEFORE, TYPE_GRAHANAM_ON -> com.nityapooja.app.NityaPoojaApp.CHANNEL_FESTIVAL_ALERTS
+            else -> CHANNEL_ID
+        }
+
+        val notification = NotificationCompat.Builder(applicationContext, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(if (type == TYPE_GRAHANAM_BEFORE || type == TYPE_GRAHANAM_ON) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()

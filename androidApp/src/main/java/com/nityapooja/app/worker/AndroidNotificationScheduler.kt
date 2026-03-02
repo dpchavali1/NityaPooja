@@ -1,6 +1,7 @@
 package com.nityapooja.app.worker
 
 import android.content.Context
+import com.nityapooja.shared.data.grahanam.GrahanamData
 import com.nityapooja.shared.platform.NotificationScheduler as SharedNotificationScheduler
 
 class AndroidNotificationScheduler(
@@ -39,10 +40,19 @@ class AndroidNotificationScheduler(
         NotificationScheduler.cancelQuizReminder(context)
     }
 
+    override fun scheduleGrahanamNotifications(grahanamList: List<GrahanamData>, timezoneId: String) {
+        NotificationScheduler.scheduleGrahanamNotifications(context, grahanamList, timezoneId)
+    }
+
+    override fun cancelGrahanamNotifications() {
+        NotificationScheduler.cancelGrahanamNotifications(context)
+    }
+
     override fun cancelAll() {
         cancelMorningReminder()
         cancelEveningReminder()
         cancelPanchangReminder()
         cancelQuizReminder()
+        cancelGrahanamNotifications()
     }
 }

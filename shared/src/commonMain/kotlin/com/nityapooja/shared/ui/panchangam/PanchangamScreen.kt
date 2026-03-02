@@ -20,6 +20,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.isSystemInDarkTheme
+import com.nityapooja.shared.data.grahanam.GrahanamRepository
+import com.nityapooja.shared.data.grahanam.GrahanamType
+import com.nityapooja.shared.data.grahanam.toLocalFormatted
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -378,6 +385,18 @@ fun PanchangamScreen(
                 panchangam.isToday && panchangam.gulikaKalam.isActive, "ప్రస్తుతం గుళిక కాలం · Active Now",
                 Icons.Default.RemoveCircleOutline, InauspiciousRed, WarningAmber)
 
+            // ═══════════════════════════════════════════
+            // Upcoming Grahanam
+            // ═══════════════════════════════════════════
+            val now = remember { Clock.System.now() }
+            val userTz = remember(locationInfo.timezone) {
+                try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.of("Asia/Kolkata") }
+            }
+            val nextGrahanam = remember(now) { GrahanamRepository.getNextGrahanam(now) }
+
+            SectionHeader(titleTelugu = "తదుపరి గ్రహణం", titleEnglish = "Upcoming Grahanam")
+            UpcomingGrahanamCard(nextGrahanam = nextGrahanam, now = now, tz = userTz, fontScale = fontScale)
+
             Spacer(Modifier.height(60.dp))
         }
     }
@@ -636,6 +655,109 @@ private fun MuhurtaWarningCard(
             }
             Text("$startTime - $endTime", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = accentColor)
         }
+    }
+}
+
+@Composable
+private fun UpcomingGrahanamCard(
+    nextGrahanam: com.nityapooja.shared.data.grahanam.GrahanamData?,
+    now: kotlinx.datetime.Instant,
+    tz: TimeZone,
+    fontScale: Float = 1f,
+) {
+    val grahanamAccent = if (isSystemInDarkTheme()) GrahanamLight else GrahanamDark
+
+    GlassmorphicCard(accentColor = grahanamAccent, cornerRadius = 14.dp, contentPadding = 14.dp) {
+        if (nextGrahanam == null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.NightsStay, null, tint = grahanamAccent, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    "సమీప భవిష్యత్తులో గ్రహణం లేదు",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = (13 * fontScale).sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        } else {
+            val localSparsha = nextGrahanam.sparthaUtc.toLocalDateTime(tz)
+            val daysUntil = (nextGrahanam.sparthaUtc.toLocalDateTime(tz).date.toEpochDays() -
+                    now.toLocalDateTime(tz).date.toEpochDays()).toInt()
+            val typeNameTelugu = if (nextGrahanam.type == GrahanamType.SURYA) "సూర్య గ్రహణం" else "చంద్ర గ్రహణం"
+            val typeNameEnglish = if (nextGrahanam.type == GrahanamType.SURYA) "Surya Grahanam" else "Chandra Grahanam"
+            val dateStr = "${localSparsha.dayOfMonth}/${localSparsha.monthNumber}/${localSparsha.year}"
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(grahanamAccent.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Default.NightsStay, null, tint = grahanamAccent, modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(typeNameTelugu, style = MaterialTheme.typography.titleSmall.copy(fontSize = (14 * fontScale).sp), fontWeight = FontWeight.Bold)
+                        Text(typeNameEnglish, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            when {
+                                daysUntil == 0 -> "నేడు!"
+                                daysUntil == 1 -> "రేపు"
+                                else -> "$daysUntil రోజులు"
+                            },
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp),
+                            fontWeight = FontWeight.Bold,
+                            color = grahanamAccent,
+                        )
+                        Text(dateStr, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+
+                HorizontalDivider(color = grahanamAccent.copy(alpha = 0.2f))
+
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    GrahanamTimeRow("స్పర్శ", "Sparsha", nextGrahanam.sparthaUtc.toLocalFormatted(tz), grahanamAccent, fontScale)
+                    GrahanamTimeRow("మధ్యం", "Madhyam", nextGrahanam.madhyamUtc.toLocalFormatted(tz), grahanamAccent, fontScale)
+                    GrahanamTimeRow("మోక్షం", "Moksham", nextGrahanam.mokshamUtc.toLocalFormatted(tz), grahanamAccent, fontScale)
+                    Text(
+                        "పుణ్యకాలం: ${nextGrahanam.punyakalaMinutes} నిమిషాలు / Punyakalam: ${nextGrahanam.punyakalaMinutes} min",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                        color = grahanamAccent.copy(alpha = 0.8f),
+                    )
+                }
+
+                if (nextGrahanam.type == GrahanamType.SURYA && !nextGrahanam.visibleFromIndia) {
+                    Text(
+                        "మీ ప్రాంతంలో దృశ్యమానం కాదు / May not be visible from your region",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GrahanamTimeRow(
+    labelTelugu: String,
+    labelEnglish: String,
+    time: String,
+    accentColor: androidx.compose.ui.graphics.Color,
+    fontScale: Float = 1f,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row {
+            Text(labelTelugu, style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), color = accentColor, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.width(4.dp))
+            Text("($labelEnglish)", style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Text(time, style = MaterialTheme.typography.bodyMedium.copy(fontSize = (13 * fontScale).sp), fontWeight = FontWeight.SemiBold)
     }
 }
 

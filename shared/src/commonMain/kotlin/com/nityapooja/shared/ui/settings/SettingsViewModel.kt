@@ -2,6 +2,7 @@ package com.nityapooja.shared.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nityapooja.shared.data.grahanam.GrahanamRepository
 import com.nityapooja.shared.data.local.dao.BookmarkDao
 import com.nityapooja.shared.data.local.dao.JapaSessionDao
 import com.nityapooja.shared.data.local.dao.ReadingHistoryDao
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 
 class SettingsViewModel(
     private val preferencesManager: UserPreferencesManager,
@@ -67,6 +69,9 @@ class SettingsViewModel(
 
     val quizNotificationMinute: StateFlow<Int> = preferencesManager.quizNotificationMinute
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 30)
+
+    val grahanamNotification: StateFlow<Boolean> = preferencesManager.grahanamNotification
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     fun setThemeMode(mode: ThemeMode) { viewModelScope.launch { preferencesManager.setThemeMode(mode) } }
     fun setUserName(name: String) { viewModelScope.launch { preferencesManager.setUserName(name) } }
@@ -137,6 +142,19 @@ class SettingsViewModel(
         }
     }
 
+    fun setGrahanamNotification(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesManager.setGrahanamNotification(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                val grahanamList = GrahanamRepository.getUpcomingGrahanam(Clock.System.now())
+                notificationScheduler.scheduleGrahanamNotifications(grahanamList, tz)
+            } else {
+                notificationScheduler.cancelGrahanamNotifications()
+            }
+        }
+    }
+
     /** Re-schedule all active notifications when timezone changes */
     private fun rescheduleNotifications(timezone: String) {
         if (morningNotification.value) {
@@ -150,6 +168,10 @@ class SettingsViewModel(
         }
         if (quizNotification.value) {
             notificationScheduler.scheduleQuizReminder(quizNotificationHour.value, quizNotificationMinute.value, timezone)
+        }
+        if (grahanamNotification.value) {
+            val grahanamList = GrahanamRepository.getUpcomingGrahanam(Clock.System.now())
+            notificationScheduler.scheduleGrahanamNotifications(grahanamList, timezone)
         }
     }
 

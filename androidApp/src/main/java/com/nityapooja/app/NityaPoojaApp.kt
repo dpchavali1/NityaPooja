@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.nityapooja.app.di.androidAppModule
+import com.nityapooja.shared.data.grahanam.GrahanamRepository
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.di.androidPlatformModule
 import com.nityapooja.shared.di.sharedModule
@@ -16,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.java.KoinJavaComponent.getKoin
@@ -61,6 +63,10 @@ class NityaPoojaApp : Application() {
                 val hour = prefs.quizNotificationHour.first()
                 val minute = prefs.quizNotificationMinute.first()
                 scheduler.scheduleQuizReminder(hour, minute, timezone)
+            }
+            if (prefs.grahanamNotification.first()) {
+                val grahanamList = GrahanamRepository.getUpcomingGrahanam(Clock.System.now())
+                scheduler.scheduleGrahanamNotifications(grahanamList, timezone)
             }
         }
     }

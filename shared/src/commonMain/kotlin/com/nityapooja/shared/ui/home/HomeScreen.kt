@@ -10,7 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,10 +20,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
+import com.nityapooja.shared.data.grahanam.GrahanamRepository
+import com.nityapooja.shared.data.grahanam.GrahanamType
 import com.nityapooja.shared.ui.components.*
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.theme.*
 import com.nityapooja.shared.platform.shareText
+import androidx.compose.foundation.isSystemInDarkTheme
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +70,21 @@ fun HomeScreen(
     val panchangamData = remember(locationInfo) {
         panchangamViewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
     }
+
+    val now = remember { Clock.System.now() }
+    val userTz = remember(locationInfo.timezone) {
+        try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.of("Asia/Kolkata") }
+    }
+    val nextGrahanam = remember(now) { GrahanamRepository.getNextGrahanam(now) }
+    val daysUntilGrahanam = remember(nextGrahanam, now, userTz) {
+        nextGrahanam?.let { g ->
+            val nowDate = now.toLocalDateTime(userTz).date
+            val sparthaDate = g.sparthaUtc.toLocalDateTime(userTz).date
+            val diff = (sparthaDate.toEpochDays() - nowDate.toEpochDays()).toInt()
+            if (diff in 0..7) diff else null
+        }
+    }
+    var grahanamBannerDismissed by remember { mutableStateOf(false) }
 
     val salutation = userName.ifBlank { "భక్తా" }
     val greetingTelugu = viewModel.getGreetingTelugu()
@@ -331,6 +354,73 @@ fun HomeScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Grahanam Banner (within 7 days)
+            if (nextGrahanam != null && daysUntilGrahanam != null && !grahanamBannerDismissed) {
+                item {
+                    val grahanamAccent = if (isSystemInDarkTheme()) GrahanamLight else GrahanamDark
+                    val typeNameTelugu = if (nextGrahanam.type == GrahanamType.SURYA) "సూర్య గ్రహణం" else "చంద్ర గ్రహణం"
+                    val typeNameEnglish = if (nextGrahanam.type == GrahanamType.SURYA) "Surya Grahanam" else "Chandra Grahanam"
+                    GlassmorphicCard(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        accentColor = grahanamAccent,
+                        onClick = onNavigateToPanchangam,
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "గ్రహణం · GRAHANAM",
+                                    style = NityaPoojaTextStyles.GoldLabel,
+                                    color = grahanamAccent,
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    typeNameTelugu,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (18 * fontScale).sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = grahanamAccent,
+                                )
+                                Text(
+                                    typeNameEnglish,
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    when (daysUntilGrahanam) {
+                                        0 -> "నేడు! / Today!"
+                                        1 -> "రేపు / Tomorrow"
+                                        else -> "$daysUntilGrahanam రోజులలో / In $daysUntilGrahanam days"
+                                    },
+                                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = (20 * fontScale).sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = grahanamAccent,
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    "పంచాంగం తెరవడానికి నొక్కండి · Tap for Sparsha/Moksham times",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                IconButton(
+                                    onClick = { grahanamBannerDismissed = true },
+                                    modifier = Modifier.size(28.dp),
+                                ) {
+                                    Icon(Icons.Default.Close, "Dismiss", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                                }
+                                Spacer(Modifier.height(8.dp))
+                                Icon(Icons.Default.NightsStay, null, tint = grahanamAccent, modifier = Modifier.size(36.dp))
                             }
                         }
                     }

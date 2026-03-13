@@ -24,6 +24,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import com.nityapooja.shared.data.grahanam.GrahanamRepository
 import com.nityapooja.shared.data.grahanam.GrahanamType
 import com.nityapooja.shared.data.grahanam.toLocalFormatted
+import com.nityapooja.shared.ui.theme.MoonPhaseDark
+import com.nityapooja.shared.ui.theme.MoonPhaseLight
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -386,6 +388,16 @@ fun PanchangamScreen(
                 Icons.Default.RemoveCircleOutline, InauspiciousRed, WarningAmber)
 
             // ═══════════════════════════════════════════
+            // Moon Phases
+            // ═══════════════════════════════════════════
+            val moonPhases = remember(locationInfo) {
+                viewModel.calculateUpcomingMoonPhases(locationInfo.timezone)
+            }
+
+            SectionHeader(titleTelugu = "చంద్ర కళలు", titleEnglish = "Moon Phases")
+            MoonPhasesCard(phases = moonPhases, fontScale = fontScale)
+
+            // ═══════════════════════════════════════════
             // Upcoming Grahanam
             // ═══════════════════════════════════════════
             val now = remember { Clock.System.now() }
@@ -654,6 +666,99 @@ private fun MuhurtaWarningCard(
                 }
             }
             Text("$startTime - $endTime", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = accentColor)
+        }
+    }
+}
+
+@Composable
+private fun MoonPhasesCard(
+    phases: List<MoonPhaseEvent>,
+    fontScale: Float = 1f,
+) {
+    val accent = if (isSystemInDarkTheme()) MoonPhaseLight else MoonPhaseDark
+
+    GlassmorphicCard(accentColor = accent, cornerRadius = 14.dp, contentPadding = 16.dp) {
+        if (phases.isEmpty()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("🌕", style = MaterialTheme.typography.titleLarge)
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    "అందుబాటులో లేదు / Unavailable",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp),
+                    color = accent,
+                )
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                phases.forEachIndexed { index, phase ->
+                    if (index > 0) HorizontalDivider(color = accent.copy(alpha = 0.2f))
+                    MoonPhaseRow(phase = phase, accent = accent, fontScale = fontScale)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoonPhaseRow(
+    phase: MoonPhaseEvent,
+    accent: androidx.compose.ui.graphics.Color,
+    fontScale: Float,
+) {
+    val isPournami = phase.type == MoonPhaseType.POURNAMI
+    val emoji = if (isPournami) "🌕" else "🌑"
+    val nameTelugu = if (isPournami) "పౌర్ణమి" else "అమావాస్య"
+    val nameEnglish = if (isPournami) "Pournami" else "Amavasya"
+    val significance = if (isPournami)
+        "సత్యనారాయణ వ్రతం, విష్ణు పూజ, వ్రత నిర్వహణ"
+    else
+        "పితృ తర్పణం, పూర్వుల స్మరణ, పిండ ప్రదానం"
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(emoji, style = MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                nameTelugu,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = (15 * fontScale).sp),
+                fontWeight = FontWeight.Bold,
+                color = accent,
+            )
+            Text(
+                "$nameEnglish · ${phase.dateDisplay}",
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                "${phase.masaNameTelugu} · ${phase.masaNameEnglish}",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                color = accent.copy(alpha = 0.7f),
+            )
+            Text(
+                significance,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                when (phase.daysUntil) {
+                    0 -> "నేడు"
+                    1 -> "రేపు"
+                    else -> "${phase.daysUntil}d"
+                },
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = (20 * fontScale).sp),
+                fontWeight = FontWeight.Bold,
+                color = accent,
+            )
+            Text(
+                phase.timeFormatted,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

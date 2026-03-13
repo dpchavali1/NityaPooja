@@ -94,6 +94,10 @@ val WarningAmberLight = Color(0xFFFFE082)
 val GrahanamLight = Color(0xFF9FA8DA)  // Indigo 200 — visible on dark backgrounds
 val GrahanamDark  = Color(0xFF3949AB)  // Indigo 600 — visible on light backgrounds
 
+// Moon Phase — adaptive: use MoonPhaseLight on dark bg, MoonPhaseDark on light bg
+val MoonPhaseLight = Color(0xFFB0BEC5)  // Blue-Grey 200 — silver glow on dark backgrounds
+val MoonPhaseDark  = Color(0xFF546E7A)  // Blue-Grey 600 — slate on light backgrounds
+
 // Spotify
 val SpotifyGreen = Color(0xFF1DB954)
 

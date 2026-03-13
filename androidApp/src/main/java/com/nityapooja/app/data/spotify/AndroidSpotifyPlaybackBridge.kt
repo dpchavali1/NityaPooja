@@ -50,47 +50,55 @@ class AndroidSpotifyPlaybackBridge(
     override suspend fun searchAndPlay(query: String, title: String, titleTelugu: String): Boolean {
         Log.d(TAG, "searchAndPlay: query='$query', title='$title'")
 
-        // Ensure token is valid
-        val tokenValid = spotifyManager.ensureTokenValid()
-        if (!tokenValid) {
-            Log.w(TAG, "Token not valid, cannot play")
-            return false
-        }
-
-        val accessToken = spotifyManager.getAccessToken() ?: return false
-
         return try {
-            val response = spotifyApi.searchTracks(
-                authorization = "Bearer $accessToken",
-                query = query,
-            )
+            // Use client credentials for search — no user token needed, never expires
+            val response = spotifyApi.searchTracksWithClientCredentials(query = query)
 
-            val bestMatch = response.tracks?.items?.firstOrNull()
-            if (bestMatch != null) {
-                Log.d(TAG, "Found track: ${bestMatch.name} by ${bestMatch.artists.firstOrNull()?.name}, uri=${bestMatch.uri}")
-
-                // Ensure connected then play
-                spotifyManager.connectAppRemote(showAuth = false)
-
-                // Wait for connection
-                spotifyManager.connectionStatus.first {
-                    it == SpotifyConnectionStatus.CONNECTED || it == SpotifyConnectionStatus.ERROR
+            if (response == null) {
+                Log.w(TAG, "Client credentials token failed, falling back to user token")
+                // Fallback: try user token if client credentials fail
+                val tokenValid = spotifyManager.ensureTokenValid()
+                if (!tokenValid) {
+                    Log.w(TAG, "No valid token available")
+                    return false
                 }
-
-                if (spotifyManager.connectionStatus.value == SpotifyConnectionStatus.CONNECTED) {
-                    spotifyManager.play(bestMatch.uri)
-                    true
-                } else {
-                    Log.w(TAG, "Failed to connect AppRemote for playback")
-                    false
-                }
+                val accessToken = spotifyManager.getAccessToken() ?: return false
+                val fallbackResponse = spotifyApi.searchTracks(
+                    authorization = "Bearer $accessToken",
+                    query = query,
+                )
+                playFirstMatch(fallbackResponse)
             } else {
-                Log.w(TAG, "No matching track found on Spotify for: $query")
-                false
+                playFirstMatch(response)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Spotify search/play error: ${e.message}", e)
             false
+        }
+    }
+
+    private suspend fun playFirstMatch(response: com.nityapooja.shared.data.spotify.SpotifySearchResponse): Boolean {
+        val bestMatch = response.tracks?.items?.firstOrNull()
+        if (bestMatch != null) {
+            Log.d(TAG, "Found track: ${bestMatch.name} by ${bestMatch.artists.firstOrNull()?.name}, uri=${bestMatch.uri}")
+
+            // AppRemote authenticates via Spotify app, not OAuth token
+            spotifyManager.connectAppRemote(showAuth = false)
+
+            spotifyManager.connectionStatus.first {
+                it == SpotifyConnectionStatus.CONNECTED || it == SpotifyConnectionStatus.ERROR
+            }
+
+            if (spotifyManager.connectionStatus.value == SpotifyConnectionStatus.CONNECTED) {
+                spotifyManager.play(bestMatch.uri)
+                return true
+            } else {
+                Log.w(TAG, "Failed to connect AppRemote for playback")
+                return false
+            }
+        } else {
+            Log.w(TAG, "No matching track found on Spotify")
+            return false
         }
     }
 

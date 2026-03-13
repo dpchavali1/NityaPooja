@@ -24,6 +24,8 @@ import com.nityapooja.shared.data.grahanam.GrahanamRepository
 import com.nityapooja.shared.data.grahanam.GrahanamType
 import com.nityapooja.shared.ui.components.*
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
+import com.nityapooja.shared.ui.panchangam.MoonPhaseEvent
+import com.nityapooja.shared.ui.panchangam.MoonPhaseType
 import com.nityapooja.shared.ui.theme.*
 import com.nityapooja.shared.platform.shareText
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -52,6 +54,8 @@ fun HomeScreen(
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
+    androidx.compose.runtime.LaunchedEffect(Unit) { viewModel.refreshToday() }
+
     val deities by viewModel.deities.collectAsState()
     val todayShloka by viewModel.todayShloka.collectAsState()
     val deityOfDay by viewModel.deityOfTheDay.collectAsState()
@@ -427,6 +431,21 @@ fun HomeScreen(
                 }
             }
 
+            // Moon Phase mini card
+            item {
+                val moonPhases = remember(locationInfo) {
+                    panchangamViewModel.calculateUpcomingMoonPhases(locationInfo.timezone)
+                }
+                if (moonPhases.isNotEmpty()) {
+                    MoonPhaseHomeCard(
+                        phases = moonPhases,
+                        fontScale = fontScale,
+                        onTap = onNavigateToPanchangam,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                }
+            }
+
             // All Deities — Horizontal Scroll
             item {
                 Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -602,15 +621,7 @@ fun HomeScreen(
                 items(recentHistory.take(5), key = { "history_${it.id}" }) { entry ->
                     GlassmorphicCard(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        onClick = {
-                            when (entry.contentType) {
-                                "aarti" -> onNavigateToAartiDetail(entry.contentId)
-                                "stotram" -> onNavigateToStotrams()
-                                "keertana" -> onNavigateToKeertanalu()
-                                "temple" -> onNavigateToTemples()
-                                else -> {}
-                            }
-                        },
+                        onClick = { onNavigateToBookmark(entry.contentType, entry.contentId) },
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -686,6 +697,98 @@ fun HomeScreen(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoonPhaseHomeCard(
+    phases: List<MoonPhaseEvent>,
+    fontScale: Float,
+    onTap: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val accent = if (isDark) MoonPhaseLight else MoonPhaseDark
+    val next = phases.first()
+    val isPournami = next.type == MoonPhaseType.POURNAMI
+
+    GlassmorphicCard(
+        modifier = modifier,
+        accentColor = accent,
+        onClick = onTap,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                if (isPournami) "🌕" else "🌑",
+                style = MaterialTheme.typography.headlineMedium,
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "చంద్ర కళలు · MOON PHASES",
+                    style = NityaPoojaTextStyles.GoldLabel,
+                    color = accent,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    if (isPournami) "పౌర్ణమి · Pournami" else "అమావాస్య · Amavasya",
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    "${next.dateDisplay} · ${next.masaNameTelugu}",
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    when (next.daysUntil) {
+                        0 -> "నేడు"
+                        1 -> "రేపు"
+                        else -> "${next.daysUntil}d"
+                    },
+                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = (22 * fontScale).sp),
+                    fontWeight = FontWeight.Bold,
+                    color = accent,
+                )
+                Text(
+                    next.timeFormatted,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        // Second phase preview
+        if (phases.size > 1) {
+            val other = phases[1]
+            val otherIsPournami = other.type == MoonPhaseType.POURNAMI
+            Spacer(Modifier.height(8.dp))
+            HorizontalDivider(color = accent.copy(alpha = 0.2f))
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(if (otherIsPournami) "🌕" else "🌑", style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    if (otherIsPournami) "పౌర్ణమి · ${other.dateDisplay}" else "అమావాస్య · ${other.dateDisplay}",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    "${other.daysUntil}d",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = accent.copy(alpha = 0.7f),
+                )
             }
         }
     }

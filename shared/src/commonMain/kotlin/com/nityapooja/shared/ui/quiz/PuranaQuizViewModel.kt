@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nityapooja.shared.data.local.entity.PuranaQuizEntity
 import com.nityapooja.shared.data.repository.DevotionalRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,13 +30,16 @@ class PuranaQuizViewModel(
     private val _uiState = MutableStateFlow(PuranaQuizUiState())
     val uiState: StateFlow<PuranaQuizUiState> = _uiState.asStateFlow()
 
+    private var quizLoadJob: Job? = null
+
     init {
         loadQuiz()
     }
 
     fun loadQuiz() {
         _uiState.value = PuranaQuizUiState(isLoading = true)
-        viewModelScope.launch {
+        quizLoadJob?.cancel()
+        quizLoadJob = viewModelScope.launch {
             repository.getRandomQuizzes(5).collect { questions ->
                 _uiState.value = PuranaQuizUiState(
                     questions = questions.map { QuizQuestionState(it) },

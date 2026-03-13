@@ -66,11 +66,14 @@ class SpotifyManager(
 
     init {
         Log.d(TAG, "init: clientId=$CLIENT_ID, redirectUri=$REDIRECT_URI")
-        // Auto-reconnect App Remote on app startup if previously linked
+        // Auto-reconnect App Remote on app startup if previously linked.
+        // AppRemote authenticates via the Spotify app itself, not the OAuth token,
+        // so we connect whenever Spotify is installed and the user previously linked.
         scope.launch {
-            val tokenValid = ensureTokenValid()
-            Log.d(TAG, "init: tokenValid=$tokenValid, spotifyInstalled=${isSpotifyInstalled()}")
-            if (tokenValid && isSpotifyInstalled()) {
+            val isLinked = preferencesManager.spotifyLinked.first()
+            ensureTokenValid() // load token into memory if available
+            Log.d(TAG, "init: isLinked=$isLinked, spotifyInstalled=${isSpotifyInstalled()}")
+            if (isLinked && isSpotifyInstalled()) {
                 connectAppRemote()
             }
         }
@@ -264,8 +267,9 @@ class SpotifyManager(
 
         val tokenExpiry = preferencesManager.spotifyTokenExpiry.first()
         if (System.currentTimeMillis() >= tokenExpiry) {
-            // Token expired, need re-auth
-            _connectionStatus.value = SpotifyConnectionStatus.DISCONNECTED
+            // OAuth token expired — but don't touch connectionStatus here.
+            // AppRemote connection is independent of the OAuth token.
+            Log.d(TAG, "OAuth token expired, user token unavailable")
             return false
         }
 

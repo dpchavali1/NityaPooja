@@ -25,8 +25,8 @@ android {
         applicationId = "com.nityapooja.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 15
-        versionName = "1.3.1"
+        versionCode = 19
+        versionName = "1.4.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -160,6 +160,9 @@ dependencies {
 
     // Ads — Google AdMob
     implementation(libs.play.ads)
+
+    // In-App Review
+    implementation(libs.play.review)
 
     // Spotify SDK (place AARs in androidApp/libs/)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar"))))

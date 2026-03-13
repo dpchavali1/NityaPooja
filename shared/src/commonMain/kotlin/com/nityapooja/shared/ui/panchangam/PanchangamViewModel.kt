@@ -174,6 +174,22 @@ data class PanchangamData(
 // Name arrays: Telugu and English
 // ═══════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════
+// Moon Phase types
+// ═══════════════════════════════════════════════════════════════
+
+enum class MoonPhaseType { POURNAMI, AMAVASYA }
+
+data class MoonPhaseEvent(
+    val type: MoonPhaseType,
+    val date: LocalDate,
+    val timeFormatted: String,
+    val dateDisplay: String,
+    val masaNameTelugu: String,
+    val masaNameEnglish: String,
+    val daysUntil: Int,
+)
+
 val TITHI_NAMES_ENGLISH = arrayOf(
     "Prathama", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
     "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
@@ -559,6 +575,42 @@ class PanchangamViewModel(
             brahmaMuhurta = brahmaMuhurta,
             shubhHoras = shubhHoras,
             isToday = isToday,
+        )
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Moon Phase calculation: next Pournami + Amavasya from today
+    // ═══════════════════════════════════════════════════════════
+
+    fun calculateUpcomingMoonPhases(timezone: String): List<MoonPhaseEvent> {
+        val tz = TimeZone.of(timezone)
+        val now = Clock.System.now()
+        val jdNow = now.toEpochMilliseconds() / 86_400_000.0 + 2440587.5
+        val today = now.toLocalDateTime(tz).date
+
+        val jdPournami = findCrossingJD(jdNow, 180.0, 30.0) { siderealElongation(it) }
+        val jdAmavasya = findCrossingJD(jdNow, 360.0, 30.0) { siderealElongation(it) }
+
+        return listOf(
+            moonPhaseEventFromJD(jdPournami, MoonPhaseType.POURNAMI, tz, today),
+            moonPhaseEventFromJD(jdAmavasya, MoonPhaseType.AMAVASYA, tz, today),
+        ).sortedBy { it.daysUntil }
+    }
+
+    private fun moonPhaseEventFromJD(jd: Double, type: MoonPhaseType, tz: TimeZone, today: LocalDate): MoonPhaseEvent {
+        val (timeStr, date) = jdToLocalTime(jd, tz)
+        val daysUntil = (date.toEpochDays() - today.toEpochDays()).toInt()
+        val masa = calculateMasa(jd).info
+        val monthName = ENGLISH_MONTH_NAMES.getOrElse(date.monthNumber) { "" }
+        val dateDisplay = "$monthName ${date.dayOfMonth}, ${date.year}"
+        return MoonPhaseEvent(
+            type = type,
+            date = date,
+            timeFormatted = timeStr,
+            dateDisplay = dateDisplay,
+            masaNameTelugu = masa.nameTelugu,
+            masaNameEnglish = masa.nameEnglish,
+            daysUntil = daysUntil,
         )
     }
 

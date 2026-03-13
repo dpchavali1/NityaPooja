@@ -44,6 +44,7 @@ class NotificationWorker(
         const val KEY_SPARSHA = "sparsha_time"
         const val KEY_MADHYAM = "madhyam_time"
         const val KEY_MOKSHAM = "moksham_time"
+        const val EXTRA_NAV_ROUTE = "nav_route"
     }
 
     override suspend fun doWork(): Result {
@@ -127,12 +128,18 @@ class NotificationWorker(
     }
 
     private fun showNotification(body: String, notificationId: Int, type: String) {
+        val navRoute = when (type) {
+            TYPE_QUIZ -> "purana_quiz"
+            TYPE_GRAHANAM_BEFORE, TYPE_GRAHANAM_ON -> "panchangam"
+            else -> null
+        }
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            navRoute?.let { putExtra(EXTRA_NAV_ROUTE, it) }
         }
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
-            0,
+            notificationId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )

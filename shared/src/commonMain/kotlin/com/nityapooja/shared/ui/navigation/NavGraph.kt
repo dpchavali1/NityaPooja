@@ -64,6 +64,7 @@ import com.nityapooja.shared.ui.quiz.PuranaQuizScreen
 @Composable
 fun NityaPoojaNavHost(
     onboardingCompleted: Boolean = false,
+    deepLinkRoute: String? = null,
     onLinkSpotify: (() -> Unit)? = null,
     onUnlinkSpotify: (() -> Unit)? = null,
     spotifyLinked: Boolean = false,
@@ -83,6 +84,15 @@ fun NityaPoojaNavHost(
     }
 
     val startDestination = if (onboardingCompleted) Screen.Home.route else Screen.Onboarding.route
+
+    // Navigate to deep link route (e.g., from notification tap)
+    LaunchedEffect(deepLinkRoute) {
+        if (deepLinkRoute != null && onboardingCompleted) {
+            navController.navigate(deepLinkRoute) {
+                launchSingleTop = true
+            }
+        }
+    }
 
     val bottomBarScreens = bottomNavItems.map { it.screen.route }
     val showBottomBar = currentDestination?.route in bottomBarScreens

@@ -19,6 +19,8 @@ import com.nityapooja.shared.ui.navigation.NityaPoojaNavHost
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.settings.SettingsViewModel
 import com.nityapooja.shared.ui.theme.NityaPoojaTheme
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -36,6 +38,7 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun NityaPoojaApp(
+    deepLinkRoute: String? = null,
     onLinkSpotify: (() -> Unit)? = null,
     onUnlinkSpotify: (() -> Unit)? = null,
     spotifyLinked: Boolean = false,
@@ -56,12 +59,18 @@ fun NityaPoojaApp(
     val panchangamViewModel: PanchangamViewModel = koinViewModel()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
 
+    val nowInstant by produceState(Clock.System.now()) {
+        while (true) {
+            delay(60_000L)
+            value = Clock.System.now()
+        }
+    }
+
     val effectiveThemeMode = if (autoDarkMode && themeMode == ThemeMode.SYSTEM) {
-        val now = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
-        val sunTimes = remember(locationInfo) {
+        val now = nowInstant.toLocalDateTime(TimeZone.currentSystemDefault())
+        val sunTimes = remember(locationInfo, now.date) {
             val tz = TimeZone.of(locationInfo.timezone)
-            val instant = Clock.System.now()
-            val utcOffset = instant.offsetIn(tz).totalSeconds / 3600.0
+            val utcOffset = nowInstant.offsetIn(tz).totalSeconds / 3600.0
             panchangamViewModel.calculateSunTimes(
                 locationInfo.lat, locationInfo.lng,
                 now.year, now.monthNumber, now.dayOfMonth,
@@ -96,6 +105,7 @@ fun NityaPoojaApp(
             } else {
                 NityaPoojaNavHost(
                     onboardingCompleted = onboarding,
+                    deepLinkRoute = deepLinkRoute,
                     onLinkSpotify = onLinkSpotify,
                     onUnlinkSpotify = onUnlinkSpotify,
                     spotifyLinked = spotifyLinked,

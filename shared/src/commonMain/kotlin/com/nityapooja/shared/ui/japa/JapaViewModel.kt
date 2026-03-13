@@ -7,10 +7,12 @@ import com.nityapooja.shared.data.local.entity.JapaSessionEntity
 import com.nityapooja.shared.data.local.entity.MantraEntity
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.data.repository.DevotionalRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -48,12 +50,16 @@ class JapaViewModel(
     val totalCount: StateFlow<Int> = japaSessionDao.getTotalCount()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val todayDate: String = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
+    private val _todayDate = MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()).toString())
 
-    val todaySessions: StateFlow<List<JapaSessionEntity>> = japaSessionDao.getSessionsByDate(todayDate)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val todaySessions: StateFlow<List<JapaSessionEntity>> = _todayDate
+        .flatMapLatest { date -> japaSessionDao.getSessionsByDate(date) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val todayMalas: StateFlow<Int> = japaSessionDao.getSessionsByDate(todayDate)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val todayMalas: StateFlow<Int> = _todayDate
+        .flatMapLatest { date -> japaSessionDao.getSessionsByDate(date) }
         .map { sessions -> sessions.sumOf { it.malasCompleted } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
@@ -112,6 +118,9 @@ class JapaViewModel(
 
         val duration = (Clock.System.now().toEpochMilliseconds() - _sessionStartTime.value) / 1000
         val mantra = _selectedMantra.value
+        // Always compute the current date at save time — never rely on the stale VM-init value.
+        val date = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
+        _todayDate.value = date
 
         viewModelScope.launch {
             japaSessionDao.insertSession(
@@ -120,7 +129,7 @@ class JapaViewModel(
                     mantraNameTelugu = mantra?.titleTelugu ?: "ఓం",
                     count = currentCount,
                     malasCompleted = _malas.value,
-                    date = todayDate,
+                    date = date,
                     durationSeconds = duration,
                 )
             )

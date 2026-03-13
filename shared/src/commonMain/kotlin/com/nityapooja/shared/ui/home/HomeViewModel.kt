@@ -9,12 +9,16 @@ import com.nityapooja.shared.data.local.entity.ReadingHistoryEntity
 import com.nityapooja.shared.data.local.entity.ShlokaEntity
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.data.repository.DevotionalRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import kotlinx.datetime.toLocalDateTime
@@ -27,13 +31,17 @@ class HomeViewModel(
     val deities: StateFlow<List<DeityEntity>> = repository.getAllDeities()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val todayShloka: StateFlow<ShlokaEntity?> = repository.getShlokaForDay(
-        Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfYear
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    private val _today = MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
 
-    val deityOfTheDay: StateFlow<List<DeityEntity>> = repository.getDeityByDay(
-        getTodayDayName()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val todayShloka: StateFlow<ShlokaEntity?> = _today
+        .flatMapLatest { date -> repository.getShlokaForDay(date.dayOfYear) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val deityOfTheDay: StateFlow<List<DeityEntity>> = _today
+        .flatMapLatest { date -> repository.getDeityByDay(dayName(date)) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val bookmarks: StateFlow<List<BookmarkEntity>> = repository.getAllBookmarks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -69,6 +77,23 @@ class HomeViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    fun refreshToday() {
+        _today.value = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    }
+
+    private fun dayName(date: LocalDate): String {
+        return when (date.dayOfWeek) {
+            DayOfWeek.SUNDAY -> "Sunday"
+            DayOfWeek.MONDAY -> "Monday"
+            DayOfWeek.TUESDAY -> "Tuesday"
+            DayOfWeek.WEDNESDAY -> "Wednesday"
+            DayOfWeek.THURSDAY -> "Thursday"
+            DayOfWeek.FRIDAY -> "Friday"
+            DayOfWeek.SATURDAY -> "Saturday"
+            else -> "Monday"
+        }
+    }
+
     fun getGreetingTelugu(): String {
         val hour = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).hour
         return when {
@@ -89,18 +114,7 @@ class HomeViewModel(
         }
     }
 
-    fun getTodayDayName(): String {
-        return when (Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek) {
-            DayOfWeek.SUNDAY -> "Sunday"
-            DayOfWeek.MONDAY -> "Monday"
-            DayOfWeek.TUESDAY -> "Tuesday"
-            DayOfWeek.WEDNESDAY -> "Wednesday"
-            DayOfWeek.THURSDAY -> "Thursday"
-            DayOfWeek.FRIDAY -> "Friday"
-            DayOfWeek.SATURDAY -> "Saturday"
-            else -> "Monday"
-        }
-    }
+    fun getTodayDayName(): String = dayName(Clock.System.todayIn(TimeZone.currentSystemDefault()))
 
     fun getTodayTeluguDay(): String {
         return when (Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek) {

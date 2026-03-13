@@ -4,6 +4,8 @@ object SpotifySearchQueryBuilder {
 
     private val preferredQueries = mapOf(
         "Hanuman Chalisa" to "MS Rama Rao Hanuman Chalisa",
+        "Sri Venkateswara Suprabhatam" to "Sri Venkateswara Suprabhatam M.S.Subbulakshmi",
+        "Venkateswara Suprabhatam" to "Sri Venkateswara Suprabhatam M.S.Subbulakshmi",
         "Shiva Suprabhatam" to "Shiva Suprabhatam Vijayaa Shanker",
         "Venkateswara Moola Mantra" to "om namo venkatesaya Ramu",
         "Venkateswara Ashtottara" to "Sri Venkateshwara Ashtottaram Parupalli Ranganath",

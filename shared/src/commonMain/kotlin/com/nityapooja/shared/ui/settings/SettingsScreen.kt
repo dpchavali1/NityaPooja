@@ -590,7 +590,7 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Version 1.3.1",
+                        "Version 1.4.3",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -609,21 +609,35 @@ fun SettingsScreen(
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "🆕 v1.3.1 · Grahanam alerts, worldwide city search, nav fix",
+                        "🆕 v1.4.2 · Notification deep links, quiz share, rate app",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "⭐ v1.3.0 · Panchangam widget, Puranas Quiz, larger fonts",
+                        "⭐ v1.4.1 · Moon Phase significance fix",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "✨ v1.2.0 · Festival write-ups & cultural significance",
+                        "⭐ v1.4.0 · Moon Phases, Japa fix, deep links, dark mode",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "✨ v1.3.1 · Grahanam alerts, worldwide city search, nav fix",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "✨ v1.3.0 · Panchangam widget, Puranas Quiz, larger fonts",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.nityapooja.shared.data.local.entity.PuranaQuizEntity
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.theme.TempleGold
+import com.nityapooja.shared.platform.shareText
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,13 +134,34 @@ private fun ScoreCard(score: Int, total: Int, fontScale: Float = 1f, onNewQuiz: 
                 color = color,
             )
             Spacer(Modifier.height(4.dp))
-            Button(
-                onClick = onNewQuiz,
-                colors = ButtonDefaults.buttonColors(containerColor = TempleGold),
-            ) {
-                Icon(Icons.Default.Refresh, "Refresh", modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("క్రొత్త క్విజ్ / New Quiz")
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        val msg = buildString {
+                            append("I scored $score/$total on the Puranas Quiz! ")
+                            when {
+                                percentage == 100 -> append("Perfect score!")
+                                percentage >= 80 -> append("Excellent!")
+                                percentage >= 60 -> append("Good job!")
+                                else -> append("Can you beat me?")
+                            }
+                            append("\n\nTest your knowledge of Hindu Puranas — try NityaPooja app!")
+                        }
+                        shareText(msg)
+                    },
+                ) {
+                    Icon(Icons.Default.Share, "Share", modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Share")
+                }
+                Button(
+                    onClick = onNewQuiz,
+                    colors = ButtonDefaults.buttonColors(containerColor = TempleGold),
+                ) {
+                    Icon(Icons.Default.Refresh, "Refresh", modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("క్రొత్త క్విజ్ / New Quiz")
+                }
             }
         }
     }

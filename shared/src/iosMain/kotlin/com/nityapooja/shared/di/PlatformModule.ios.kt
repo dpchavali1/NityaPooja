@@ -6,7 +6,7 @@ import com.nityapooja.shared.data.spotify.SpotifyCredentials
 import com.nityapooja.shared.platform.PlatformAudioPlayer
 import com.nityapooja.shared.platform.PlatformHaptics
 import com.nityapooja.shared.platform.PlatformSoundEffect
-import com.nityapooja.shared.platform.NoOpNotificationScheduler
+import com.nityapooja.shared.platform.IosNotificationScheduler
 import com.nityapooja.shared.platform.NotificationScheduler
 import com.nityapooja.shared.platform.PreviewSpotifyPlaybackBridge
 import com.nityapooja.shared.platform.SpotifyPlaybackBridge
@@ -24,5 +24,5 @@ val iosPlatformModule = module {
         clientSecret = NSBundle.mainBundle.objectForInfoDictionaryKey("SPOTIFY_CLIENT_SECRET") as? String ?: "",
     ) }
     single<SpotifyPlaybackBridge> { PreviewSpotifyPlaybackBridge(get(), get()) }
-    single<NotificationScheduler> { NoOpNotificationScheduler() }
+    single<NotificationScheduler> { IosNotificationScheduler() }
 }

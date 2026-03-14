@@ -8,11 +8,15 @@ import platform.UIKit.UIView
 
 fun MainViewController(
     bannerAdViewFactory: (() -> UIView)? = null,
+    deepLinkRoute: String? = null,
 ) = ComposeUIViewController {
     val bannerAd: (@Composable () -> Unit)? = if (bannerAdViewFactory != null) {
         { IosBannerAd(viewFactory = bannerAdViewFactory) }
     } else {
         null
     }
-    NityaPoojaApp(bannerAd = bannerAd)
+    NityaPoojaApp(
+        deepLinkRoute = deepLinkRoute,
+        bannerAd = bannerAd,
+    )
 }

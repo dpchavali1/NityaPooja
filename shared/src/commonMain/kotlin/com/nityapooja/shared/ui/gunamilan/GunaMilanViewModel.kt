@@ -237,7 +237,7 @@ class GunaMilanViewModel : ViewModel() {
     }
 
     private fun hasKujaDosha(marsRashi: Int, lagnaRashi: Int, moonRashi: Int): Boolean {
-        val doshaHouses = setOf(1, 2, 4, 7, 8, 12)
+        val doshaHouses = setOf(2, 4, 7, 8, 12)
         val fromLagna = ((marsRashi - lagnaRashi + 12) % 12) + 1
         val fromMoon = ((marsRashi - moonRashi + 12) % 12) + 1
         return fromLagna in doshaHouses || fromMoon in doshaHouses

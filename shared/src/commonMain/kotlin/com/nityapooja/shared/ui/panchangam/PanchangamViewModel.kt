@@ -18,6 +18,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetIn
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
@@ -473,19 +474,39 @@ class PanchangamViewModel(
         var calculationLocalDateTime = calculationInstant.toLocalDateTime(tz)
         var utcOffsetHours = calculationInstant.offsetIn(tz).totalSeconds / 3600.0
         val isToday = date == null
-        val year = calculationLocalDateTime.year
-        val month = calculationLocalDateTime.monthNumber
-        val day = calculationLocalDateTime.dayOfMonth
+        var year = calculationLocalDateTime.year
+        var month = calculationLocalDateTime.monthNumber
+        var day = calculationLocalDateTime.dayOfMonth
         var hour = calculationLocalDateTime.hour
         var minute = calculationLocalDateTime.minute
 
-        // For selected dates, daily Panchangam should reflect sunrise-based day markers.
-        if (date != null) {
-            val approxSunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
-            val sunriseMinutes = (((approxSunTimes.sunriseDecimal % 24.0 + 24.0) % 24.0) * 60.0).roundToInt()
-            val sunriseHour = (sunriseMinutes / 60) % 24
-            val sunriseMinute = sunriseMinutes % 60
+        // Hindu day starts at sunrise, not midnight.
+        // If before sunrise, use previous civil day's sunrise as the anchor.
+        val approxSunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
+        val sunriseMinutes = (((approxSunTimes.sunriseDecimal % 24.0 + 24.0) % 24.0) * 60.0).roundToInt()
+        val sunriseHour = (sunriseMinutes / 60) % 24
+        val sunriseMinute = sunriseMinutes % 60
 
+        if (isToday) {
+            val currentMinuteOfDay = hour * 60 + minute
+            val sunriseMinuteOfDay = sunriseHour * 60 + sunriseMinute
+            if (currentMinuteOfDay < sunriseMinuteOfDay) {
+                // Before sunrise — use previous day for panchangam calculations
+                val previousDay = calculationInstant.minus(1, DateTimeUnit.DAY, tz)
+                calculationLocalDateTime = previousDay.toLocalDateTime(tz)
+                year = calculationLocalDateTime.year
+                month = calculationLocalDateTime.monthNumber
+                day = calculationLocalDateTime.dayOfMonth
+                utcOffsetHours = previousDay.offsetIn(tz).totalSeconds / 3600.0
+                // Recalculate sunrise for previous day
+                val prevSunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
+                val prevSunriseMin = (((prevSunTimes.sunriseDecimal % 24.0 + 24.0) % 24.0) * 60.0).roundToInt()
+                hour = (prevSunriseMin / 60) % 24
+                minute = prevSunriseMin % 60
+            }
+            // If after sunrise, keep current time as-is for live tithi/nakshatra tracking
+        } else {
+            // For selected dates, anchor to sunrise
             calculationInstant = LocalDateTime(year, month, day, sunriseHour, sunriseMinute).toInstant(tz)
             calculationLocalDateTime = calculationInstant.toLocalDateTime(tz)
             utcOffsetHours = calculationInstant.offsetIn(tz).totalSeconds / 3600.0

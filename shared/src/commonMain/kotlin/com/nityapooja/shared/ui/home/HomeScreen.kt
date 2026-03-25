@@ -622,103 +622,44 @@ fun HomeScreen(
             }
 
             // Panchangam Snapshot
+            // Sankalpam Card (collapsible)
             item {
+                var sankalpamExpanded by remember { mutableStateOf(false) }
                 GlassmorphicCard(
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    cornerRadius = 16.dp,
-                    contentPadding = 16.dp,
                     accentColor = TempleGold,
-                    onClick = onNavigateToPanchangam,
+                    onClick = { sankalpamExpanded = !sankalpamExpanded },
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                "పంచాంగం · PANCHANGAM",
-                                style = NityaPoojaTextStyles.GoldLabel,
-                                color = TempleGold,
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "${panchangamData.samvatsara.nameTelugu} · ${panchangamData.masa.nameTelugu}",
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    fontSize = (12 * fontScale).sp,
-                                ),
-                                fontWeight = FontWeight.Medium,
-                                color = TempleGold.copy(alpha = 0.8f),
-                            )
-                            Spacer(Modifier.height(6.dp))
-                            Text(
-                                panchangamData.teluguDay,
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontSize = (18 * fontScale).sp,
-                                ),
-                                fontWeight = FontWeight.Bold,
-                                color = TempleGold,
-                            )
-                            Text(
-                                panchangamData.englishDay,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontSize = (14 * fontScale).sp,
-                                ),
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            Row {
-                                Text("తిథి: ", style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), color = TempleGold)
-                                Text("${panchangamData.tithi.nameTelugu} (${panchangamData.tithi.endTime} వరకు)", style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface)
-                            }
-                            Row {
-                                Text("నక్షత్రం: ", style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), color = TempleGold)
-                                Text("${panchangamData.nakshatra.nameTelugu} (${panchangamData.nakshatra.endTime} వరకు)", style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface)
-                            }
-                            Row {
-                                Text("యోగం: ", style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), color = TempleGold)
-                                Text(panchangamData.yoga.nameTelugu, style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface)
-                            }
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "☀ ${panchangamData.sunTimes.sunrise}  🌙 ${panchangamData.sunTimes.sunset}",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            if (panchangamData.rahuKaal.isActive) {
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    "⚠ రాహు కాలం: ${panchangamData.rahuKaal.startTime} - ${panchangamData.rahuKaal.endTime}",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
-                                    color = DeepVermillion,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            }
-                        }
+                        Text(
+                            "సంకల్పం · SANKALPAM",
+                            style = NityaPoojaTextStyles.GoldLabel,
+                            color = TempleGold,
+                        )
                         Icon(
-                            Icons.Default.CalendarMonth,
+                            if (sankalpamExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                             contentDescription = null,
                             tint = TempleGold,
-                            modifier = Modifier.size(32.dp),
+                        )
+                    }
+                    if (sankalpamExpanded) {
+                        Spacer(Modifier.height(8.dp))
+                        SankalpamCard(
+                            panchangamData = panchangamData,
+                            userName = userName,
+                            gotra = userGotra,
+                            userNakshatra = userNakshatra,
+                            city = locationInfo.city,
+                            fontScale = fontScale,
+                            timezone = locationInfo.timezone,
+                            onNavigateToSettings = onNavigateToSettings,
                         )
                     }
                 }
-            }
-
-            // Sankalpam Card
-            item {
-                SankalpamCard(
-                    panchangamData = panchangamData,
-                    userName = userName,
-                    gotra = userGotra,
-                    userNakshatra = userNakshatra,
-                    city = locationInfo.city,
-                    fontScale = fontScale,
-                    timezone = locationInfo.timezone,
-                    onNavigateToSettings = onNavigateToSettings,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
             }
 
             // Recently Viewed Section

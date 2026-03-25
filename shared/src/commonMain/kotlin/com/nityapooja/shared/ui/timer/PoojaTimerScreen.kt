@@ -28,6 +28,7 @@ import org.koin.compose.koinInject
 @Composable
 fun PoojaTimerScreen(
     onBack: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val presetMinutes = listOf(5, 10, 15, 21, 30, 45, 60)
     var selectedMinutes by remember { mutableIntStateOf(15) }
@@ -272,6 +273,8 @@ fun PoojaTimerScreen(
                     }
                 }
             }
+
+            bannerAd?.invoke()
 
             Spacer(Modifier.height(16.dp))
         }

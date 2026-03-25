@@ -30,6 +30,7 @@ import com.nityapooja.shared.platform.shareText
 fun GunaMilanScreen(
     onBack: () -> Unit,
     viewModel: GunaMilanViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var brideDetails by remember { mutableStateOf(BirthDetails(name = "")) }
@@ -98,6 +99,8 @@ fun GunaMilanScreen(
                     showNameField = true,
                 )
             }
+
+            item { bannerAd?.invoke() }
 
             // Calculate button
             item {

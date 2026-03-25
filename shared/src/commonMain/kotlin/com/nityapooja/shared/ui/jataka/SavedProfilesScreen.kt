@@ -29,6 +29,7 @@ fun SavedProfilesScreen(
     onBack: () -> Unit,
     onProfileSelected: ((SavedProfileEntity) -> Unit)? = null,
     viewModel: SavedProfilesViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val profiles by viewModel.profiles.collectAsState()
     val editingProfile by viewModel.editingProfile.collectAsState()
@@ -192,6 +193,8 @@ fun SavedProfilesScreen(
                     }
                 }
             }
+
+            item { bannerAd?.invoke() }
 
             if (profiles.isEmpty() && !showAddForm) {
                 item {

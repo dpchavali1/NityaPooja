@@ -28,6 +28,7 @@ fun VrataListScreen(
     panchangamViewModel: PanchangamViewModel = koinViewModel(),
     onNavigateToDetail: (Int) -> Unit = {},
     onBack: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val allVratas by viewModel.allVratas.collectAsState()
     val upcomingVratas by viewModel.upcomingVratas.collectAsState()
@@ -72,6 +73,8 @@ fun VrataListScreen(
                     Text("అన్ని వ్రతాలు", modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 }
             }
+
+            bannerAd?.invoke()
 
             if (isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

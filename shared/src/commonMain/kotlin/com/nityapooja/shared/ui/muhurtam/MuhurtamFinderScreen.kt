@@ -32,6 +32,7 @@ fun MuhurtamFinderScreen(
     viewModel: MuhurtamFinderViewModel = koinViewModel(),
     panchangamViewModel: PanchangamViewModel = koinViewModel(),
     onBack: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val selectedEvent by viewModel.selectedEvent.collectAsState()
     val scoredDates by viewModel.scoredDates.collectAsState()
@@ -103,6 +104,8 @@ fun MuhurtamFinderScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
+
+                bannerAd?.invoke()
 
                 // Scored dates list
                 LazyColumn(

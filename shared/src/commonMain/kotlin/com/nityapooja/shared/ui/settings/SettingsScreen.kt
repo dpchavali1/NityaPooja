@@ -42,6 +42,7 @@ fun SettingsScreen(
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
     viewModel: SettingsViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val themeMode by viewModel.themeMode.collectAsState()
     val userName by viewModel.userName.collectAsState()
@@ -699,6 +700,8 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            bannerAd?.invoke()
 
             Spacer(Modifier.height(32.dp))
         }

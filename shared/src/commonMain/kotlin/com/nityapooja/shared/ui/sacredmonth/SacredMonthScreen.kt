@@ -27,6 +27,7 @@ fun SacredMonthScreen(
     viewModel: SacredMonthViewModel = koinViewModel(),
     panchangamViewModel: PanchangamViewModel = koinViewModel(),
     onBack: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val currentSacredMonth by viewModel.currentSacredMonth.collectAsState()
     val allSacredMonths by viewModel.allSacredMonths.collectAsState()
@@ -83,6 +84,8 @@ fun SacredMonthScreen(
                     )
                 }
             }
+
+            item { bannerAd?.invoke() }
 
             // All sacred months
             item { SectionHeader(titleTelugu = "పవిత్ర మాసాలు", titleEnglish = "All Sacred Months") }

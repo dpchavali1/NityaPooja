@@ -30,6 +30,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel(),
     onBackClick: () -> Unit = {},
     onBookmarkClick: (String, Int) -> Unit = { _, _ -> },
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val bookmarksByType by viewModel.bookmarksByType.collectAsState()
     val recentHistory by viewModel.recentHistory.collectAsState()
@@ -95,6 +96,8 @@ fun ProfileScreen(
                     icon = { Icon(Icons.Default.History, null, Modifier.size(18.dp)) },
                 )
             }
+
+            bannerAd?.invoke()
 
             when (selectedTab) {
                 0 -> BookmarksTab(bookmarksByType, onBookmarkClick)

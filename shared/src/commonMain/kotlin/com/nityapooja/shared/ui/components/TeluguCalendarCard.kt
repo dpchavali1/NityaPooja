@@ -46,34 +46,45 @@ fun TeluguCalendarCard(
 
                 Spacer(Modifier.height(8.dp))
 
-                // Masam + Paksham + Tithi
+                // Masam + Paksham + Tithi (with end time)
                 Text(
-                    "${panchangamData.masa.nameTelugu} · ${panchangamData.tithi.pakshaTelugu} · ${panchangamData.tithi.nameTelugu}",
+                    "${panchangamData.masa.nameTelugu} · ${panchangamData.tithi.pakshaTelugu} · ${panchangamData.tithi.nameTelugu} (${panchangamData.tithi.endTime})",
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = (15 * fontScale).sp,
+                        fontSize = (14 * fontScale).sp,
                         fontWeight = FontWeight.Medium,
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(3.dp))
 
-                // Vaaram + Nakshatra
+                // Vaaram + Nakshatra (with end time)
                 Text(
-                    "${panchangamData.teluguDay} · ${panchangamData.nakshatra.nameTelugu}",
+                    "${panchangamData.teluguDay} · ${panchangamData.nakshatra.nameTelugu} (${panchangamData.nakshatra.endTime})",
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = (14 * fontScale).sp,
+                        fontSize = (13 * fontScale).sp,
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(3.dp))
 
-                // Ayana + Rutu
+                // Yoga + Ayana + Rutu
                 Text(
-                    "${panchangamData.ayana.nameTelugu} · ${panchangamData.rutu.nameTelugu}",
+                    "${panchangamData.yoga.nameTelugu} · ${panchangamData.ayana.nameTelugu} · ${panchangamData.rutu.nameTelugu}",
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontSize = (12 * fontScale).sp,
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                Spacer(Modifier.height(3.dp))
+
+                // Sunrise + Sunset
+                Text(
+                    "☀ ${panchangamData.sunTimes.sunrise}  🌙 ${panchangamData.sunTimes.sunset}",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = (11 * fontScale).sp,
                     ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

@@ -22,6 +22,7 @@ fun VrataDetailScreen(
     vrataId: Int,
     viewModel: VrataViewModel = koinViewModel(),
     onBack: () -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val allVratas by viewModel.allVratas.collectAsState()
     val vrata = allVratas.firstOrNull { it.id == vrataId }
@@ -112,6 +113,8 @@ fun VrataDetailScreen(
                     Text(it, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TempleGold)
                 }
             }
+
+            bannerAd?.invoke()
 
             Spacer(Modifier.height(24.dp))
         }

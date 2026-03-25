@@ -373,7 +373,8 @@ fun NityaPoojaNavHost(
             ) { backStackEntry ->
                 TempleDetailScreen(
                     templeId = backStackEntry.arguments?.getInt("id") ?: 0,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -414,6 +415,7 @@ fun NityaPoojaNavHost(
                     spotifyLinked = spotifyLinked,
                     spotifyConnecting = spotifyConnecting,
                     spotifyInstalled = spotifyInstalled,
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.PrivacyPolicy.route) {
@@ -429,6 +431,7 @@ fun NityaPoojaNavHost(
                     onMantraClick = { id -> navController.navigate(Screen.MantraDetail.createRoute(id)) },
                     onBhajanClick = { id -> navController.navigate(Screen.BhajanDetail.createRoute(id)) },
                     onChalisaClick = { id -> navController.navigate(Screen.ChalisaDetail.createRoute(id)) },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.Profile.route) {
@@ -447,6 +450,7 @@ fun NityaPoojaNavHost(
                             "chalisa" -> navController.navigate(Screen.ChalisaDetail.createRoute(id))
                         }
                     },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -479,11 +483,13 @@ fun NityaPoojaNavHost(
             composable(Screen.GuidedPuja.route) {
                 GuidedPujaScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.PoojaTimer.route) {
                 PoojaTimerScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -492,16 +498,19 @@ fun NityaPoojaNavHost(
                 JatakaChakramScreen(
                     onBack = { navController.popBackStack() },
                     onNavigateToSavedProfiles = { navController.navigate(Screen.SavedProfiles.route) },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.GunaMilan.route) {
                 GunaMilanScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.SavedProfiles.route) {
                 SavedProfilesScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -509,6 +518,7 @@ fun NityaPoojaNavHost(
             composable(Screen.DevotionalStore.route) {
                 DevotionalStoreScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -516,6 +526,7 @@ fun NityaPoojaNavHost(
             composable(Screen.PuranaQuiz.route) {
                 PuranaQuizScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -523,12 +534,14 @@ fun NityaPoojaNavHost(
             composable(Screen.MuhurtamFinder.route) {
                 MuhurtamFinderScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.VrataList.route) {
                 VrataListScreen(
                     onNavigateToDetail = { id -> navController.navigate(Screen.VrataDetail.createRoute(id)) },
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
             composable(
@@ -538,11 +551,13 @@ fun NityaPoojaNavHost(
                 VrataDetailScreen(
                     vrataId = backStackEntry.arguments?.getInt("id") ?: 0,
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.SacredMonth.route) {
                 SacredMonthScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 

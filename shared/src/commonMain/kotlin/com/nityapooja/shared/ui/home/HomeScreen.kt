@@ -63,6 +63,7 @@ fun HomeScreen(
     val userName by viewModel.userName.collectAsState()
     val userGotra by viewModel.userGotra.collectAsState()
     val userNakshatra by viewModel.userNakshatra.collectAsState()
+    val todayFestival by viewModel.todayFestival.collectAsState()
     val recentHistory by viewModel.recentHistory.collectAsState()
     val upcomingFestivals by viewModel.upcomingFestivals.collectAsState()
 
@@ -132,6 +133,22 @@ fun HomeScreen(
             contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
+            // Festival Greeting Card (shown only on festival day)
+            if (todayFestival != null) {
+                item {
+                    FestivalGreetingCard(
+                        festival = todayFestival!!,
+                        userName = userName,
+                        gotra = userGotra,
+                        nakshatra = userNakshatra,
+                        fontScale = fontScale,
+                        samvatsaraNameTelugu = panchangamData.samvatsara.nameTelugu,
+                        samvatsaraNameEnglish = panchangamData.samvatsara.nameEnglish,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                }
+            }
+
             // Hero: Daily Shloka Card
             item {
                 todayShloka?.let { shloka ->
@@ -825,6 +842,194 @@ private fun DevotionalSectionCard(
             titleEnglish,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun FestivalGreetingCard(
+    festival: com.nityapooja.shared.data.local.entity.FestivalEntity,
+    userName: String,
+    gotra: String,
+    nakshatra: String,
+    fontScale: Float,
+    samvatsaraNameTelugu: String,
+    samvatsaraNameEnglish: String,
+    modifier: Modifier = Modifier,
+) {
+    val greeting = getFestivalGreeting(festival.name, samvatsaraNameTelugu, samvatsaraNameEnglish)
+    val isDark = isSystemInDarkTheme()
+    val accentColor = greeting.accentColor
+
+    GlassmorphicCard(
+        modifier = modifier,
+        accentColor = accentColor,
+    ) {
+        // Festival emoji + title
+        Text(
+            greeting.emoji,
+            style = MaterialTheme.typography.displaySmall,
+        )
+        Spacer(Modifier.height(8.dp))
+
+        // Personalized Telugu greeting
+        val nameDisplay = if (userName.isNotBlank()) "$userName గారు" else ""
+        Text(
+            if (nameDisplay.isNotBlank()) "${greeting.greetingTelugu}, $nameDisplay!" else "${greeting.greetingTelugu}!",
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = (22 * fontScale).sp),
+            fontWeight = FontWeight.Bold,
+            color = accentColor,
+        )
+
+        // Gotra + Nakshatra line (only if entered)
+        val profileParts = buildList {
+            if (gotra.isNotBlank()) add("$gotra గోత్రం")
+            if (nakshatra.isNotBlank()) add("$nakshatra నక్షత్రం")
+        }
+        if (profileParts.isNotEmpty()) {
+            Spacer(Modifier.height(4.dp))
+            Text(
+                profileParts.joinToString(" · "),
+                style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp),
+                color = accentColor.copy(alpha = 0.8f),
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // Telugu blessing
+        Text(
+            greeting.blessingTelugu,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontSize = (14 * fontScale).sp,
+                lineHeight = (22 * fontScale).sp,
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        // English blessing
+        Text(
+            greeting.blessingEnglish,
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontSize = (12 * fontScale).sp,
+                lineHeight = (18 * fontScale).sp,
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        // Share button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            TextButton(onClick = {
+                val shareText = buildString {
+                    append("${greeting.greetingTelugu}!")
+                    if (nameDisplay.isNotBlank()) append(" $nameDisplay")
+                    append("\n\n${greeting.blessingTelugu}")
+                    append("\n\n${greeting.blessingEnglish}")
+                    append("\n\n— NityaPooja")
+                }
+                shareText(shareText)
+            }) {
+                Icon(Icons.Default.Share, "Share", Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("Share", style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+}
+
+private data class FestivalGreeting(
+    val emoji: String,
+    val greetingTelugu: String,
+    val blessingTelugu: String,
+    val blessingEnglish: String,
+    val accentColor: androidx.compose.ui.graphics.Color,
+)
+
+private fun getFestivalGreeting(festivalName: String, samvatsaraNameTelugu: String, samvatsaraNameEnglish: String): FestivalGreeting {
+    return when {
+        festivalName.contains("Ugadi", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🌸",
+            greetingTelugu = "శుభ ఉగాది",
+            blessingTelugu = "శ్రీ $samvatsaraNameTelugu నామ సంవత్సరం మీకు, మీ కుటుంబానికి సుఖ సంతోషాలు, ఆరోగ్యం, ఐశ్వర్యం కలిగించాలని ప్రార్థిస్తున్నాము. ఉగాది పచ్చడిలా జీవితంలోని అన్ని రుచులను ఆనందించండి.",
+            blessingEnglish = "Happy Ugadi! May the $samvatsaraNameEnglish year bring joy, health and prosperity to you and your family. Embrace all flavors of life like the Ugadi Pachadi.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFFE91E63),
+        )
+        festivalName.contains("Rama Navami", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🏹",
+            greetingTelugu = "శుభ శ్రీరామ నవమి",
+            blessingTelugu = "శ్రీరాముడి ఆశీర్వాదం మీ కుటుంబంపై సదా ఉండాలి. ధర్మం, సత్యం మీ మార్గదర్శకాలు కావాలి. సీతారాముల కళ్యాణం మీ ఇంట సంతోషాన్ని నింపాలి.",
+            blessingEnglish = "Happy Sri Rama Navami! May Lord Rama's blessings guide your family on the path of dharma and truth.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFFFF9800),
+        )
+        festivalName.contains("Vinayaka", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🐘",
+            greetingTelugu = "శుభ వినాయక చవితి",
+            blessingTelugu = "విఘ్నేశ్వరుడు మీ అన్ని అడ్డంకులను తొలగించి, విజయాలు ప్రసాదించాలి. గణపతి బప్పా మోరియా!",
+            blessingEnglish = "Happy Vinayaka Chavithi! May Lord Ganesha remove all obstacles and bless your family with success and wisdom.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
+        )
+        festivalName.contains("Dasara", ignoreCase = true) || festivalName.contains("Vijayadashami", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🪷",
+            greetingTelugu = "శుభ విజయదశమి",
+            blessingTelugu = "దుర్గామాత మీకు విజయాన్ని, ధైర్యాన్ని ప్రసాదించాలి. ఈ శుభ సమయంలో మీ కొత్త ప్రయత్నాలన్నీ విజయవంతం కావాలి.",
+            blessingEnglish = "Happy Dasara! May Goddess Durga bless you with victory and courage. May all your new endeavors succeed.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFF9C27B0),
+        )
+        festivalName.contains("Deepavali", ignoreCase = true) || festivalName.contains("Diwali", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🪔",
+            greetingTelugu = "శుభ దీపావళి",
+            blessingTelugu = "దీపాల వెలుగులో మీ ఇల్లు, మీ జీవితం ఎల్లప్పుడూ ప్రకాశించాలి. లక్ష్మీదేవి మీ కుటుంబాన్ని ఆశీర్వదించాలి.",
+            blessingEnglish = "Happy Deepavali! May the light of Diwali fill your home with happiness and prosperity forever.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFFFFC107),
+        )
+        festivalName.contains("Sankranti", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🌾",
+            greetingTelugu = "శుభ మకర సంక్రాంతి",
+            blessingTelugu = "సూర్యభగవానుడి కృపతో మీ జీవితంలో కొత్త శుభారంభం కలగాలి. సంక్రాంతి లక్ష్ములు మీ ఇంట సిరిసంపదలు నింపాలి.",
+            blessingEnglish = "Happy Sankranti! May the harvest season bring new beginnings, abundance and prosperity to your family.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+        )
+        festivalName.contains("Shivaratri", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🔱",
+            greetingTelugu = "శుభ మహా శివరాత్రి",
+            blessingTelugu = "ఓం నమః శివాయ! మహాదేవుడి ఆశీర్వాదం మీ కుటుంబంపై ఎల్లప్పుడూ ఉండాలి. శివుని కృపతో మీ జీవితం శాంతిమయం కావాలి.",
+            blessingEnglish = "Happy Maha Shivaratri! Om Namah Shivaya! May Lord Shiva's blessings bring peace and divine grace to your family.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFF3F51B5),
+        )
+        festivalName.contains("Hanuman", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🙏",
+            greetingTelugu = "శుభ హనుమాన్ జయంతి",
+            blessingTelugu = "ఆంజనేయస్వామి మీకు బలం, ధైర్యం, భక్తి ప్రసాదించాలి. సుందరకాండ పారాయణంతో మీ ఇంట శాంతి నెలకొనాలి.",
+            blessingEnglish = "Happy Hanuman Jayanti! May Lord Hanuman bless you with strength, courage and unwavering devotion.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFFFF5722),
+        )
+        festivalName.contains("Janmashtami", ignoreCase = true) || festivalName.contains("Krishna", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🦚",
+            greetingTelugu = "శుభ కృష్ణ జన్మాష్టమి",
+            blessingTelugu = "శ్రీకృష్ణ భగవానుడు మీ జీవితంలో ఆనందం, ప్రేమ నింపాలి. గీతాచార్యుడి బోధనలు మీకు మార్గదర్శకం కావాలి.",
+            blessingEnglish = "Happy Krishna Janmashtami! May Lord Krishna fill your life with joy, love and divine wisdom.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFF1565C0),
+        )
+        festivalName.contains("Varalakshmi", ignoreCase = true) -> FestivalGreeting(
+            emoji = "🪷",
+            greetingTelugu = "శుభ వరలక్ష్మీ వ్రతం",
+            blessingTelugu = "వరలక్ష్మీ అమ్మవారు మీ కుటుంబానికి సంపద, ఆరోగ్యం, సౌభాగ్యం ప్రసాదించాలి. అమ్మవారి కృపతో మీ ఇల్లు సిరిసంపదలతో నిండాలి.",
+            blessingEnglish = "Happy Varalakshmi Vratam! May Goddess Lakshmi bless your family with wealth, health and happiness.",
+            accentColor = androidx.compose.ui.graphics.Color(0xFFE91E63),
+        )
+        else -> FestivalGreeting(
+            emoji = "🙏",
+            greetingTelugu = "శుభ పండుగ",
+            blessingTelugu = "ఈ పవిత్ర దినం మీకు, మీ కుటుంబానికి శుభాలు కలిగించాలి.",
+            blessingEnglish = "Wishing you and your family a blessed festival day.",
+            accentColor = TempleGold,
         )
     }
 }

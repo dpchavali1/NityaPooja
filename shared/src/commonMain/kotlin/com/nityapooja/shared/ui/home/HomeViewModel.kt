@@ -77,6 +77,14 @@ class HomeViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    /** Festival that falls on today's date — null if no festival today */
+    val todayFestival: StateFlow<FestivalEntity?> = repository.getAllFestivals()
+        .map { festivals ->
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
+            festivals.firstOrNull { it.dateThisYear == today || it.dateNextYear == today }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     fun refreshToday() {
         _today.value = Clock.System.todayIn(TimeZone.currentSystemDefault())
     }

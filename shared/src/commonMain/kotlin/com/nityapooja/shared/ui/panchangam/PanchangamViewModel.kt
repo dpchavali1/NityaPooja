@@ -543,8 +543,13 @@ class PanchangamViewModel(
         val sunRashi = calculateRashi(sunLong)
         val moonRashi = calculateRashi(moonLong)
 
-        // ── Calendar elements ──
-        val masaComputation = calculateMasa(jd)
+        // ── Calendar elements (use sunrise JD for stable masa/samvatsara) ──
+        // Masa depends on the new moon that brackets this Hindu day.
+        // Using sunrise ensures the masa doesn't flip mid-day if a new moon
+        // occurs during the daytime (e.g., on Ugadi / Chaitra Shukla Padyami).
+        val sunriseUtHours = sunriseHour + sunriseMinute / 60.0 - utcOffsetHours
+        val sunriseJd = julianDay(year, month, day, sunriseUtHours)
+        val masaComputation = calculateMasa(sunriseJd)
         val masa = masaComputation.info
         val samvatsara = calculateSamvatsara(year, masaComputation.masaIndex)
         val ayana = calculateAyana(sunLong)
@@ -992,7 +997,32 @@ class PanchangamViewModel(
     }
 
     private fun findPreviousNewMoonJd(jd: Double): Double {
-        // One synodic month is ~29.53 days; search window safely spans one cycle.
+        // Scan backward from jd to find the most recent new moon (elongation crossing 0°).
+        // The forward-scan approach (jd-32, +35 window) finds the FIRST crossing which may
+        // be a month too early when jd is just past a new moon.
+        val stepDays = 1.0 / 96.0 // 15-minute steps
+        var hi = jd
+        var prevElongation = siderealElongation(hi)
+
+        // Walk backward looking for where elongation jumps from low (<60) to high (>300)
+        // which indicates we crossed backward past a new moon (0° boundary).
+        while (hi > jd - 35.0) {
+            val lo = hi - stepDays
+            val loElongation = siderealElongation(lo)
+            if (loElongation > 300.0 && prevElongation < 60.0) {
+                // New moon is between lo and hi — refine with bisection
+                var a = lo; var b = hi
+                repeat(30) {
+                    val mid = (a + b) / 2.0
+                    val e = siderealElongation(mid)
+                    if (e > 180.0) a = mid else b = mid
+                }
+                return (a + b) / 2.0
+            }
+            prevElongation = loElongation
+            hi = lo
+        }
+        // Fallback: use the forward-scan approach
         return findCrossingJD(jd - 32.0, 0.0, 35.0) { siderealElongation(it) }
     }
 

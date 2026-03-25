@@ -278,6 +278,7 @@ fun NityaPoojaNavHost(
                 MantraListScreen(
                     onMantraClick = { id -> navController.navigate(Screen.MantraDetail.createRoute(id)) },
                     onJapaClick = { navController.navigate(Screen.JapaCounter.route) },
+                    onBack = { navController.popBackStack() },
                     bannerAd = bannerAd,
                 )
             }

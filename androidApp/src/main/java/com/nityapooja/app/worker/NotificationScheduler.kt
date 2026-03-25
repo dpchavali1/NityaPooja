@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.*
 import com.nityapooja.shared.data.grahanam.GrahanamData
 import com.nityapooja.shared.data.grahanam.GrahanamType
+import com.nityapooja.shared.platform.FestivalNotificationInfo
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.concurrent.TimeUnit
@@ -180,6 +181,55 @@ object NotificationScheduler {
                 wm.enqueueUniqueWork("grahanam_on_${grahanam.id}", ExistingWorkPolicy.REPLACE, request)
             }
         }
+    }
+
+    const val FESTIVAL_TAG = "festival_greeting"
+
+    fun scheduleFestivalGreetings(context: Context, festivals: List<FestivalNotificationInfo>, timezoneId: String, userName: String) {
+        cancelFestivalGreetings(context)
+        val wm = WorkManager.getInstance(context)
+        val tz = if (timezoneId.isNotBlank()) TimeZone.getTimeZone(timezoneId) else TimeZone.getDefault()
+        val now = System.currentTimeMillis()
+
+        for (festival in festivals) {
+            try {
+                val parts = festival.dateString.split("-")
+                val year = parts[0].toInt(); val month = parts[1].toInt(); val day = parts[2].toInt()
+
+                val festivalAt7am = Calendar.getInstance(tz).apply {
+                    set(Calendar.YEAR, year)
+                    set(Calendar.MONTH, month - 1)
+                    set(Calendar.DAY_OF_MONTH, day)
+                    set(Calendar.HOUR_OF_DAY, 7)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                if (festivalAt7am.timeInMillis <= now) continue
+
+                val nameDisplay = if (userName.isNotBlank()) "$userName గారు" else ""
+                val greeting = if (nameDisplay.isNotBlank())
+                    "శుభ ${festival.nameTelugu}, $nameDisplay! / Happy ${festival.name}!"
+                else
+                    "శుభ ${festival.nameTelugu}! / Happy ${festival.name}!"
+
+                val inputData = workDataOf(
+                    NotificationWorker.KEY_NOTIFICATION_BODY to greeting,
+                    NotificationWorker.KEY_NOTIFICATION_ID to (3000 + festival.id.hashCode() % 1000),
+                    NotificationWorker.KEY_NOTIFICATION_TYPE to NotificationWorker.TYPE_FESTIVAL,
+                )
+                val request = OneTimeWorkRequestBuilder<NotificationWorker>()
+                    .setInitialDelay(festivalAt7am.timeInMillis - now, TimeUnit.MILLISECONDS)
+                    .setInputData(inputData)
+                    .addTag(FESTIVAL_TAG)
+                    .build()
+                wm.enqueueUniqueWork("festival_${festival.id}", ExistingWorkPolicy.REPLACE, request)
+            } catch (_: Exception) { /* skip malformed dates */ }
+        }
+    }
+
+    fun cancelFestivalGreetings(context: Context) {
+        WorkManager.getInstance(context).cancelAllWorkByTag(FESTIVAL_TAG)
     }
 
     fun cancelGrahanamNotifications(context: Context) {

@@ -9,10 +9,12 @@ class NoOpNotificationScheduler : NotificationScheduler {
     override fun schedulePanchangReminder(timezoneId: String) {}
     override fun scheduleQuizReminder(hour: Int, minute: Int, timezoneId: String) {}
     override fun scheduleGrahanamNotifications(grahanamList: List<GrahanamData>, timezoneId: String) {}
+    override fun scheduleFestivalGreetings(festivals: List<FestivalNotificationInfo>, timezoneId: String, userName: String) {}
     override fun cancelMorningReminder() {}
     override fun cancelEveningReminder() {}
     override fun cancelPanchangReminder() {}
     override fun cancelQuizReminder() {}
     override fun cancelGrahanamNotifications() {}
+    override fun cancelFestivalGreetings() {}
     override fun cancelAll() {}
 }

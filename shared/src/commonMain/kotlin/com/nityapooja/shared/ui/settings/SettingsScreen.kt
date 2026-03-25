@@ -590,7 +590,7 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Version 1.4.4",
+                        "Version 1.5.1",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -609,7 +609,14 @@ fun SettingsScreen(
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "🆕 v1.4.2 · Notification deep links, quiz share, rate app",
+                        "🆕 v1.5.0 · Festival greetings, Panchangam sunrise fix, Spotify fix",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "⭐ v1.4.2 · Notification deep links, quiz share, rate app",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,

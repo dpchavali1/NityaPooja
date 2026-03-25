@@ -41,6 +41,7 @@ class NotificationWorker(
         const val TYPE_QUIZ = "quiz"
         const val TYPE_GRAHANAM_BEFORE = "grahanam_before"
         const val TYPE_GRAHANAM_ON = "grahanam_on"
+        const val TYPE_FESTIVAL = "festival"
         const val KEY_SPARSHA = "sparsha_time"
         const val KEY_MADHYAM = "madhyam_time"
         const val KEY_MOKSHAM = "moksham_time"
@@ -131,6 +132,7 @@ class NotificationWorker(
         val navRoute = when (type) {
             TYPE_QUIZ -> "purana_quiz"
             TYPE_GRAHANAM_BEFORE, TYPE_GRAHANAM_ON -> "panchangam"
+            TYPE_FESTIVAL -> "home"
             else -> null
         }
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
@@ -148,6 +150,7 @@ class NotificationWorker(
             TYPE_MORNING -> "NityaPooja - Morning Blessing"
             TYPE_EVENING -> "NityaPooja - Evening Aarti"
             TYPE_QUIZ -> "NityaPooja - Puranas Quiz 📖"
+            TYPE_FESTIVAL -> "NityaPooja - పండుగ శుభాకాంక్షలు 🙏"
             TYPE_GRAHANAM_BEFORE -> "రేపు గ్రహణం / Eclipse Tomorrow"
             TYPE_GRAHANAM_ON -> "గ్రహణ కాలం / Grahanam Today"
             else -> "NityaPooja"

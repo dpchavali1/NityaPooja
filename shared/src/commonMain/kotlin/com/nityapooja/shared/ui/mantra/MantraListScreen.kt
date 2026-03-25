@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ fun MantraListScreen(
     viewModel: MantraViewModel = koinViewModel(),
     onMantraClick: (Int) -> Unit = {},
     onJapaClick: () -> Unit = {},
+    onBack: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val mantras by viewModel.allMantras.collectAsState()
@@ -35,6 +37,11 @@ fun MantraListScreen(
                     Column {
                         Text("మంత్రాలు", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text("Mantras", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
                 },
                 actions = {

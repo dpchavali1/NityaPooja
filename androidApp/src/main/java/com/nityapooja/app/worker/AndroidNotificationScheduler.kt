@@ -2,6 +2,7 @@ package com.nityapooja.app.worker
 
 import android.content.Context
 import com.nityapooja.shared.data.grahanam.GrahanamData
+import com.nityapooja.shared.platform.FestivalNotificationInfo
 import com.nityapooja.shared.platform.NotificationScheduler as SharedNotificationScheduler
 
 class AndroidNotificationScheduler(
@@ -48,11 +49,20 @@ class AndroidNotificationScheduler(
         NotificationScheduler.cancelGrahanamNotifications(context)
     }
 
+    override fun scheduleFestivalGreetings(festivals: List<FestivalNotificationInfo>, timezoneId: String, userName: String) {
+        NotificationScheduler.scheduleFestivalGreetings(context, festivals, timezoneId, userName)
+    }
+
+    override fun cancelFestivalGreetings() {
+        NotificationScheduler.cancelFestivalGreetings(context)
+    }
+
     override fun cancelAll() {
         cancelMorningReminder()
         cancelEveningReminder()
         cancelPanchangReminder()
         cancelQuizReminder()
         cancelGrahanamNotifications()
+        cancelFestivalGreetings()
     }
 }

@@ -6,6 +6,8 @@ import com.nityapooja.shared.data.grahanam.GrahanamRepository
 import com.nityapooja.shared.data.local.dao.BookmarkDao
 import com.nityapooja.shared.data.local.dao.JapaSessionDao
 import com.nityapooja.shared.data.local.dao.ReadingHistoryDao
+import com.nityapooja.shared.data.repository.DevotionalRepository
+import com.nityapooja.shared.platform.FestivalNotificationInfo
 import com.nityapooja.shared.data.preferences.ThemeMode
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +25,7 @@ class SettingsViewModel(
     private val japaSessionDao: JapaSessionDao,
     private val readingHistoryDao: ReadingHistoryDao,
     private val notificationScheduler: com.nityapooja.shared.platform.NotificationScheduler,
+    private val repository: DevotionalRepository,
 ) : ViewModel() {
 
     private val _dataCleared = MutableStateFlow(false)
@@ -172,6 +175,36 @@ class SettingsViewModel(
         if (grahanamNotification.value) {
             val grahanamList = GrahanamRepository.getUpcomingGrahanam(Clock.System.now())
             notificationScheduler.scheduleGrahanamNotifications(grahanamList, timezone)
+        }
+        // Always schedule festival greeting notifications
+        scheduleFestivalNotifications(timezone)
+    }
+
+    private fun scheduleFestivalNotifications(timezone: String) {
+        viewModelScope.launch {
+            val userName = preferencesManager.userName.first()
+            val festivals = repository.getAllFestivalsOnce()
+            val festivalInfos = festivals.mapNotNull { f ->
+                val date = f.dateThisYear ?: f.dateNextYear ?: return@mapNotNull null
+                FestivalNotificationInfo(
+                    id = f.id.toString(),
+                    name = f.name,
+                    nameTelugu = f.nameTelugu,
+                    dateString = date,
+                )
+            }
+            // Also include next year dates
+            val nextYearInfos = festivals.mapNotNull { f ->
+                val date = f.dateNextYear ?: return@mapNotNull null
+                if (date == f.dateThisYear) return@mapNotNull null
+                FestivalNotificationInfo(
+                    id = "${f.id}_next",
+                    name = f.name,
+                    nameTelugu = f.nameTelugu,
+                    dateString = date,
+                )
+            }
+            notificationScheduler.scheduleFestivalGreetings(festivalInfos + nextYearInfos, timezone, userName)
         }
     }
 

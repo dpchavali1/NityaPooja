@@ -3,6 +3,7 @@ package com.nityapooja.shared.data.repository
 import com.nityapooja.shared.data.local.dao.*
 import com.nityapooja.shared.data.local.entity.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 class DevotionalRepository(
     private val deityDao: DeityDao,
@@ -80,6 +81,7 @@ class DevotionalRepository(
 
     // Festivals
     fun getAllFestivals(): Flow<List<FestivalEntity>> = festivalDao.getAllFestivals()
+    suspend fun getAllFestivalsOnce(): List<FestivalEntity> = festivalDao.getAllFestivals().first()
 
     // Bookmarks
     fun getAllBookmarks(): Flow<List<BookmarkEntity>> = bookmarkDao.getAllBookmarks()

@@ -1,14 +1,15 @@
 package com.nityapooja.app.widget
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.*
 import androidx.glance.text.*
@@ -19,13 +20,16 @@ class PanchangamWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val data = PanchangamWidgetDataProvider.getData(context)
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
         provideContent {
-            WidgetContent(data)
+            WidgetContent(data, openAppIntent)
         }
     }
 
     @Composable
-    private fun WidgetContent(data: WidgetPanchangamData) {
+    private fun WidgetContent(data: WidgetPanchangamData, openAppIntent: Intent) {
         val goldColor = ColorProvider(Color(0xFFD4A017))
         val whiteColor = ColorProvider(Color.White)
         val bgColor = ColorProvider(Color(0xFF1A0A00))
@@ -35,7 +39,7 @@ class PanchangamWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .background(bgColor)
-                .clickable(actionStartActivity<MainActivity>())
+                .clickable(actionStartActivity(openAppIntent))
                 .padding(10.dp),
         ) {
             Column(

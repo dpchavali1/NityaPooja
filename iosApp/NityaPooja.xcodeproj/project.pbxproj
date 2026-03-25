@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -22,7 +22,7 @@
 		E0ADB3270167C40106C45FD8 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		E2824D972E2F6B47FCFB3DA8 /* Pods-NityaPooja.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NityaPooja.debug.xcconfig"; path = "Target Support Files/Pods-NityaPooja/Pods-NityaPooja.debug.xcconfig"; sourceTree = "<group>"; };
 		F0636CCBE590856F27B08756 /* Pods_NityaPooja.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NityaPooja.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F6DFEF1764A401FF63DAC1BD /* NityaPooja.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NityaPooja.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F6DFEF1764A401FF63DAC1BD /* NityaPooja.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NityaPooja.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFC4D096328ED08869DBDDBC /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -54,7 +54,6 @@
 				E2824D972E2F6B47FCFB3DA8 /* Pods-NityaPooja.debug.xcconfig */,
 				944CF60C28FD4179E18CCA3C /* Pods-NityaPooja.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -144,7 +143,6 @@
 			);
 			mainGroup = 80ED8233ADD7C48110762CC4;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = CEC78915BAFC01ACDD0A603C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -311,6 +309,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = LKBC2Y856Z;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -328,6 +327,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.5.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -406,6 +406,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = LKBC2Y856Z;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -423,6 +424,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.5.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",

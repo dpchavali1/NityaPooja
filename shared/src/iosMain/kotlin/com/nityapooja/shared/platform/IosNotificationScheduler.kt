@@ -2,6 +2,7 @@ package com.nityapooja.shared.platform
 
 import com.nityapooja.shared.data.grahanam.GrahanamData
 import com.nityapooja.shared.data.grahanam.GrahanamType
+import com.nityapooja.shared.platform.FestivalNotificationInfo
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import platform.Foundation.NSDateComponents
@@ -121,6 +122,50 @@ class IosNotificationScheduler : NotificationScheduler {
         center.getPendingNotificationRequestsWithCompletionHandler { requests ->
             val ids = (requests as? List<UNNotificationRequest>)
                 ?.filter { it.identifier.startsWith("grahanam_") }
+                ?.map { it.identifier }
+                ?: emptyList()
+            if (ids.isNotEmpty()) {
+                center.removePendingNotificationRequestsWithIdentifiers(ids)
+            }
+        }
+    }
+
+    override fun scheduleFestivalGreetings(festivals: List<FestivalNotificationInfo>, timezoneId: String, userName: String) {
+        cancelFestivalGreetings()
+        for (festival in festivals) {
+            try {
+                val parts = festival.dateString.split("-")
+                val year = parts[0].toInt(); val month = parts[1].toInt(); val day = parts[2].toInt()
+
+                val nameDisplay = if (userName.isNotBlank()) "$userName గారు" else ""
+                val greeting = if (nameDisplay.isNotBlank())
+                    "శుభ ${festival.nameTelugu}, $nameDisplay! / Happy ${festival.name}!"
+                else
+                    "శుభ ${festival.nameTelugu}! / Happy ${festival.name}!"
+
+                val dateComponents = NSDateComponents().apply {
+                    this.year = year.toLong()
+                    this.month = month.toLong()
+                    this.day = day.toLong()
+                    this.hour = 7
+                    this.minute = 0
+                }
+
+                scheduleOnce(
+                    id = "festival_${festival.id}",
+                    title = "NityaPooja - పండుగ శుభాకాంక్షలు",
+                    body = greeting,
+                    dateComponents = dateComponents,
+                    route = "home",
+                )
+            } catch (_: Exception) { /* skip malformed dates */ }
+        }
+    }
+
+    override fun cancelFestivalGreetings() {
+        center.getPendingNotificationRequestsWithCompletionHandler { requests ->
+            val ids = (requests as? List<UNNotificationRequest>)
+                ?.filter { it.identifier.startsWith("festival_") }
                 ?.map { it.identifier }
                 ?: emptyList()
             if (ids.isNotEmpty()) {

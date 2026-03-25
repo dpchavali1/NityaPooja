@@ -26,8 +26,8 @@ playReview = "2.0.2"
 
 # KMP / CMP versions
 composeMultiplatform = "1.7.3"
-koin = "4.0.2"
-koinCompose = "4.0.2"
+koin = "4.0.4"
+koinCompose = "4.0.4"
 ktor = "3.0.3"
 kotlinxSerialization = "1.7.3"
 kotlinxDatetime = "0.6.1"
@@ -46,8 +46,8 @@ compose-animation = { group = "androidx.compose.animation", name = "animation" }
 compose-navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "composeNavigationKmp" }
 
 # Lifecycle (JetBrains KMP forks)
-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version = "2.8.2" }
-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version = "2.8.2" }
+lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version = "2.8.4" }
+lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version = "2.8.4" }
 
 # Hilt (androidApp only)
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

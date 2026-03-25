@@ -27,7 +27,7 @@ class DatabaseSeeder(
 
     companion object {
         // Bump this whenever content changes to force re-seed on existing installs
-        const val CONTENT_VERSION = 7
+        const val CONTENT_VERSION = 8
 
         // Audio hosted via GitHub releases — upload MP3s to this release tag
         private const val GH_AUDIO = "https://raw.githubusercontent.com/dpchavali1/NityaPoojaAudio/main/"
@@ -747,13 +747,13 @@ class DatabaseSeeder(
                 descriptionTelugu = "చైత్ర పౌర్ణమి రోజున తెలుగు ప్రజలు హనుమాన్ జయంతిని సుందరకాండ పారాయణంతో జరుపుకుంటారు — హనుమంతుడు లంకలో సీతను కనుగొన్న వాల్మీకి రామాయణ అధ్యాయాన్ని పఠిస్తారు. హనుమంతుని గుళ్ళు దాదాపు ప్రతి తెలుగు గ్రామంలో మరియు ఇరుగు పొరుగున కనిపిస్తాయి, అతని అపారమైన ప్రజాదరణను ప్రతిబింబిస్తాయి. భక్తులు ఉపవాసం పాటించి మల్లె మరియు ఎర్రని పువ్వుల దండలు అర్పిస్తారు.",
                 significance = "Hanuman is believed to grant strength, courage, protection, and fearlessness — qualities that Telugu people traditionally pray for. He is the ideal devotee (bhakta) and is revered as both a warrior and a spiritual master. Sundara Kanda parayanam is a weekly and festival practice in Telugu households, believed to remove all obstacles and bring peace to the family.",
                 significanceTelugu = "హనుమంతుడు బలం, ధైర్యం, రక్షణ మరియు నిర్భయత్వాన్ని ప్రసాదిస్తాడని నమ్మకం — తెలుగు ప్రజలు సంప్రదాయకంగా ప్రార్థించే గుణాలు. ఆయన ఆదర్శ భక్తుడు మరియు యోధుడు మరియు ఆధ్యాత్మిక గురువు రెండుగా పూజించబడతారు. సుందరకాండ పారాయణం తెలుగు ఇళ్ళలో వారపు మరియు పండుగ పద్ధతి, ఇది అన్ని విఘ్నాలను తొలగించి కుటుంబానికి శాంతి తెస్తుందని నమ్ముతారు.",
-                dateThisYear = "2026-04-04", dateNextYear = "2027-04-24"),
+                dateThisYear = "2026-04-02", dateNextYear = "2027-04-22"),
             FestivalEntity(9, "Krishna Janmashtami", "కృష్ణ జన్మాష్టమి",
                 description = "Krishna Janmashtami celebrates Lord Krishna's birth at midnight on Bhadrapada Krishna Ashtami. Telugu families observe a day-long fast broken only at midnight when Krishna is believed to have been born, followed by bhajans and Dahi Handi (pot-breaking) celebrations. Temples are beautifully decorated with cradles, flowers, and peacock feathers.",
                 descriptionTelugu = "కృష్ణ జన్మాష్టమి భాద్రపద కృష్ణ అష్టమి అర్ధరాత్రి శ్రీకృష్ణుని జన్మను జరుపుకుంటుంది. తెలుగు కుటుంబాలు పగటంతా ఉపవాసం పాటించి కృష్ణుడు జన్మించినట్లు భావించే అర్ధరాత్రి వ్రతం వదులుకుంటారు, తర్వాత భజనలు మరియు దహి హండి వేడుకలు జరుపుతారు. దేవాలయాలను ఊయలలు, పువ్వులు మరియు నెమలి పింఛాలతో అందంగా అలంకరిస్తారు.",
                 significance = "Lord Krishna's Bhagavad Gita teachings — delivered on the battlefield of Kurukshetra — are especially revered in Telugu households and form the philosophical backbone of Telugu devotional culture. Krishna is worshipped as the playful child (Bal Krishna), the romantic hero (Radha-Krishna), and the divine teacher (Jagadguru). The Pothana Bhagavatam — a Telugu classic — vividly narrates Krishna's life and is recited in every Telugu household.",
                 significanceTelugu = "కురుక్షేత్ర రణక్షేత్రంలో అందించిన శ్రీకృష్ణుని భగవద్గీత బోధనలు తెలుగు ఇళ్ళలో విశేష గౌరవం పొందుతాయి మరియు తెలుగు భక్తి సంస్కృతికి తాత్విక వెన్నెముకను అందిస్తాయి. కృష్ణుడు బాలకృష్ణుడు, రాధాకృష్ణుడు మరియు జగద్గురువుగా పూజించబడతారు. పోతన భాగవతం — తెలుగు క్లాసిక్ — కృష్ణుని జీవితాన్ని వివరంగా వర్ణిస్తుంది, ప్రతి తెలుగు ఇంట్లో పఠించబడుతుంది.",
-                dateThisYear = "2026-08-25", dateNextYear = "2027-08-15"),
+                dateThisYear = "2026-09-04", dateNextYear = "2027-08-25"),
             FestivalEntity(10, "Varalakshmi Vratam", "వరలక్ష్మీ వ్రతం",
                 description = "Varalakshmi Vratam is observed by Telugu women on the Friday before Shravan Pournami. Goddess Lakshmi is worshipped in her boon-giving form (Varalakshmi) to bring wealth, health, and happiness to the family. The vratam involves creating a kalasam (pot) decorated with turmeric, kumkum, and mango leaves, and performing elaborate puja with stories and songs.",
                 descriptionTelugu = "వరలక్ష్మీ వ్రతం శ్రావణ పౌర్ణమికి ముందు శుక్రవారం తెలుగు మహిళలు ఆచరిస్తారు. కుటుంబానికి సంపద, ఆరోగ్యం మరియు సంతోషం తేవడానికి లక్ష్మీదేవిని వరలక్ష్మి రూపంలో పూజిస్తారు. పసుపు, కుంకుమ, మామిడి ఆకులతో అలంకరించిన కలశంతో పూజ చేసి కథలు మరియు పాటలతో వేడుక జరుపుకుంటారు.",
@@ -793,13 +793,13 @@ class DatabaseSeeder(
             FestivalEntity(16, "Vaikunta Ekadashi", "వైకుంఠ ఏకాదశి",
                 description = "Vaikunta Ekadashi is the most sacred Ekadashi. The gates of Vaikuntam (Vishnu's abode) are believed to open on this day. Tirumala witnesses record crowds.",
                 descriptionTelugu = "వైకుంఠ ఏకాదశి అత్యంత పవిత్రమైన ఏకాదశి. ఈ రోజు వైకుంఠ ద్వారాలు తెరుచుకుంటాయని నమ్మకం. తిరుమలలో రికార్డు సంఖ్యలో భక్తులు వస్తారు.",
-                dateThisYear = "2026-01-01", dateNextYear = "2027-01-20",
+                dateThisYear = "2026-12-22", dateNextYear = "2028-01-09",
                 category = "ekadashi",
                 ritualsTelugu = "ఉపవాసం, విష్ణు సహస్రనామం, తిరుమల దర్శనం"),
             FestivalEntity(17, "Ratha Saptami", "రథ సప్తమి",
                 description = "Ratha Saptami celebrates the Sun God's chariot turning northward. It is the birthday of Surya and marks the onset of spring.",
                 descriptionTelugu = "రథ సప్తమి సూర్య భగవానుని రథం ఉత్తరం వైపు తిరిగే రోజు. ఇది సూర్యుని జన్మదినం మరియు వసంత ఋతువు ప్రారంభాన్ని సూచిస్తుంది.",
-                dateThisYear = "2026-01-28", dateNextYear = "2027-02-16",
+                dateThisYear = "2026-01-25", dateNextYear = "2027-02-13",
                 category = "major",
                 ritualsTelugu = "అరుణోదయ స్నానం, జిల్లేడు ఆకులతో స్నానం"),
             FestivalEntity(18, "Atla Taddi", "అట్ల తద్దె",
@@ -818,11 +818,6 @@ class DatabaseSeeder(
                 descriptionTelugu = "స్కంద షష్ఠి సుబ్రమణ్య స్వామి సూరపద్ముణ్ణి సంహరించిన విజయాన్ని జరుపుకుంటుంది. ఆరు రోజుల పూజలతో విజయ దినం నాడు ముగుస్తుంది.",
                 dateThisYear = "2026-10-24", dateNextYear = "2027-10-14",
                 category = "major", durationDays = 6),
-            FestivalEntity(21, "Sri Ramanavami Kalyanotsavam", "శ్రీ సీతారామ కళ్యాణోత్సవం",
-                description = "The grand celestial wedding of Lord Rama and Sita performed in Bhadrachalam temple, attended by the Chief Minister of Telangana.",
-                descriptionTelugu = "భద్రాచలం దేవాలయంలో శ్రీ సీతారామచంద్రుల కళ్యాణం మహా వైభవంగా జరుగుతుంది. తెలంగాణ ముఖ్యమంత్రి పట్టు వస్త్రాలు, ముత్యాల తాళి సమర్పిస్తారు.",
-                dateThisYear = "2026-03-28", dateNextYear = "2027-04-16",
-                category = "regional"),
             FestivalEntity(22, "Bhogi", "భోగి",
                 description = "First day of Sankranti celebrations. Old and useless items are burned in a bonfire at dawn, symbolizing the end of the old and the welcome of the new.",
                 descriptionTelugu = "సంక్రాంతి వేడుకల మొదటి రోజు. తెల్లవారుజామున పాత, పనికిరాని వస్తువులను భోగి మంటలో వేస్తారు. పాతది వదిలి కొత్తను ఆహ్వానించడానికి చిహ్నం.",

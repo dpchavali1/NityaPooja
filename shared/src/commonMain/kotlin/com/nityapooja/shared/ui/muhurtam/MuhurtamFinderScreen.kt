@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.EventType
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.MuhurtamScore
+import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
@@ -62,6 +63,13 @@ fun MuhurtamFinderScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
                     }
+                },
+                actions = {
+                    FontSizeControls(
+                        fontSize = fontSize,
+                        onDecrease = fontSizeViewModel::decrease,
+                        onIncrease = fontSizeViewModel::increase,
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )

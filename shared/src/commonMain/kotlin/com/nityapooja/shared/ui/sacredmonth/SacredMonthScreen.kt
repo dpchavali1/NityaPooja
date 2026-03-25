@@ -37,6 +37,7 @@ fun SacredMonthScreen(
     val currentSacredMonth by viewModel.currentSacredMonth.collectAsState()
     val allSacredMonths by viewModel.allSacredMonths.collectAsState()
     val sacredMonthRanges by viewModel.sacredMonthRanges.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
     val fontScale = fontSize / 16f
@@ -100,7 +101,17 @@ fun SacredMonthScreen(
 
             // All sacred months with date ranges
             item { SectionHeader(titleTelugu = "పవిత్ర మాసాలు · తేదీలు", titleEnglish = "Sacred Months · Dates") }
-            if (sacredMonthRanges.isNotEmpty()) {
+            if (isLoading) {
+                item {
+                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = TempleGold, modifier = Modifier.size(32.dp))
+                            Spacer(Modifier.height(8.dp))
+                            Text("తేదీలు లెక్కిస్తోంది...", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            } else if (sacredMonthRanges.isNotEmpty()) {
                 items(sacredMonthRanges) { range ->
                     SacredMonthDateCard(range, fontScale)
                 }

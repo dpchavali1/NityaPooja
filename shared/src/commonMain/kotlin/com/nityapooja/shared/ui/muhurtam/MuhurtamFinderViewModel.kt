@@ -3,6 +3,7 @@ package com.nityapooja.shared.ui.muhurtam
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules
+import kotlinx.coroutines.Dispatchers
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.EventType
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.MuhurtamResult
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
@@ -14,6 +15,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -72,19 +75,19 @@ class MuhurtamFinderViewModel(
         cachedLng = lng
         cachedTimezone = timezone
 
-        val today = Clock.System.todayIn(TimeZone.of(timezone))
-        val panchangams = mutableListOf<PanchangamData>()
-
-        for (i in 0 until 30) {
-            val date = today.plus(i, DateTimeUnit.DAY)
-            val selectedDate = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
-            val data = panchangamViewModel.calculatePanchangam(lat, lng, timezone, selectedDate)
-            panchangams.add(data)
+        viewModelScope.launch {
+            val panchangams = withContext(Dispatchers.Default) {
+                val today = Clock.System.todayIn(TimeZone.of(timezone))
+                (0 until 30).map { i ->
+                    val date = today.plus(i, DateTimeUnit.DAY)
+                    val selectedDate = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
+                    panchangamViewModel.calculatePanchangam(lat, lng, timezone, selectedDate)
+                }
+            }
+            cachedPanchangams = panchangams
+            _isLoading.value = false
+            scoreWithEvent(_selectedEvent.value)
         }
-
-        cachedPanchangams = panchangams
-        _isLoading.value = false
-        scoreWithEvent(_selectedEvent.value)
     }
 
     private fun scoreWithEvent(eventType: EventType) {

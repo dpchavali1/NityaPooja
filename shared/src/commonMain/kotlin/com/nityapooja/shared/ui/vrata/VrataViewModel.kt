@@ -8,11 +8,14 @@ import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.ui.panchangam.PanchangamData
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.panchangam.SelectedDate
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -45,31 +48,32 @@ class VrataViewModel(
 
     fun calculateUpcoming(lat: Double, lng: Double, timezone: String) {
         _isLoading.value = true
-
-        val today = Clock.System.todayIn(TimeZone.of(timezone))
-        val upcoming = mutableListOf<UpcomingVrata>()
         val vratas = allVratas.value
 
-        // Scan next 30 days
-        for (i in 0 until 30) {
-            val date = today.plus(i, DateTimeUnit.DAY)
-            val selectedDate = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
-            val panchangam = panchangamViewModel.calculatePanchangam(lat, lng, timezone, selectedDate)
-
-            val matched = matchVratas(vratas, panchangam)
-            matched.forEach { vrata ->
-                upcoming.add(UpcomingVrata(
-                    vrata = vrata,
-                    dateDisplay = panchangam.dateDisplay,
-                    teluguDay = panchangam.teluguDay,
-                    daysUntil = i,
-                    tithiNameTelugu = panchangam.tithi.nameTelugu,
-                ))
+        viewModelScope.launch {
+            val upcoming = withContext(Dispatchers.Default) {
+                val today = Clock.System.todayIn(TimeZone.of(timezone))
+                val result = mutableListOf<UpcomingVrata>()
+                for (i in 0 until 30) {
+                    val date = today.plus(i, DateTimeUnit.DAY)
+                    val selectedDate = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
+                    val panchangam = panchangamViewModel.calculatePanchangam(lat, lng, timezone, selectedDate)
+                    val matched = matchVratas(vratas, panchangam)
+                    matched.forEach { vrata ->
+                        result.add(UpcomingVrata(
+                            vrata = vrata,
+                            dateDisplay = panchangam.dateDisplay,
+                            teluguDay = panchangam.teluguDay,
+                            daysUntil = i,
+                            tithiNameTelugu = panchangam.tithi.nameTelugu,
+                        ))
+                    }
+                }
+                result
             }
+            _upcomingVratas.value = upcoming
+            _isLoading.value = false
         }
-
-        _upcomingVratas.value = upcoming
-        _isLoading.value = false
     }
 
     private fun matchVratas(vratas: List<VrataEntity>, panchangam: PanchangamData): List<VrataEntity> {

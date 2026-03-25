@@ -40,6 +40,9 @@ import com.nityapooja.shared.ui.suprabhatam.SuprabhatamViewModel
 import com.nityapooja.shared.ui.temple.TempleViewModel
 import com.nityapooja.shared.ui.quiz.PuranaQuizViewModel
 import com.nityapooja.shared.ui.virtualpooja.VirtualPoojaRoomViewModel
+import com.nityapooja.shared.ui.muhurtam.MuhurtamFinderViewModel
+import com.nityapooja.shared.ui.vrata.VrataViewModel
+import com.nityapooja.shared.ui.sacredmonth.SacredMonthViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -73,9 +76,10 @@ val sharedModule = module {
     single { get<NityaPoojaDatabase>().readingHistoryDao() }
     single { get<NityaPoojaDatabase>().savedProfileDao() }
     single { get<NityaPoojaDatabase>().puranaQuizDao() }
+    single { get<NityaPoojaDatabase>().vrataDao() }
 
     // Database Seeder
-    single { DatabaseSeeder(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { DatabaseSeeder(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 
     // Repository
     singleOf(::DevotionalRepository)
@@ -127,4 +131,7 @@ val sharedModule = module {
     viewModelOf(::TempleViewModel)
     viewModelOf(::VirtualPoojaRoomViewModel)
     viewModelOf(::PuranaQuizViewModel)
+    viewModelOf(::MuhurtamFinderViewModel)
+    viewModelOf(::VrataViewModel)
+    viewModelOf(::SacredMonthViewModel)
 }

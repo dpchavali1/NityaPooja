@@ -1,5 +1,6 @@
 package com.nityapooja.shared.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -21,4 +22,17 @@ data class TempleEntity(
     val hasLiveDarshan: Boolean = false,
     val bookingUrl: String? = null,
     val websiteUrl: String? = null,
+    // v2 Telugu culture fields
+    @ColumnInfo(defaultValue = "")
+    val deity: String? = null,
+    @ColumnInfo(defaultValue = "")
+    val deityTelugu: String? = null,
+    @ColumnInfo(defaultValue = "")
+    val district: String? = null,
+    @ColumnInfo(defaultValue = "")
+    val templeGroup: String? = null, // shakti_peethalu, pancha_arama, jyotirlinga, pancha_kshetra
+    @ColumnInfo(defaultValue = "")
+    val specialPoojasTelugu: String? = null,
+    @ColumnInfo(defaultValue = "")
+    val prasadamTelugu: String? = null,
 )

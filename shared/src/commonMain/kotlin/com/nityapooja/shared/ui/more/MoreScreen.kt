@@ -41,6 +41,9 @@ fun MoreScreen(
     onNavigateToSavedProfiles: () -> Unit = {},
     onNavigateToVirtualPoojaRoom: () -> Unit = {},
     onNavigateToPuranaQuiz: () -> Unit = {},
+    onNavigateToMuhurtam: () -> Unit = {},
+    onNavigateToVratas: () -> Unit = {},
+    onNavigateToSacredMonth: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
     Scaffold(
@@ -81,6 +84,15 @@ fun MoreScreen(
             item { MoreMenuItem("చాలీసా", "Chalisa", Icons.AutoMirrored.Filled.MenuBook, onNavigateToChalisas) }
 
             item { bannerAd?.invoke() }
+
+            item {
+                Spacer(Modifier.height(16.dp))
+                SectionHeader(titleTelugu = "తెలుగు సంస్కృతి", titleEnglish = "Telugu Culture")
+                Spacer(Modifier.height(8.dp))
+            }
+            item { MoreMenuItem("శుభ ముహూర్తాలు", "Muhurtam Finder", Icons.Default.EventAvailable, onNavigateToMuhurtam) }
+            item { MoreMenuItem("వ్రతాలు", "Vratas & Observances", Icons.Default.Brightness5, onNavigateToVratas) }
+            item { MoreMenuItem("పవిత్ర మాసాలు", "Sacred Months", Icons.Default.CalendarMonth, onNavigateToSacredMonth) }
 
             item {
                 Spacer(Modifier.height(16.dp))

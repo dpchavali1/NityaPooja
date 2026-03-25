@@ -59,6 +59,10 @@ import com.nityapooja.shared.ui.mantra.MantraChantingScreen
 import com.nityapooja.shared.ui.onboarding.OnboardingScreen
 import com.nityapooja.shared.ui.store.DevotionalStoreScreen
 import com.nityapooja.shared.ui.quiz.PuranaQuizScreen
+import com.nityapooja.shared.ui.muhurtam.MuhurtamFinderScreen
+import com.nityapooja.shared.ui.vrata.VrataListScreen
+import com.nityapooja.shared.ui.vrata.VrataDetailScreen
+import com.nityapooja.shared.ui.sacredmonth.SacredMonthScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -165,6 +169,7 @@ fun NityaPoojaNavHost(
                             restoreState = true
                         }
                     },
+                    onNavigateToMuhurtam = { navController.navigate(Screen.MuhurtamFinder.route) },
                     onNavigateToRashifal = { navController.navigate(Screen.Rashifal.route) },
                     onNavigateToBookmark = { type, id ->
                         when (type) {
@@ -218,6 +223,9 @@ fun NityaPoojaNavHost(
                     onNavigateToSavedProfiles = { navController.navigate(Screen.SavedProfiles.route) },
                     onNavigateToVirtualPoojaRoom = { navController.navigate(Screen.VirtualPoojaRoom.route) },
                     onNavigateToPuranaQuiz = { navController.navigate(Screen.PuranaQuiz.route) },
+                    onNavigateToMuhurtam = { navController.navigate(Screen.MuhurtamFinder.route) },
+                    onNavigateToVratas = { navController.navigate(Screen.VrataList.route) },
+                    onNavigateToSacredMonth = { navController.navigate(Screen.SacredMonth.route) },
                     bannerAd = bannerAd,
                 )
             }
@@ -507,6 +515,33 @@ fun NityaPoojaNavHost(
             // Puranas Quiz
             composable(Screen.PuranaQuiz.route) {
                 PuranaQuizScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            // Telugu Culture features
+            composable(Screen.MuhurtamFinder.route) {
+                MuhurtamFinderScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(Screen.VrataList.route) {
+                VrataListScreen(
+                    onNavigateToDetail = { id -> navController.navigate(Screen.VrataDetail.createRoute(id)) },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(
+                Screen.VrataDetail.route,
+                arguments = listOf(navArgument("id") { type = NavType.IntType }),
+            ) { backStackEntry ->
+                VrataDetailScreen(
+                    vrataId = backStackEntry.arguments?.getInt("id") ?: 0,
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(Screen.SacredMonth.route) {
+                SacredMonthScreen(
                     onBack = { navController.popBackStack() },
                 )
             }

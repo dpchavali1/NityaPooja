@@ -83,6 +83,14 @@ sealed class Screen(val route: String) {
     }
 
     data object PuranaQuiz : Screen("purana_quiz")
+
+    // Telugu Culture features (v2)
+    data object MuhurtamFinder : Screen("muhurtam_finder")
+    data object VrataList : Screen("vrata_list")
+    data object VrataDetail : Screen("vrata_detail/{id}") {
+        fun createRoute(id: Int) = "vrata_detail/$id"
+    }
+    data object SacredMonth : Screen("sacred_month")
 }
 
 data class BottomNavItem(

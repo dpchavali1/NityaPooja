@@ -49,6 +49,7 @@ fun HomeScreen(
     onNavigateToDeityDetail: (Int) -> Unit = {},
     onNavigateToAartis: () -> Unit = {},
     onNavigateToPanchangam: () -> Unit = {},
+    onNavigateToMuhurtam: () -> Unit = {},
     onNavigateToRashifal: () -> Unit = {},
     onNavigateToBookmark: (String, Int) -> Unit = { _, _ -> },
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
@@ -146,6 +147,102 @@ fun HomeScreen(
                         samvatsaraNameEnglish = panchangamData.samvatsara.nameEnglish,
                         modifier = Modifier.padding(horizontal = 16.dp),
                     )
+                }
+            }
+
+            // Telugu Calendar Card
+            item {
+                TeluguCalendarCard(
+                    panchangamData = panchangamData,
+                    fontScale = fontScale,
+                    onClick = onNavigateToPanchangam,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+            }
+
+            // Today's Muhurtam Quick Info
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    SectionHeader(
+                        titleTelugu = "నేటి ముహూర్తం",
+                        titleEnglish = "Today's Auspicious Times",
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        // Rahu Kalam warning
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            shape = MaterialTheme.shapes.medium,
+                            color = if (panchangamData.rahuKaal.isActive)
+                                DeepVermillion.copy(alpha = 0.12f)
+                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(
+                                    if (panchangamData.rahuKaal.isActive) "!! రాహు కాలం" else "రాహు కాలం",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = (11 * fontScale).sp,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
+                                    color = if (panchangamData.rahuKaal.isActive) DeepVermillion else TempleGold,
+                                )
+                                Text(
+                                    "${panchangamData.rahuKaal.startTime} - ${panchangamData.rahuKaal.endTime}",
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                        // Abhijit Muhurt
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            shape = MaterialTheme.shapes.medium,
+                            color = if (panchangamData.abhijitMuhurt.isActive)
+                                AuspiciousGreen.copy(alpha = 0.12f)
+                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(
+                                    "అభిజిత్ ముహూర్తం",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = (11 * fontScale).sp,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
+                                    color = if (panchangamData.abhijitMuhurt.isActive) AuspiciousGreen else TempleGold,
+                                )
+                                Text(
+                                    "${panchangamData.abhijitMuhurt.startTime} - ${panchangamData.abhijitMuhurt.endTime}",
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                        // Sunrise/Sunset
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Text(
+                                    "సూర్యోదయం",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = (11 * fontScale).sp,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
+                                    color = TempleGold,
+                                )
+                                Text(
+                                    "${panchangamData.sunTimes.sunrise}",
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

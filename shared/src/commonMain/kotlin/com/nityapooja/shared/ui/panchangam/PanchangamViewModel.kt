@@ -480,6 +480,12 @@ class PanchangamViewModel(
         var hour = calculationLocalDateTime.hour
         var minute = calculationLocalDateTime.minute
 
+        // Save civil date before sunrise adjustment (for display purposes)
+        val civilYear = year
+        val civilMonth = month
+        val civilDay = day
+        val civilDayOfWeek = calculationLocalDateTime.dayOfWeek.ordinal // 0=Monday..6=Sunday
+
         // Hindu day starts at sunrise, not midnight.
         // If before sunrise, use previous civil day's sunrise as the anchor.
         val approxSunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
@@ -574,10 +580,15 @@ class PanchangamViewModel(
         val shubhHoras = calculateShubhHoras(dayOfWeek, sunTimes, activeDecimal)
 
         // ── Date and day strings ──
+        // Show civil (Gregorian) date for dateDisplay, Hindu day for teluguDay
         val teluguDay = TELUGU_DAY_NAMES.getOrElse(dayOfWeek) { "" }
         val englishDay = ENGLISH_DAY_NAMES.getOrElse(dayOfWeek) { "" }
-        val monthName = ENGLISH_MONTH_NAMES.getOrElse(month) { "" }
-        val dateDisplay = "$englishDay, $monthName $day, $year"
+        // dateDisplay uses civil date so users see today's Gregorian date
+        // Kotlin DayOfWeek.ordinal: 0=Monday..6=Sunday → ENGLISH_DAY_NAMES: 1=Sunday..7=Saturday
+        val civilDayOfWeekIndex = if (civilDayOfWeek == 6) 1 else civilDayOfWeek + 2
+        val civilEnglishDay = ENGLISH_DAY_NAMES.getOrElse(civilDayOfWeekIndex) { "" }
+        val civilMonthName = ENGLISH_MONTH_NAMES.getOrElse(civilMonth) { "" }
+        val dateDisplay = "$civilEnglishDay, $civilMonthName $civilDay, $civilYear"
 
         return PanchangamData(
             tithi = tithi,

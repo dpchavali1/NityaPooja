@@ -31,6 +31,7 @@ import com.nityapooja.shared.platform.shareText
 import androidx.compose.foundation.isSystemInDarkTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +74,8 @@ fun HomeScreen(
 
     val panchangamViewModel: PanchangamViewModel = koinViewModel()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
-    val panchangamData = remember(locationInfo) {
+    val todayKey = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
+    val panchangamData = remember(locationInfo, todayKey) {
         panchangamViewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
     }
 

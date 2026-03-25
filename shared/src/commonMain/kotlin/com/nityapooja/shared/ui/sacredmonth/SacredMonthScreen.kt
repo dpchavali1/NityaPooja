@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nityapooja.shared.data.sacredmonth.SacredMonthDateRange
 import com.nityapooja.shared.data.sacredmonth.SacredMonthInfo
 import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
@@ -35,6 +36,7 @@ fun SacredMonthScreen(
 ) {
     val currentSacredMonth by viewModel.currentSacredMonth.collectAsState()
     val allSacredMonths by viewModel.allSacredMonths.collectAsState()
+    val sacredMonthRanges by viewModel.sacredMonthRanges.collectAsState()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
     val fontScale = fontSize / 16f
@@ -96,11 +98,17 @@ fun SacredMonthScreen(
 
             item { bannerAd?.invoke() }
 
-            // All sacred months
-            item { SectionHeader(titleTelugu = "పవిత్ర మాసాలు", titleEnglish = "All Sacred Months") }
-            items(allSacredMonths) { month ->
-                val isActive = month == currentSacredMonth
-                SacredMonthSummaryCard(month, isActive, fontScale)
+            // All sacred months with date ranges
+            item { SectionHeader(titleTelugu = "పవిత్ర మాసాలు · తేదీలు", titleEnglish = "Sacred Months · Dates") }
+            if (sacredMonthRanges.isNotEmpty()) {
+                items(sacredMonthRanges) { range ->
+                    SacredMonthDateCard(range, fontScale)
+                }
+            } else {
+                items(allSacredMonths) { month ->
+                    val isActive = month == currentSacredMonth
+                    SacredMonthSummaryCard(month, isActive, fontScale)
+                }
             }
         }
     }
@@ -139,6 +147,79 @@ private fun SacredMonthDetailCard(month: SacredMonthInfo, fontScale: Float) {
                     Text(day.nameEnglish, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = TempleGold)
                     Text(day.descriptionTelugu, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SacredMonthDateCard(range: SacredMonthDateRange, fontScale: Float) {
+    GlassmorphicCard(
+        accentColor = if (range.isActive) AuspiciousGreen else null,
+        cornerRadius = 16.dp,
+        contentPadding = 16.dp,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    range.info.masaNameTelugu,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp),
+                    fontWeight = FontWeight.Bold,
+                    color = if (range.isActive) AuspiciousGreen else MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    range.info.masaNameEnglish,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(14.dp), tint = TempleGold)
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        "${range.startDate} — ${range.endDate}",
+                        style = MaterialTheme.typography.labelMedium.copy(fontSize = (13 * fontScale).sp),
+                        fontWeight = FontWeight.Medium,
+                        color = TempleGold,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    range.info.significanceTelugu,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                )
+            }
+            // Status badge
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = when {
+                    range.isActive -> AuspiciousGreen.copy(alpha = 0.15f)
+                    range.daysUntilStart in 1..30 -> TempleGold.copy(alpha = 0.12f)
+                    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                },
+            ) {
+                Text(
+                    when {
+                        range.isActive -> "${range.daysRemaining} రోజులు"
+                        range.daysUntilStart in 1..30 -> "${range.daysUntilStart} రోజుల్లో"
+                        range.daysUntilStart > 30 -> "${range.daysUntilStart} రోజుల్లో"
+                        else -> ""
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = when {
+                        range.isActive -> AuspiciousGreen
+                        range.daysUntilStart in 1..30 -> TempleGold
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
             }
         }
     }

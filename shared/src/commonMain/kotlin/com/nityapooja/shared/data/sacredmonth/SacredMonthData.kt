@@ -9,6 +9,15 @@ data class SacredMonthInfo(
     val specialDays: List<SpecialDay>,
 )
 
+data class SacredMonthDateRange(
+    val info: SacredMonthInfo,
+    val startDate: String, // "MMM dd, yyyy"
+    val endDate: String,
+    val daysUntilStart: Int, // -1 if already started
+    val daysRemaining: Int, // -1 if not started yet
+    val isActive: Boolean,
+)
+
 data class DailyPractice(
     val nameTelugu: String,
     val nameEnglish: String,

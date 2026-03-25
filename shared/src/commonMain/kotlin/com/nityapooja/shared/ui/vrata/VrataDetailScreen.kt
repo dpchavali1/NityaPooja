@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.theme.TempleGold
@@ -21,11 +23,14 @@ import org.koin.compose.viewmodel.koinViewModel
 fun VrataDetailScreen(
     vrataId: Int,
     viewModel: VrataViewModel = koinViewModel(),
+    fontSizeViewModel: FontSizeViewModel = koinViewModel(),
     onBack: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val allVratas by viewModel.allVratas.collectAsState()
     val vrata = allVratas.firstOrNull { it.id == vrataId }
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
+    val fontScale = fontSize / 16f
 
     Scaffold(
         topBar = {
@@ -61,12 +66,12 @@ fun VrataDetailScreen(
             // Description
             vrata.descriptionTelugu?.let {
                 GlassmorphicCard(accentColor = TempleGold) {
-                    Text("వ్రత వివరాలు", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = TempleGold)
+                    Text("వ్రత వివరాలు", style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), fontWeight = FontWeight.Bold, color = TempleGold)
                     Spacer(Modifier.height(8.dp))
-                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                    Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface)
                     vrata.description?.let { eng ->
                         Spacer(Modifier.height(8.dp))
-                        Text(eng, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(eng, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -76,9 +81,9 @@ fun VrataDetailScreen(
                 GlassmorphicCard {
                     SectionHeader(titleTelugu = "దేవత", titleEnglish = "Deity")
                     Spacer(Modifier.height(8.dp))
-                    Text(it, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TempleGold)
+                    Text(it, style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp), fontWeight = FontWeight.Bold, color = TempleGold)
                     vrata.associatedDeity?.let { eng ->
-                        Text(eng, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(eng, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -88,10 +93,10 @@ fun VrataDetailScreen(
                 GlassmorphicCard {
                     SectionHeader(titleTelugu = "ఉపవాస నియమాలు", titleEnglish = "Fasting Rules")
                     Spacer(Modifier.height(8.dp))
-                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                    Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface)
                     vrata.fastingRules?.let { eng ->
                         Spacer(Modifier.height(8.dp))
-                        Text(eng, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(eng, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -101,7 +106,7 @@ fun VrataDetailScreen(
                 GlassmorphicCard {
                     SectionHeader(titleTelugu = "ప్రత్యేక ఆహారం", titleEnglish = "Special Foods")
                     Spacer(Modifier.height(8.dp))
-                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                    Text(it, style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface)
                 }
             }
 
@@ -110,7 +115,7 @@ fun VrataDetailScreen(
                 GlassmorphicCard(accentColor = TempleGold) {
                     SectionHeader(titleTelugu = "మంత్రం", titleEnglish = "Mantra")
                     Spacer(Modifier.height(8.dp))
-                    Text(it, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TempleGold)
+                    Text(it, style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp), fontWeight = FontWeight.Bold, color = TempleGold)
                 }
             }
 

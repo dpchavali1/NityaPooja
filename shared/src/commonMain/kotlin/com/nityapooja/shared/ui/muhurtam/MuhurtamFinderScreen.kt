@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.EventType
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.MuhurtamScore
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.theme.AuspiciousGreen
@@ -31,6 +32,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MuhurtamFinderScreen(
     viewModel: MuhurtamFinderViewModel = koinViewModel(),
     panchangamViewModel: PanchangamViewModel = koinViewModel(),
+    fontSizeViewModel: FontSizeViewModel = koinViewModel(),
     onBack: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
@@ -40,6 +42,8 @@ fun MuhurtamFinderScreen(
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
     val userNakshatra by viewModel.userNakshatra.collectAsState()
     val isPersonalized = userNakshatra.isNotBlank()
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
+    val fontScale = fontSize / 16f
 
     LaunchedEffect(locationInfo) {
         viewModel.calculate(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
@@ -82,8 +86,8 @@ fun MuhurtamFinderScreen(
                         onClick = { viewModel.selectEvent(event) },
                         label = {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(event.nameTelugu, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-                                Text(event.nameEnglish, style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp))
+                                Text(event.nameTelugu, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), fontWeight = FontWeight.Bold)
+                                Text(event.nameEnglish, style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp))
                             }
                         },
                         colors = FilterChipDefaults.filterChipColors(
@@ -110,24 +114,24 @@ fun MuhurtamFinderScreen(
                         if (isPersonalized) {
                             Text(
                                 "మీ జన్మ నక్షత్రం: $userNakshatra · తార బలం ఆధారంగా వ్యక్తిగతీకరించబడింది",
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
                                 fontWeight = FontWeight.Bold,
                                 color = AuspiciousGreen,
                             )
                             Text(
                                 "Personalized using your birth star ($userNakshatra) with Tara Balam",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
                                 color = AuspiciousGreen.copy(alpha = 0.8f),
                             )
                         } else {
                             Text(
                                 "సెట్టింగ్‌లలో మీ జన్మ నక్షత్రం నమోదు చేస్తే, తార బలం ఆధారంగా వ్యక్తిగత ఫలితాలు చూపిస్తాము",
-                                style = MaterialTheme.typography.labelSmall,
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(
                                 "Set your birth nakshatra in Settings for personalized Tara Balam results",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
@@ -136,7 +140,7 @@ fun MuhurtamFinderScreen(
 
                 Text(
                     "రాబోయే 30 రోజులలో ${selectedEvent.nameTelugu}కు శుభ ముహూర్తాలు",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
@@ -149,7 +153,7 @@ fun MuhurtamFinderScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(scoredDates) { scoredDate ->
-                        MuhurtamDateCard(scoredDate)
+                        MuhurtamDateCard(scoredDate, fontScale)
                     }
                 }
             }
@@ -158,7 +162,7 @@ fun MuhurtamFinderScreen(
 }
 
 @Composable
-private fun MuhurtamDateCard(scoredDate: ScoredDate) {
+private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float) {
     val scoreColor = when (scoredDate.result.score) {
         MuhurtamScore.EXCELLENT -> AuspiciousGreen
         MuhurtamScore.GOOD -> TempleGold
@@ -180,13 +184,13 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate) {
                 // Date display
                 Text(
                     scoredDate.panchangamData.dateDisplay,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     scoredDate.panchangamData.teluguDay,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
@@ -195,13 +199,13 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate) {
                 // Panchangam summary
                 Text(
                     "${scoredDate.panchangamData.tithi.nameTelugu} · ${scoredDate.panchangamData.tithi.pakshaTelugu}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         scoredDate.panchangamData.nakshatra.nameTelugu,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp),
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     scoredDate.taraBalam?.let { tara ->
@@ -222,7 +226,7 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate) {
                 }
                 Text(
                     scoredDate.panchangamData.yoga.nameTelugu,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -238,13 +242,13 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate) {
                 ) {
                     Text(
                         "${scoredDate.result.points}",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineMedium.copy(fontSize = (28 * fontScale).sp),
                         fontWeight = FontWeight.Bold,
                         color = scoreColor,
                     )
                     Text(
                         scoredDate.result.score.labelTelugu,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
                         fontWeight = FontWeight.Bold,
                         color = scoreColor,
                     )
@@ -272,7 +276,7 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate) {
                     Spacer(Modifier.width(6.dp))
                     Text(
                         reason.textTelugu,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }

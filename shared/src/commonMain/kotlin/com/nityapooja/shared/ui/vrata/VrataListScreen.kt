@@ -13,7 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nityapooja.shared.data.local.entity.VrataEntity
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
@@ -26,6 +28,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun VrataListScreen(
     viewModel: VrataViewModel = koinViewModel(),
     panchangamViewModel: PanchangamViewModel = koinViewModel(),
+    fontSizeViewModel: FontSizeViewModel = koinViewModel(),
     onNavigateToDetail: (Int) -> Unit = {},
     onBack: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
@@ -35,6 +38,8 @@ fun VrataListScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
+    val fontScale = fontSize / 16f
 
     LaunchedEffect(locationInfo, allVratas) {
         if (allVratas.isNotEmpty()) {
@@ -67,10 +72,10 @@ fun VrataListScreen(
                 contentColor = TempleGold,
             ) {
                 Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }) {
-                    Text("రాబోయే వ్రతాలు", modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    Text("రాబోయే వ్రతాలు", modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }) {
-                    Text("అన్ని వ్రతాలు", modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    Text("అన్ని వ్రతాలు", modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -82,8 +87,8 @@ fun VrataListScreen(
                 }
             } else {
                 when (selectedTab) {
-                    0 -> UpcomingVratasList(upcomingVratas, onNavigateToDetail)
-                    1 -> AllVratasList(allVratas, onNavigateToDetail)
+                    0 -> UpcomingVratasList(upcomingVratas, onNavigateToDetail, fontScale)
+                    1 -> AllVratasList(allVratas, onNavigateToDetail, fontScale)
                 }
             }
         }
@@ -91,7 +96,7 @@ fun VrataListScreen(
 }
 
 @Composable
-private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: (Int) -> Unit) {
+private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: (Int) -> Unit, fontScale: Float) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -99,7 +104,7 @@ private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: 
         if (vratas.isEmpty()) {
             item {
                 Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                    Text("వ్రతాలు లోడ్ అవుతున్నాయి...", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("వ్రతాలు లోడ్ అవుతున్నాయి...", style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -118,23 +123,23 @@ private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             upcoming.vrata.nameTelugu,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             upcoming.vrata.name,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
                             "${upcoming.dateDisplay} · ${upcoming.teluguDay}",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         upcoming.vrata.associatedDeityTelugu?.let {
-                            Text(it, style = MaterialTheme.typography.labelSmall, color = TempleGold)
+                            Text(it, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = TempleGold)
                         }
                     }
                     Surface(
@@ -145,7 +150,7 @@ private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: 
                         Text(
                             if (upcoming.daysUntil == 0) "నేడు" else "${upcoming.daysUntil} రోజులు",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp),
                             fontWeight = FontWeight.Bold,
                             color = if (upcoming.daysUntil == 0) AuspiciousGreen else TempleGold,
                         )
@@ -157,7 +162,7 @@ private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: 
 }
 
 @Composable
-private fun AllVratasList(vratas: List<VrataEntity>, onNavigateToDetail: (Int) -> Unit) {
+private fun AllVratasList(vratas: List<VrataEntity>, onNavigateToDetail: (Int) -> Unit, fontScale: Float) {
     val tithiBased = vratas.filter { it.category == "tithi_based" }
     val vaaramBased = vratas.filter { it.category == "vaaram_based" }
 
@@ -167,17 +172,17 @@ private fun AllVratasList(vratas: List<VrataEntity>, onNavigateToDetail: (Int) -
     ) {
         if (tithiBased.isNotEmpty()) {
             item { SectionHeader(titleTelugu = "తిథి ఆధారిత వ్రతాలు", titleEnglish = "Tithi-based Vratas") }
-            items(tithiBased) { vrata -> VrataListItem(vrata, onNavigateToDetail) }
+            items(tithiBased) { vrata -> VrataListItem(vrata, onNavigateToDetail, fontScale) }
         }
         if (vaaramBased.isNotEmpty()) {
             item { Spacer(Modifier.height(8.dp)); SectionHeader(titleTelugu = "వార ఆధారిత వ్రతాలు", titleEnglish = "Weekly Vratas") }
-            items(vaaramBased) { vrata -> VrataListItem(vrata, onNavigateToDetail) }
+            items(vaaramBased) { vrata -> VrataListItem(vrata, onNavigateToDetail, fontScale) }
         }
     }
 }
 
 @Composable
-private fun VrataListItem(vrata: VrataEntity, onNavigateToDetail: (Int) -> Unit) {
+private fun VrataListItem(vrata: VrataEntity, onNavigateToDetail: (Int) -> Unit, fontScale: Float) {
     Card(
         onClick = { onNavigateToDetail(vrata.id) },
         modifier = Modifier.fillMaxWidth(),
@@ -189,10 +194,10 @@ private fun VrataListItem(vrata: VrataEntity, onNavigateToDetail: (Int) -> Unit)
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(vrata.nameTelugu, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Text(vrata.name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(vrata.nameTelugu, style = MaterialTheme.typography.titleSmall.copy(fontSize = (14 * fontScale).sp), fontWeight = FontWeight.Bold)
+                Text(vrata.name, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 vrata.associatedDeityTelugu?.let {
-                    Text(it, style = MaterialTheme.typography.labelSmall, color = TempleGold)
+                    Text(it, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = TempleGold)
                 }
             }
             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)

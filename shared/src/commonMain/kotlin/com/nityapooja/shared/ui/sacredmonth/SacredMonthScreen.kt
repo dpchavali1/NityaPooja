@@ -13,7 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nityapooja.shared.data.sacredmonth.SacredMonthInfo
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
@@ -26,12 +28,15 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SacredMonthScreen(
     viewModel: SacredMonthViewModel = koinViewModel(),
     panchangamViewModel: PanchangamViewModel = koinViewModel(),
+    fontSizeViewModel: FontSizeViewModel = koinViewModel(),
     onBack: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val currentSacredMonth by viewModel.currentSacredMonth.collectAsState()
     val allSacredMonths by viewModel.allSacredMonths.collectAsState()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
+    val fontScale = fontSize / 16f
 
     LaunchedEffect(locationInfo) {
         viewModel.detectCurrentMonth(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
@@ -67,11 +72,11 @@ fun SacredMonthScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Brightness7, contentDescription = null, tint = AuspiciousGreen, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("ప్రస్తుతం ${month.masaNameTelugu} నడుస్తోంది", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = AuspiciousGreen)
+                            Text("ప్రస్తుతం ${month.masaNameTelugu} నడుస్తోంది", style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp), fontWeight = FontWeight.Bold, color = AuspiciousGreen)
                         }
                     }
                 }
-                item { SacredMonthDetailCard(month) }
+                item { SacredMonthDetailCard(month, fontScale) }
             }
 
             // If no sacred month is active, show all
@@ -79,7 +84,7 @@ fun SacredMonthScreen(
                 item {
                     Text(
                         "ప్రస్తుతం పవిత్ర మాసం కాదు. అన్ని పవిత్ర మాసాల వివరాలు క్రింద చూడండి.",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -91,14 +96,14 @@ fun SacredMonthScreen(
             item { SectionHeader(titleTelugu = "పవిత్ర మాసాలు", titleEnglish = "All Sacred Months") }
             items(allSacredMonths) { month ->
                 val isActive = month == currentSacredMonth
-                SacredMonthSummaryCard(month, isActive)
+                SacredMonthSummaryCard(month, isActive, fontScale)
             }
         }
     }
 }
 
 @Composable
-private fun SacredMonthDetailCard(month: SacredMonthInfo) {
+private fun SacredMonthDetailCard(month: SacredMonthInfo, fontScale: Float) {
     // Daily Practices
     GlassmorphicCard(accentColor = TempleGold) {
         SectionHeader(titleTelugu = "దైనందిన ఆచరణలు", titleEnglish = "Daily Practices")
@@ -108,8 +113,8 @@ private fun SacredMonthDetailCard(month: SacredMonthInfo) {
                 Icon(Icons.Default.CheckCircle, contentDescription = null, tint = TempleGold, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(8.dp))
                 Column {
-                    Text(practice.nameTelugu, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-                    Text(practice.descriptionTelugu, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(practice.nameTelugu, style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(practice.descriptionTelugu, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -126,9 +131,9 @@ private fun SacredMonthDetailCard(month: SacredMonthInfo) {
                 Icon(Icons.Default.Star, contentDescription = null, tint = TempleGold, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(8.dp))
                 Column {
-                    Text(day.nameTelugu, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-                    Text(day.nameEnglish, style = MaterialTheme.typography.labelSmall, color = TempleGold)
-                    Text(day.descriptionTelugu, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(day.nameTelugu, style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(day.nameEnglish, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = TempleGold)
+                    Text(day.descriptionTelugu, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -136,7 +141,7 @@ private fun SacredMonthDetailCard(month: SacredMonthInfo) {
 }
 
 @Composable
-private fun SacredMonthSummaryCard(month: SacredMonthInfo, isActive: Boolean) {
+private fun SacredMonthSummaryCard(month: SacredMonthInfo, isActive: Boolean, fontScale: Float) {
     GlassmorphicCard(
         accentColor = if (isActive) AuspiciousGreen else null,
         cornerRadius = 16.dp,
@@ -148,10 +153,10 @@ private fun SacredMonthSummaryCard(month: SacredMonthInfo, isActive: Boolean) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(month.masaNameTelugu, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = if (isActive) AuspiciousGreen else MaterialTheme.colorScheme.onSurface)
-                Text(month.masaNameEnglish, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(month.masaNameTelugu, style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp), fontWeight = FontWeight.Bold, color = if (isActive) AuspiciousGreen else MaterialTheme.colorScheme.onSurface)
+                Text(month.masaNameEnglish, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(4.dp))
-                Text(month.significanceTelugu, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface, maxLines = 3)
+                Text(month.significanceTelugu, style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface, maxLines = 3)
             }
             if (isActive) {
                 Surface(shape = MaterialTheme.shapes.small, color = AuspiciousGreen.copy(alpha = 0.15f)) {

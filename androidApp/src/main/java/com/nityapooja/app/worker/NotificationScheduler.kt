@@ -15,6 +15,8 @@ object NotificationScheduler {
     private const val EVENING_WORK_NAME = "evening_reminder"
     private const val PANCHANG_WORK_NAME = "panchang_reminder"
     private const val QUIZ_WORK_NAME = "quiz_reminder"
+    private const val VRATA_WORK_NAME = "vrata_reminder"
+    private const val SACRED_MONTH_WORK_NAME = "sacred_month_reminder"
     private const val MORNING_NOTIFICATION_ID = 1001
     private const val EVENING_NOTIFICATION_ID = 1002
     private const val PANCHANG_NOTIFICATION_ID = 1003
@@ -275,6 +277,40 @@ object NotificationScheduler {
             ExistingWorkPolicy.REPLACE,
             workRequest,
         )
+    }
+
+    fun scheduleVrataReminder(context: Context, vrataName: String, vrataNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        val inputData = workDataOf(
+            NotificationWorker.KEY_NOTIFICATION_BODY to "$vrataNameTelugu / $vrataName - Upcoming vratam",
+            NotificationWorker.KEY_NOTIFICATION_ID to 3001,
+            NotificationWorker.KEY_NOTIFICATION_TYPE to "vrata",
+            NotificationWorker.KEY_HOUR to hour,
+            NotificationWorker.KEY_MINUTE to minute,
+            NotificationWorker.KEY_TIMEZONE to timezoneId,
+            NotificationWorker.KEY_WORK_NAME to VRATA_WORK_NAME,
+        )
+        scheduleReminder(context, VRATA_WORK_NAME, hour, minute, timezoneId, inputData)
+    }
+
+    fun cancelVrataReminders(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(VRATA_WORK_NAME)
+    }
+
+    fun scheduleSacredMonthReminder(context: Context, masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        val inputData = workDataOf(
+            NotificationWorker.KEY_NOTIFICATION_BODY to "$masaNameTelugu - దైనందిన ఆచరణ సమయం / Daily sacred practice time",
+            NotificationWorker.KEY_NOTIFICATION_ID to 3002,
+            NotificationWorker.KEY_NOTIFICATION_TYPE to "sacred_month",
+            NotificationWorker.KEY_HOUR to hour,
+            NotificationWorker.KEY_MINUTE to minute,
+            NotificationWorker.KEY_TIMEZONE to timezoneId,
+            NotificationWorker.KEY_WORK_NAME to SACRED_MONTH_WORK_NAME,
+        )
+        scheduleReminder(context, SACRED_MONTH_WORK_NAME, hour, minute, timezoneId, inputData)
+    }
+
+    fun cancelSacredMonthReminders(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(SACRED_MONTH_WORK_NAME)
     }
 
     /**

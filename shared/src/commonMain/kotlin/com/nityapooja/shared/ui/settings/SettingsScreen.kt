@@ -57,6 +57,8 @@ fun SettingsScreen(
     val quizNotificationHour by viewModel.quizNotificationHour.collectAsState()
     val quizNotificationMinute by viewModel.quizNotificationMinute.collectAsState()
     val grahanamNotification by viewModel.grahanamNotification.collectAsState()
+    val vrataNotification by viewModel.vrataNotification.collectAsState()
+    val sacredMonthNotification by viewModel.sacredMonthNotification.collectAsState()
 
     val dataCleared by viewModel.dataCleared.collectAsState()
 
@@ -444,6 +446,44 @@ fun SettingsScreen(
                     Switch(
                         checked = grahanamNotification,
                         onCheckedChange = { viewModel.setGrahanamNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
+            }
+
+            // Vrata Reminders
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("వ్రత రిమైండర్లు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Vrata Reminders · Daily 6:00 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = vrataNotification,
+                        onCheckedChange = { viewModel.setVrataNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
+            }
+
+            // Sacred Month Reminders
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("పవిత్ర మాస రిమైండర్లు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Sacred Month · Daily 5:30 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = sacredMonthNotification,
+                        onCheckedChange = { viewModel.setSacredMonthNotification(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }

@@ -57,6 +57,22 @@ class AndroidNotificationScheduler(
         NotificationScheduler.cancelFestivalGreetings(context)
     }
 
+    override fun scheduleVrataReminder(vrataName: String, vrataNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        NotificationScheduler.scheduleVrataReminder(context, vrataName, vrataNameTelugu, hour, minute, timezoneId)
+    }
+
+    override fun cancelVrataReminders() {
+        NotificationScheduler.cancelVrataReminders(context)
+    }
+
+    override fun scheduleSacredMonthReminder(masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        NotificationScheduler.scheduleSacredMonthReminder(context, masaNameTelugu, hour, minute, timezoneId)
+    }
+
+    override fun cancelSacredMonthReminders() {
+        NotificationScheduler.cancelSacredMonthReminders(context)
+    }
+
     override fun cancelAll() {
         cancelMorningReminder()
         cancelEveningReminder()
@@ -64,5 +80,7 @@ class AndroidNotificationScheduler(
         cancelQuizReminder()
         cancelGrahanamNotifications()
         cancelFestivalGreetings()
+        cancelVrataReminders()
+        cancelSacredMonthReminders()
     }
 }

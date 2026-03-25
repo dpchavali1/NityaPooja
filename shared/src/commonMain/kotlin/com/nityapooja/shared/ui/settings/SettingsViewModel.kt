@@ -76,6 +76,36 @@ class SettingsViewModel(
     val grahanamNotification: StateFlow<Boolean> = preferencesManager.grahanamNotification
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
+    val vrataNotification: StateFlow<Boolean> = preferencesManager.vrataNotification
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val sacredMonthNotification: StateFlow<Boolean> = preferencesManager.sacredMonthNotification
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun setVrataNotification(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesManager.setVrataNotification(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                notificationScheduler.scheduleVrataReminder("Vratam", "వ్రతం", 6, 0, tz)
+            } else {
+                notificationScheduler.cancelVrataReminders()
+            }
+        }
+    }
+
+    fun setSacredMonthNotification(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesManager.setSacredMonthNotification(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                notificationScheduler.scheduleSacredMonthReminder("పవిత్ర మాసం", 5, 30, tz)
+            } else {
+                notificationScheduler.cancelSacredMonthReminders()
+            }
+        }
+    }
+
     fun setThemeMode(mode: ThemeMode) { viewModelScope.launch { preferencesManager.setThemeMode(mode) } }
     fun setUserName(name: String) { viewModelScope.launch { preferencesManager.setUserName(name) } }
     fun setGotra(gotra: String) { viewModelScope.launch { preferencesManager.setGotra(gotra) } }

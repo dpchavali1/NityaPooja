@@ -16,5 +16,9 @@ class NoOpNotificationScheduler : NotificationScheduler {
     override fun cancelQuizReminder() {}
     override fun cancelGrahanamNotifications() {}
     override fun cancelFestivalGreetings() {}
+    override fun scheduleVrataReminder(vrataName: String, vrataNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {}
+    override fun cancelVrataReminders() {}
+    override fun scheduleSacredMonthReminder(masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {}
+    override fun cancelSacredMonthReminders() {}
     override fun cancelAll() {}
 }

@@ -22,5 +22,9 @@ interface NotificationScheduler {
     fun cancelQuizReminder()
     fun cancelGrahanamNotifications()
     fun cancelFestivalGreetings()
+    fun scheduleVrataReminder(vrataName: String, vrataNameTelugu: String, hour: Int, minute: Int, timezoneId: String)
+    fun cancelVrataReminders()
+    fun scheduleSacredMonthReminder(masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String)
+    fun cancelSacredMonthReminders()
     fun cancelAll()
 }

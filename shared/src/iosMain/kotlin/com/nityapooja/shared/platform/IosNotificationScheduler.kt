@@ -174,6 +174,36 @@ class IosNotificationScheduler : NotificationScheduler {
         }
     }
 
+    override fun scheduleVrataReminder(vrataName: String, vrataNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        scheduleDaily(
+            id = "vrata_reminder",
+            title = "NityaPooja - వ్రత రిమైండర్",
+            body = "$vrataNameTelugu / $vrataName - Upcoming vratam tomorrow",
+            hour = hour,
+            minute = minute,
+            route = "vrata_list",
+        )
+    }
+
+    override fun cancelVrataReminders() {
+        center.removePendingNotificationRequestsWithIdentifiers(listOf("vrata_reminder"))
+    }
+
+    override fun scheduleSacredMonthReminder(masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        scheduleDaily(
+            id = "sacred_month_reminder",
+            title = "NityaPooja - పవిత్ర మాసం",
+            body = "$masaNameTelugu - దైనందిన ఆచరణ సమయం / Time for daily sacred month practice",
+            hour = hour,
+            minute = minute,
+            route = "sacred_month",
+        )
+    }
+
+    override fun cancelSacredMonthReminders() {
+        center.removePendingNotificationRequestsWithIdentifiers(listOf("sacred_month_reminder"))
+    }
+
     override fun cancelAll() {
         center.removeAllPendingNotificationRequests()
     }

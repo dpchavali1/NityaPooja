@@ -38,6 +38,8 @@ fun MuhurtamFinderScreen(
     val scoredDates by viewModel.scoredDates.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
+    val userNakshatra by viewModel.userNakshatra.collectAsState()
+    val isPersonalized = userNakshatra.isNotBlank()
 
     LaunchedEffect(locationInfo) {
         viewModel.calculate(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
@@ -97,7 +99,41 @@ fun MuhurtamFinderScreen(
                     CircularProgressIndicator(color = TempleGold)
                 }
             } else {
-                // Info text
+                // Personalization note
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    shape = MaterialTheme.shapes.small,
+                    color = if (isPersonalized) AuspiciousGreen.copy(alpha = 0.08f)
+                           else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        if (isPersonalized) {
+                            Text(
+                                "మీ జన్మ నక్షత్రం: $userNakshatra · తార బలం ఆధారంగా వ్యక్తిగతీకరించబడింది",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = AuspiciousGreen,
+                            )
+                            Text(
+                                "Personalized using your birth star ($userNakshatra) with Tara Balam",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                color = AuspiciousGreen.copy(alpha = 0.8f),
+                            )
+                        } else {
+                            Text(
+                                "సెట్టింగ్‌లలో మీ జన్మ నక్షత్రం నమోదు చేస్తే, తార బలం ఆధారంగా వ్యక్తిగత ఫలితాలు చూపిస్తాము",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                "Set your birth nakshatra in Settings for personalized Tara Balam results",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+
                 Text(
                     "రాబోయే 30 రోజులలో ${selectedEvent.nameTelugu}కు శుభ ముహూర్తాలు",
                     style = MaterialTheme.typography.bodySmall,
@@ -162,11 +198,28 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                Text(
-                    scoredDate.panchangamData.nakshatra.nameTelugu,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        scoredDate.panchangamData.nakshatra.nameTelugu,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    scoredDate.taraBalam?.let { tara ->
+                        Spacer(Modifier.width(8.dp))
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = (if (tara.isGood) AuspiciousGreen else DeepVermillion).copy(alpha = 0.12f),
+                        ) {
+                            Text(
+                                "తా: ${tara.nameTelugu}",
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = if (tara.isGood) AuspiciousGreen else DeepVermillion,
+                            )
+                        }
+                    }
+                }
                 Text(
                     scoredDate.panchangamData.yoga.nameTelugu,
                     style = MaterialTheme.typography.bodySmall,

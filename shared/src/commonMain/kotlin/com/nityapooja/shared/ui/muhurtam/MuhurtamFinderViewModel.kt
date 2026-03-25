@@ -1,6 +1,7 @@
 package com.nityapooja.shared.ui.muhurtam
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.EventType
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.MuhurtamResult
@@ -9,8 +10,10 @@ import com.nityapooja.shared.ui.panchangam.PanchangamData
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.panchangam.SelectedDate
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -20,6 +23,7 @@ import kotlinx.datetime.todayIn
 data class ScoredDate(
     val panchangamData: PanchangamData,
     val result: MuhurtamResult,
+    val taraBalam: MuhurtamRules.TaraBalam? = null,
 )
 
 class MuhurtamFinderViewModel(
@@ -37,10 +41,18 @@ class MuhurtamFinderViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    val userNakshatra: StateFlow<String> = preferencesManager.nakshatra
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
     private var cachedPanchangams: List<PanchangamData> = emptyList()
     private var cachedLat = 0.0
     private var cachedLng = 0.0
     private var cachedTimezone = ""
+
+    private fun getBirthNakshatraIndex(): Int {
+        val name = userNakshatra.value
+        return if (name.isNotBlank()) MuhurtamRules.nakshatraIndexFromTelugu(name) else -1
+    }
 
     fun selectEvent(eventType: EventType) {
         _selectedEvent.value = eventType
@@ -76,10 +88,15 @@ class MuhurtamFinderViewModel(
     }
 
     private fun scoreWithEvent(eventType: EventType) {
+        val birthIndex = getBirthNakshatraIndex()
         _scoredDates.value = cachedPanchangams.map { panchangam ->
+            val taraBalam = if (birthIndex >= 0) {
+                MuhurtamRules.calculateTaraBalam(birthIndex, panchangam.nakshatra.index)
+            } else null
             ScoredDate(
                 panchangamData = panchangam,
-                result = MuhurtamRules.scoreMuhurtam(panchangam, eventType),
+                result = MuhurtamRules.scoreMuhurtam(panchangam, eventType, birthIndex),
+                taraBalam = taraBalam,
             )
         }.sortedByDescending { it.result.points }
     }

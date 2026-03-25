@@ -166,11 +166,42 @@ object MuhurtamRules {
         "Purvabhadra", "Uttarabhadra", "Revati",
     )
 
+    // Tara Balam — 9 groups counted from birth nakshatra
+    enum class TaraBalam(val nameTelugu: String, val nameEnglish: String, val isGood: Boolean) {
+        JANMA("జన్మ", "Janma", false),
+        SAMPAT("సంపత్", "Sampat", true),
+        VIPAT("విపత్", "Vipat", false),
+        KSHEMA("క్షేమ", "Kshema", true),
+        PRATYARI("ప్రత్యరి", "Pratyari", false),
+        SADHAKA("సాధక", "Sadhaka", true),
+        VADHA("వధ", "Vadha", false),
+        MITRA("మిత్ర", "Mitra", true),
+        PARAMA_MITRA("పరమ మిత్ర", "Parama Mitra", true),
+    }
+
+    /**
+     * Calculate Tara Balam from birth nakshatra index to today's nakshatra index.
+     * Returns null if birth nakshatra is not set.
+     */
+    fun calculateTaraBalam(birthNakshatraIndex: Int, todayNakshatraIndex: Int): TaraBalam {
+        val distance = ((todayNakshatraIndex - birthNakshatraIndex + 27) % 27)
+        val taraGroup = distance % 9
+        return TaraBalam.entries[taraGroup]
+    }
+
+    /**
+     * Resolve a nakshatra name (Telugu) to its index (0-26). Returns -1 if not found.
+     */
+    fun nakshatraIndexFromTelugu(name: String): Int {
+        return NAKSHATRA_TELUGU.indexOfFirst { name.contains(it) || it.contains(name) }
+    }
+
     /**
      * Score a given day's panchangam for a specific event type.
      * Returns a MuhurtamResult with score, points (0-100), and bilingual reasons.
+     * If birthNakshatraIndex >= 0, Tara Balam is factored into the score.
      */
-    fun scoreMuhurtam(panchangam: PanchangamData, eventType: EventType): MuhurtamResult {
+    fun scoreMuhurtam(panchangam: PanchangamData, eventType: EventType, birthNakshatraIndex: Int = -1): MuhurtamResult {
         val eventRules = rules[eventType] ?: return MuhurtamResult(MuhurtamScore.AVERAGE, 50, emptyList())
 
         var points = 50 // start neutral
@@ -269,6 +300,27 @@ object MuhurtamRules {
                 "Krishna Paksha - Shukla Paksha preferred",
                 false,
             ))
+        }
+
+        // Tara Balam (personalized based on birth nakshatra)
+        if (birthNakshatraIndex in 0..26) {
+            val tara = calculateTaraBalam(birthNakshatraIndex, nakshatraIndex)
+            if (tara.isGood) {
+                val bonus = if (tara == TaraBalam.PARAMA_MITRA) 15 else 10
+                points += bonus
+                reasons.add(MuhurtamReason(
+                    "తార బలం: ${tara.nameTelugu} - మీ జన్మ నక్షత్రానికి శుభం",
+                    "Tara Balam: ${tara.nameEnglish} - Auspicious for your birth star",
+                    true,
+                ))
+            } else {
+                points -= 15
+                reasons.add(MuhurtamReason(
+                    "తార బలం: ${tara.nameTelugu} - మీ జన్మ నక్షత్రానికి అశుభం",
+                    "Tara Balam: ${tara.nameEnglish} - Inauspicious for your birth star",
+                    false,
+                ))
+            }
         }
 
         // Rahu Kalam active is always a concern

@@ -42,9 +42,20 @@ fun MuhurtamFinderScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
     val userNakshatra by viewModel.userNakshatra.collectAsState()
-    val isPersonalized = userNakshatra.isNotBlank()
+    val selectedNakshatra by viewModel.selectedNakshatra.collectAsState()
+    val isPersonalized = selectedNakshatra.isNotBlank()
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
     val fontScale = fontSize / 16f
+    var showNakshatraDropdown by remember { mutableStateOf(false) }
+
+    val allNakshatras = listOf(
+        "అశ్విని", "భరణి", "కృత్తిక", "రోహిణి", "మృగశిర",
+        "ఆర్ద్ర", "పునర్వసు", "పుష్యమి", "ఆశ్లేష", "మఘ",
+        "పూర్వ ఫల్గుణి", "ఉత్తర ఫల్గుణి", "హస్త", "చిత్ర", "స్వాతి",
+        "విశాఖ", "అనురాధ", "జ్యేష్ఠ", "మూల", "పూర్వాషాఢ",
+        "ఉత్తరాషాఢ", "శ్రవణం", "ధనిష్ఠ", "శతభిషం",
+        "పూర్వాభాద్ర", "ఉత్తరాభాద్ర", "రేవతి",
+    )
 
     LaunchedEffect(locationInfo) {
         viewModel.calculate(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
@@ -106,49 +117,93 @@ fun MuhurtamFinderScreen(
                 }
             }
 
+            // Nakshatra selector for Tara Balam personalization
+            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                    color = if (isPersonalized) AuspiciousGreen.copy(alpha = 0.08f)
+                           else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    onClick = { showNakshatraDropdown = true },
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Default.Person, null, tint = if (isPersonalized) AuspiciousGreen else TempleGold, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            if (isPersonalized) {
+                                Text(
+                                    "జన్మ నక్షత్రం: $selectedNakshatra · తార బలం",
+                                    style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = AuspiciousGreen,
+                                )
+                                Text(
+                                    "Tara Balam personalized · Tap to change",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
+                                    color = AuspiciousGreen.copy(alpha = 0.7f),
+                                )
+                            } else {
+                                Text(
+                                    "జన్మ నక్షత్రం ఎంచుకోండి",
+                                    style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    "Select birth star for personalized Tara Balam",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        Icon(Icons.Default.ArrowDropDown, null, tint = if (isPersonalized) AuspiciousGreen else TempleGold)
+                    }
+                }
+
+                DropdownMenu(
+                    expanded = showNakshatraDropdown,
+                    onDismissRequest = { showNakshatraDropdown = false },
+                ) {
+                    // Option to clear selection
+                    DropdownMenuItem(
+                        text = { Text("నక్షత్రం లేకుండా · Without birth star", style = MaterialTheme.typography.bodySmall) },
+                        onClick = {
+                            viewModel.selectNakshatra("")
+                            showNakshatraDropdown = false
+                        },
+                    )
+                    HorizontalDivider()
+                    allNakshatras.forEach { nakshatra ->
+                        val isSelf = nakshatra == userNakshatra
+                        DropdownMenuItem(
+                            text = {
+                                Row {
+                                    Text(nakshatra, style = MaterialTheme.typography.bodyMedium, fontWeight = if (nakshatra == selectedNakshatra) FontWeight.Bold else FontWeight.Normal)
+                                    if (isSelf) {
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("(మీది)", style = MaterialTheme.typography.labelSmall, color = AuspiciousGreen)
+                                    }
+                                }
+                            },
+                            onClick = {
+                                viewModel.selectNakshatra(nakshatra)
+                                showNakshatraDropdown = false
+                            },
+                        )
+                    }
+                }
+            }
+
             if (isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = TempleGold)
                 }
             } else {
-                // Personalization note
-                Surface(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                    shape = MaterialTheme.shapes.small,
-                    color = if (isPersonalized) AuspiciousGreen.copy(alpha = 0.08f)
-                           else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                ) {
-                    Column(modifier = Modifier.padding(10.dp)) {
-                        if (isPersonalized) {
-                            Text(
-                                "మీ జన్మ నక్షత్రం: $userNakshatra · తార బలం ఆధారంగా వ్యక్తిగతీకరించబడింది",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
-                                fontWeight = FontWeight.Bold,
-                                color = AuspiciousGreen,
-                            )
-                            Text(
-                                "Personalized using your birth star ($userNakshatra) with Tara Balam",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
-                                color = AuspiciousGreen.copy(alpha = 0.8f),
-                            )
-                        } else {
-                            Text(
-                                "సెట్టింగ్‌లలో మీ జన్మ నక్షత్రం నమోదు చేస్తే, తార బలం ఆధారంగా వ్యక్తిగత ఫలితాలు చూపిస్తాము",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                "Set your birth nakshatra in Settings for personalized Tara Balam results",
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-
                 Text(
                     "రాబోయే 30 రోజులలో ${selectedEvent.nameTelugu}కు శుభ ముహూర్తాలు",
-                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )

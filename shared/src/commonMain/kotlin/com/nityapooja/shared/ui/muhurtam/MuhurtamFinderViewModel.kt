@@ -47,14 +47,26 @@ class MuhurtamFinderViewModel(
     val userNakshatra: StateFlow<String> = preferencesManager.nakshatra
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
+    // Selected nakshatra for scoring — defaults to user's birth star, can be changed
+    private val _selectedNakshatra = MutableStateFlow("")
+    val selectedNakshatra: StateFlow<String> = _selectedNakshatra.asStateFlow()
+
     private var cachedPanchangams: List<PanchangamData> = emptyList()
     private var cachedLat = 0.0
     private var cachedLng = 0.0
     private var cachedTimezone = ""
+    private var initialized = false
 
-    private fun getBirthNakshatraIndex(): Int {
-        val name = userNakshatra.value
+    fun getSelectedNakshatraIndex(): Int {
+        val name = _selectedNakshatra.value
         return if (name.isNotBlank()) MuhurtamRules.nakshatraIndexFromTelugu(name) else -1
+    }
+
+    fun selectNakshatra(nakshatra: String) {
+        _selectedNakshatra.value = nakshatra
+        if (cachedPanchangams.isNotEmpty()) {
+            scoreWithEvent(_selectedEvent.value)
+        }
     }
 
     fun selectEvent(eventType: EventType) {
@@ -70,28 +82,46 @@ class MuhurtamFinderViewModel(
             return
         }
 
-        _isLoading.value = true
         cachedLat = lat
         cachedLng = lng
         cachedTimezone = timezone
 
+        // Default selected nakshatra to user's birth star on first load
+        if (!initialized) {
+            initialized = true
+            _selectedNakshatra.value = userNakshatra.value
+        }
+
+        // Progressive loading: first 7 days fast, then remaining 23 in background
+        _isLoading.value = true
         viewModelScope.launch {
-            val panchangams = withContext(Dispatchers.Default) {
+            // Phase 1: First 7 days (shows results quickly)
+            val first7 = withContext(Dispatchers.Default) {
                 val today = Clock.System.todayIn(TimeZone.of(timezone))
-                (0 until 30).map { i ->
+                (0 until 7).map { i ->
                     val date = today.plus(i, DateTimeUnit.DAY)
-                    val selectedDate = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
-                    panchangamViewModel.calculatePanchangam(lat, lng, timezone, selectedDate)
+                    panchangamViewModel.calculatePanchangam(lat, lng, timezone, SelectedDate(date.year, date.monthNumber, date.dayOfMonth))
                 }
             }
-            cachedPanchangams = panchangams
+            cachedPanchangams = first7
             _isLoading.value = false
+            scoreWithEvent(_selectedEvent.value)
+
+            // Phase 2: Remaining 23 days in background
+            val remaining = withContext(Dispatchers.Default) {
+                val today = Clock.System.todayIn(TimeZone.of(timezone))
+                (7 until 30).map { i ->
+                    val date = today.plus(i, DateTimeUnit.DAY)
+                    panchangamViewModel.calculatePanchangam(lat, lng, timezone, SelectedDate(date.year, date.monthNumber, date.dayOfMonth))
+                }
+            }
+            cachedPanchangams = first7 + remaining
             scoreWithEvent(_selectedEvent.value)
         }
     }
 
     private fun scoreWithEvent(eventType: EventType) {
-        val birthIndex = getBirthNakshatraIndex()
+        val birthIndex = getSelectedNakshatraIndex()
         _scoredDates.value = cachedPanchangams.map { panchangam ->
             val taraBalam = if (birthIndex >= 0) {
                 MuhurtamRules.calculateTaraBalam(birthIndex, panchangam.nakshatra.index)

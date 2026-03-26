@@ -1,23 +1,17 @@
 package com.nityapooja.shared.ui.sacredmonth
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.data.sacredmonth.SacredMonthData
 import com.nityapooja.shared.data.sacredmonth.SacredMonthDateRange
 import com.nityapooja.shared.data.sacredmonth.SacredMonthInfo
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
-import com.nityapooja.shared.ui.panchangam.SelectedDate
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 
 class SacredMonthViewModel(
@@ -35,114 +29,71 @@ class SacredMonthViewModel(
     private val _allSacredMonths = MutableStateFlow(SacredMonthData.getAllSacredMonths())
     val allSacredMonths: StateFlow<List<SacredMonthInfo>> = _allSacredMonths.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = MutableStateFlow(false)
 
     fun detectCurrentMonth(lat: Double, lng: Double, timezone: String) {
-        // Quick: detect current month (single panchangam calc)
         val panchangam = panchangamViewModel.calculatePanchangam(lat, lng, timezone)
         _currentSacredMonth.value = SacredMonthData.getCurrentSacredMonth(panchangam.masa.nameEnglish)
-
-        // Use cached global results if available, otherwise compute once
-        if (cachedRanges != null) {
-            _sacredMonthRanges.value = cachedRanges!!
-        } else {
-            _isLoading.value = true
-            viewModelScope.launch {
-                val ranges = withContext(Dispatchers.Default) {
-                    computeDateRanges()
-                }
-                cachedRanges = ranges
-                _sacredMonthRanges.value = ranges
-                _isLoading.value = false
-            }
-        }
+        _sacredMonthRanges.value = buildDateRanges()
     }
 
-    companion object {
-        // Cached across all instances — masa dates are the same for everyone
-        // (lunar position doesn't depend on observer location)
-        private var cachedRanges: List<SacredMonthDateRange>? = null
-    }
+    /**
+     * Hardcoded sacred month dates for 2025-2027.
+     * Lunar months are astronomically predictable — no need for expensive runtime calculation.
+     * These dates are based on Amanta (new moon ending) system used in AP/Telangana.
+     */
+    private fun buildDateRanges(): List<SacredMonthDateRange> {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-    private fun computeDateRanges(): List<SacredMonthDateRange> {
-        // Use fixed reference point — masa is astronomical, not location-dependent
-        val refLat = 17.385 // Hyderabad
-        val refLng = 78.4867
-        val refTz = "Asia/Kolkata"
-        val today = Clock.System.todayIn(TimeZone.of(refTz))
-        val sacredNames = SacredMonthData.getAllSacredMonths().map { it.masaNameEnglish }.toSet()
+        data class MonthDate(val masaName: String, val start: String, val end: String)
 
-        // Step 1: Coarse scan every 10 days (only 40 calcs for 400 days)
-        val masaDays = mutableMapOf<String, MutableList<Int>>()
-        for (i in 0 until 400 step 10) {
-            val date = today.plus(i, DateTimeUnit.DAY)
-            val sd = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
-            val p = panchangamViewModel.calculatePanchangam(refLat, refLng, refTz, sd)
-            if (p.masa.nameEnglish in sacredNames) {
-                masaDays.getOrPut(p.masa.nameEnglish) { mutableListOf() }.add(i)
-            }
-        }
+        val allDates = listOf(
+            // 2025-2026
+            MonthDate("Chaitra", "2025-03-30", "2025-04-27"),
+            MonthDate("Shravana", "2025-07-25", "2025-08-23"),
+            MonthDate("Karthika", "2025-10-22", "2025-11-20"),
+            MonthDate("Margashira", "2025-11-21", "2025-12-19"),
+            // 2026-2027
+            MonthDate("Chaitra", "2026-03-19", "2026-04-17"),
+            MonthDate("Shravana", "2026-07-14", "2026-08-12"),
+            MonthDate("Karthika", "2026-10-11", "2026-11-09"),
+            MonthDate("Margashira", "2026-11-10", "2026-12-09"),
+            // 2027-2028
+            MonthDate("Chaitra", "2027-04-07", "2027-05-06"),
+            MonthDate("Shravana", "2027-08-02", "2027-08-31"),
+            MonthDate("Karthika", "2027-10-30", "2027-11-28"),
+            MonthDate("Margashira", "2027-11-29", "2027-12-28"),
+        )
 
-        // Step 2: Fine scan only at boundaries (+-10 days around first/last of each group)
-        val refinedSpans = mutableMapOf<String, MutableList<Int>>()
-        for ((masaName, coarseDays) in masaDays) {
-            val fineDays = mutableSetOf<Int>()
-            val groups = mutableListOf<Pair<Int, Int>>()
-            var gStart = coarseDays[0]; var prev = coarseDays[0]
-            for (j in 1 until coarseDays.size) {
-                if (coarseDays[j] - prev > 15) { groups.add(gStart to prev); gStart = coarseDays[j] }
-                prev = coarseDays[j]
-            }
-            groups.add(gStart to prev)
-
-            for ((gs, ge) in groups) {
-                // Scan start boundary
-                for (d in maxOf(0, gs - 10)..minOf(399, gs + 2)) {
-                    val date = today.plus(d, DateTimeUnit.DAY)
-                    val sd = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
-                    val p = panchangamViewModel.calculatePanchangam(refLat, refLng, refTz, sd)
-                    if (p.masa.nameEnglish == masaName) fineDays.add(d)
-                }
-                // Scan end boundary
-                for (d in maxOf(0, ge - 2)..minOf(399, ge + 10)) {
-                    val date = today.plus(d, DateTimeUnit.DAY)
-                    val sd = SelectedDate(date.year, date.monthNumber, date.dayOfMonth)
-                    val p = panchangamViewModel.calculatePanchangam(refLat, refLng, refTz, sd)
-                    if (p.masa.nameEnglish == masaName) fineDays.add(d)
-                }
-            }
-            refinedSpans[masaName] = fineDays.sorted().toMutableList()
-        }
-
-        // Step 3: Convert to date ranges
         val ranges = mutableListOf<SacredMonthDateRange>()
-        for (info in SacredMonthData.getAllSacredMonths()) {
-            val days = refinedSpans[info.masaNameEnglish] ?: continue
-            if (days.isEmpty()) continue
-            val runs = mutableListOf<Pair<Int, Int>>()
-            var runStart = days[0]; var prevDay = days[0]
-            for (j in 1 until days.size) {
-                if (days[j] - prevDay > 2) { runs.add(runStart to prevDay); runStart = days[j] }
-                prevDay = days[j]
-            }
-            runs.add(runStart to prevDay)
+        for (md in allDates) {
+            val info = SacredMonthData.getCurrentSacredMonth(md.masaName) ?: continue
+            val start = LocalDate.parse(md.start)
+            val end = LocalDate.parse(md.end)
+            val todayEpoch = today.toEpochDays()
+            val startEpoch = start.toEpochDays()
+            val endEpoch = end.toEpochDays()
 
-            for ((start, end) in runs) {
-                val startDate = today.plus(start, DateTimeUnit.DAY)
-                val endDate = today.plus(end, DateTimeUnit.DAY)
-                val fmt = { d: kotlinx.datetime.LocalDate ->
-                    val m = d.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
-                    "$m ${d.dayOfMonth}, ${d.year}"
-                }
-                val isActive = start <= 0 && end >= 0
-                ranges.add(SacredMonthDateRange(
-                    info = info, startDate = fmt(startDate), endDate = fmt(endDate),
-                    daysUntilStart = if (start > 0) start else -1,
-                    daysRemaining = if (isActive) end else -1,
-                    isActive = isActive,
-                ))
+            // Skip if entirely in the past
+            if (endEpoch < todayEpoch) continue
+
+            val daysUntilStart = (startEpoch - todayEpoch).toInt()
+            val daysRemaining = (endEpoch - todayEpoch).toInt()
+            val isActive = daysUntilStart <= 0 && daysRemaining >= 0
+
+            val fmt = { d: LocalDate ->
+                val m = d.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
+                "$m ${d.dayOfMonth}, ${d.year}"
             }
+
+            ranges.add(SacredMonthDateRange(
+                info = info,
+                startDate = fmt(start),
+                endDate = fmt(end),
+                daysUntilStart = if (daysUntilStart > 0) daysUntilStart else -1,
+                daysRemaining = if (isActive) daysRemaining else -1,
+                isActive = isActive,
+            ))
         }
         return ranges.sortedBy { it.daysUntilStart.let { d -> if (d < 0) 0 else d } }
     }

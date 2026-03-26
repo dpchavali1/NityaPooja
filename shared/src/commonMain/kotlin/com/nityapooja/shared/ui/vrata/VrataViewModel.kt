@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,6 +29,7 @@ data class UpcomingVrata(
     val teluguDay: String,
     val daysUntil: Int,
     val tithiNameTelugu: String,
+    val isFavorite: Boolean = false,
 )
 
 class VrataViewModel(
@@ -44,7 +46,23 @@ class VrataViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    val favoriteIds: StateFlow<Set<Int>> = preferencesManager.favoriteVrataIds
+        .map { str -> if (str.isBlank()) emptySet() else str.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     private val panchangamViewModel = PanchangamViewModel(preferencesManager)
+
+    fun toggleFavorite(vrataId: Int) {
+        viewModelScope.launch {
+            val current = favoriteIds.value.toMutableSet()
+            if (vrataId in current) current.remove(vrataId) else current.add(vrataId)
+            preferencesManager.setFavoriteVrataIds(current.joinToString(","))
+            // Re-sort upcoming with new favorites
+            resortUpcoming()
+        }
+    }
+
+    fun isFavorite(vrataId: Int): Boolean = vrataId in favoriteIds.value
 
     fun calculateUpcoming(lat: Double, lng: Double, timezone: String) {
         _isLoading.value = true
@@ -66,14 +84,31 @@ class VrataViewModel(
                             teluguDay = panchangam.teluguDay,
                             daysUntil = i,
                             tithiNameTelugu = panchangam.tithi.nameTelugu,
+                            isFavorite = vrata.id in favoriteIds.value,
                         ))
                     }
                 }
                 result
             }
-            _upcomingVratas.value = upcoming
+            _upcomingVratas.value = sortWithFavorites(upcoming)
             _isLoading.value = false
         }
+    }
+
+    private fun resortUpcoming() {
+        val current = _upcomingVratas.value
+        if (current.isNotEmpty()) {
+            _upcomingVratas.value = sortWithFavorites(
+                current.map { it.copy(isFavorite = it.vrata.id in favoriteIds.value) }
+            )
+        }
+    }
+
+    private fun sortWithFavorites(list: List<UpcomingVrata>): List<UpcomingVrata> {
+        // Favorites first (sorted by daysUntil), then non-favorites (sorted by daysUntil)
+        val favs = list.filter { it.isFavorite }.sortedBy { it.daysUntil }
+        val others = list.filter { !it.isFavorite }.sortedBy { it.daysUntil }
+        return favs + others
     }
 
     private fun matchVratas(vratas: List<VrataEntity>, panchangam: PanchangamData): List<VrataEntity> {

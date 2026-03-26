@@ -21,6 +21,7 @@ import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.theme.AuspiciousGreen
+import com.nityapooja.shared.ui.theme.DeepVermillion
 import com.nityapooja.shared.ui.theme.TempleGold
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -37,6 +38,7 @@ fun VrataListScreen(
     val allVratas by viewModel.allVratas.collectAsState()
     val upcomingVratas by viewModel.upcomingVratas.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val favoriteIds by viewModel.favoriteIds.collectAsState()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
@@ -91,8 +93,8 @@ fun VrataListScreen(
                 }
             } else {
                 when (selectedTab) {
-                    0 -> UpcomingVratasList(upcomingVratas, onNavigateToDetail, fontScale)
-                    1 -> AllVratasList(allVratas, onNavigateToDetail, fontScale)
+                    0 -> UpcomingVratasList(upcomingVratas, onNavigateToDetail, fontScale, onToggleFavorite = { viewModel.toggleFavorite(it) })
+                    1 -> AllVratasList(allVratas, onNavigateToDetail, fontScale, favoriteIds = favoriteIds, onToggleFavorite = { viewModel.toggleFavorite(it) })
                 }
             }
         }
@@ -100,7 +102,7 @@ fun VrataListScreen(
 }
 
 @Composable
-private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: (Int) -> Unit, fontScale: Float) {
+private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: (Int) -> Unit, fontScale: Float, onToggleFavorite: (Int) -> Unit) {
     LazyColumn(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -146,6 +148,18 @@ private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: 
                             Text(it, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = TempleGold)
                         }
                     }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(
+                            onClick = { onToggleFavorite(upcoming.vrata.id) },
+                            modifier = Modifier.size(32.dp),
+                        ) {
+                            Icon(
+                                if (upcoming.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorite",
+                                tint = if (upcoming.isFavorite) DeepVermillion else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         color = if (upcoming.daysUntil == 0) AuspiciousGreen.copy(alpha = 0.15f)
@@ -159,6 +173,7 @@ private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: 
                             color = if (upcoming.daysUntil == 0) AuspiciousGreen else TempleGold,
                         )
                     }
+                    }
                 }
             }
         }
@@ -166,7 +181,7 @@ private fun UpcomingVratasList(vratas: List<UpcomingVrata>, onNavigateToDetail: 
 }
 
 @Composable
-private fun AllVratasList(vratas: List<VrataEntity>, onNavigateToDetail: (Int) -> Unit, fontScale: Float) {
+private fun AllVratasList(vratas: List<VrataEntity>, onNavigateToDetail: (Int) -> Unit, fontScale: Float, favoriteIds: Set<Int>, onToggleFavorite: (Int) -> Unit) {
     val tithiBased = vratas.filter { it.category == "tithi_based" }
     val vaaramBased = vratas.filter { it.category == "vaaram_based" }
 
@@ -176,17 +191,17 @@ private fun AllVratasList(vratas: List<VrataEntity>, onNavigateToDetail: (Int) -
     ) {
         if (tithiBased.isNotEmpty()) {
             item { SectionHeader(titleTelugu = "తిథి ఆధారిత వ్రతాలు", titleEnglish = "Tithi-based Vratas") }
-            items(tithiBased) { vrata -> VrataListItem(vrata, onNavigateToDetail, fontScale) }
+            items(tithiBased) { vrata -> VrataListItem(vrata, onNavigateToDetail, fontScale, isFavorite = vrata.id in favoriteIds, onToggleFavorite = onToggleFavorite) }
         }
         if (vaaramBased.isNotEmpty()) {
             item { Spacer(Modifier.height(8.dp)); SectionHeader(titleTelugu = "వార ఆధారిత వ్రతాలు", titleEnglish = "Weekly Vratas") }
-            items(vaaramBased) { vrata -> VrataListItem(vrata, onNavigateToDetail, fontScale) }
+            items(vaaramBased) { vrata -> VrataListItem(vrata, onNavigateToDetail, fontScale, isFavorite = vrata.id in favoriteIds, onToggleFavorite = onToggleFavorite) }
         }
     }
 }
 
 @Composable
-private fun VrataListItem(vrata: VrataEntity, onNavigateToDetail: (Int) -> Unit, fontScale: Float) {
+private fun VrataListItem(vrata: VrataEntity, onNavigateToDetail: (Int) -> Unit, fontScale: Float, isFavorite: Boolean = false, onToggleFavorite: (Int) -> Unit = {}) {
     Card(
         onClick = { onNavigateToDetail(vrata.id) },
         modifier = Modifier.fillMaxWidth(),
@@ -203,6 +218,14 @@ private fun VrataListItem(vrata: VrataEntity, onNavigateToDetail: (Int) -> Unit,
                 vrata.associatedDeityTelugu?.let {
                     Text(it, style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp), color = TempleGold)
                 }
+            }
+            IconButton(onClick = { onToggleFavorite(vrata.id) }, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) DeepVermillion else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
             }
             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }

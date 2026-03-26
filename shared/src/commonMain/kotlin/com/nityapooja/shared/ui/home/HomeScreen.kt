@@ -134,7 +134,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(padding),
             contentPadding = PaddingValues(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Festival Greeting Card (shown only on festival day)
             if (todayFestival != null) {
@@ -152,103 +152,50 @@ fun HomeScreen(
                 }
             }
 
-            // Telugu Calendar Card
+            // 1. HERO: Deity of the Day (God first!)
             item {
-                TeluguCalendarCard(
-                    panchangamData = panchangamData,
-                    fontScale = fontScale,
-                    onClick = onNavigateToPanchangam,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
-
-            // Today's Muhurtam Quick Info
-            item {
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    SectionHeader(
-                        titleTelugu = "నేటి ముహూర్తం",
-                        titleEnglish = "Today's Auspicious Times",
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                deityOfDay.firstOrNull()?.let { deity ->
+                    val deityColor = resolveDeityColor(deity.colorTheme)
+                    GlassmorphicCard(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        accentColor = deityColor,
+                        onClick = { onNavigateToDeityDetail(deity.id) },
                     ) {
-                        // Rahu Kalam warning
-                        Surface(
-                            modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium,
-                            color = if (panchangamData.rahuKaal.isActive)
-                                DeepVermillion.copy(alpha = 0.12f)
-                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top,
                         ) {
-                            Column(modifier = Modifier.padding(10.dp)) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    if (panchangamData.rahuKaal.isActive) "!! రాహు కాలం" else "రాహు కాలం",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = (11 * fontScale).sp,
-                                        fontWeight = FontWeight.Bold,
-                                    ),
-                                    color = if (panchangamData.rahuKaal.isActive) DeepVermillion else TempleGold,
-                                )
-                                Text(
-                                    "${panchangamData.rahuKaal.startTime} - ${panchangamData.rahuKaal.endTime}",
-                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                        }
-                        // Abhijit Muhurt
-                        Surface(
-                            modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium,
-                            color = if (panchangamData.abhijitMuhurt.isActive)
-                                AuspiciousGreen.copy(alpha = 0.12f)
-                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        ) {
-                            Column(modifier = Modifier.padding(10.dp)) {
-                                Text(
-                                    "అభిజిత్ ముహూర్తం",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = (11 * fontScale).sp,
-                                        fontWeight = FontWeight.Bold,
-                                    ),
-                                    color = if (panchangamData.abhijitMuhurt.isActive) AuspiciousGreen else TempleGold,
-                                )
-                                Text(
-                                    "${panchangamData.abhijitMuhurt.startTime} - ${panchangamData.abhijitMuhurt.endTime}",
-                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                        }
-                        // Sunrise/Sunset
-                        Surface(
-                            modifier = Modifier.weight(1f),
-                            shape = MaterialTheme.shapes.medium,
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        ) {
-                            Column(modifier = Modifier.padding(10.dp)) {
-                                Text(
-                                    "సూర్యోదయం",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = (11 * fontScale).sp,
-                                        fontWeight = FontWeight.Bold,
-                                    ),
+                                    "నేటి దేవత · TODAY'S DEITY",
+                                    style = NityaPoojaTextStyles.GoldLabel,
                                     color = TempleGold,
                                 )
+                                Spacer(Modifier.height(8.dp))
                                 Text(
-                                    "${panchangamData.sunTimes.sunrise}",
-                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                                    deity.nameTelugu,
+                                    style = NityaPoojaTextStyles.TeluguDisplay.copy(fontSize = (24 * fontScale).sp),
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
+                                Text(
+                                    deity.name,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                deity.descriptionTelugu?.let {
+                                    Text(it, style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3)
+                                }
                             }
+                            Spacer(Modifier.width(12.dp))
+                            DeityAvatar(nameTelugu = deity.nameTelugu, nameEnglish = deity.name, deityColor = deityColor, size = 96.dp, showLabel = false, imageResName = deity.imageResName)
                         }
                     }
                 }
             }
 
-            // Hero: Daily Shloka Card
+            // 2. Daily Shloka
             item {
                 todayShloka?.let { shloka ->
                     GlassmorphicCard(
@@ -314,68 +261,38 @@ fun HomeScreen(
                 }
             }
 
-            // Deity of the Day
+            // 3. Compact Panchangam Strip
             item {
-                deityOfDay.firstOrNull()?.let { deity ->
-                    val deityColor = resolveDeityColor(deity.colorTheme)
-                    GlassmorphicCard(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        accentColor = deityColor,
-                        onClick = { onNavigateToDeityDetail(deity.id) },
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    onClick = onNavigateToPanchangam,
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Top,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "${viewModel.getTodayTeluguDay()} · ${viewModel.getTodayDayName()}",
-                                    style = NityaPoojaTextStyles.GoldLabel,
-                                    color = TempleGold,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    deity.nameTelugu,
-                                    style = NityaPoojaTextStyles.TeluguDisplay.copy(
-                                        fontSize = (22 * fontScale).sp,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                                Text(
-                                    deity.name,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontSize = (16 * fontScale).sp,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                deity.descriptionTelugu?.let {
-                                    Text(
-                                        it,
-                                        style = MaterialTheme.typography.bodySmall.copy(
-                                            fontSize = (12 * fontScale).sp,
-                                        ),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 2,
-                                    )
-                                }
+                        Icon(Icons.Default.CalendarMonth, null, tint = TempleGold, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "${panchangamData.tithi.nameTelugu} · ${panchangamData.nakshatra.nameTelugu} · ☀${panchangamData.sunTimes.sunrise}",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (panchangamData.rahuKaal.isActive) {
+                            Surface(shape = MaterialTheme.shapes.small, color = DeepVermillion.copy(alpha = 0.15f)) {
+                                Text("రాహు కాలం", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp), fontWeight = FontWeight.Bold, color = DeepVermillion)
                             }
-                            Spacer(Modifier.width(16.dp))
-                            DeityAvatar(
-                                nameTelugu = deity.nameTelugu,
-                                nameEnglish = deity.name,
-                                deityColor = deityColor,
-                                size = 72.dp,
-                                showLabel = false,
-                                imageResName = deity.imageResName,
-                            )
+                            Spacer(Modifier.width(4.dp))
                         }
+                        Icon(Icons.Default.ChevronRight, null, tint = TempleGold, modifier = Modifier.size(18.dp))
                     }
                 }
             }
 
-            // Quick Access Row
+            // 4. Quick Access Row
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     SectionHeader(
@@ -480,89 +397,7 @@ fun HomeScreen(
                 }
             }
 
-            // Grahanam Banner (within 7 days)
-            if (nextGrahanam != null && daysUntilGrahanam != null && !grahanamBannerDismissed) {
-                item {
-                    val grahanamAccent = if (isSystemInDarkTheme()) GrahanamLight else GrahanamDark
-                    val typeNameTelugu = if (nextGrahanam.type == GrahanamType.SURYA) "సూర్య గ్రహణం" else "చంద్ర గ్రహణం"
-                    val typeNameEnglish = if (nextGrahanam.type == GrahanamType.SURYA) "Surya Grahanam" else "Chandra Grahanam"
-                    GlassmorphicCard(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        accentColor = grahanamAccent,
-                        onClick = onNavigateToPanchangam,
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Top,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "గ్రహణం · GRAHANAM",
-                                    style = NityaPoojaTextStyles.GoldLabel,
-                                    color = grahanamAccent,
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    typeNameTelugu,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (18 * fontScale).sp),
-                                    fontWeight = FontWeight.Bold,
-                                    color = grahanamAccent,
-                                )
-                                Text(
-                                    typeNameEnglish,
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = (14 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    when (daysUntilGrahanam) {
-                                        0 -> "నేడు! / Today!"
-                                        1 -> "రేపు / Tomorrow"
-                                        else -> "$daysUntilGrahanam రోజులలో / In $daysUntilGrahanam days"
-                                    },
-                                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = (20 * fontScale).sp),
-                                    fontWeight = FontWeight.Bold,
-                                    color = grahanamAccent,
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    "పంచాంగం తెరవడానికి నొక్కండి · Tap for Sparsha/Moksham times",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            Column(horizontalAlignment = Alignment.End) {
-                                IconButton(
-                                    onClick = { grahanamBannerDismissed = true },
-                                    modifier = Modifier.size(28.dp),
-                                ) {
-                                    Icon(Icons.Default.Close, "Dismiss", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                                }
-                                Spacer(Modifier.height(8.dp))
-                                Icon(Icons.Default.NightsStay, null, tint = grahanamAccent, modifier = Modifier.size(36.dp))
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Moon Phase mini card
-            item {
-                val moonPhases = remember(locationInfo) {
-                    panchangamViewModel.calculateUpcomingMoonPhases(locationInfo.timezone)
-                }
-                if (moonPhases.isNotEmpty()) {
-                    MoonPhaseHomeCard(
-                        phases = moonPhases,
-                        fontScale = fontScale,
-                        onTap = onNavigateToPanchangam,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
-                }
-            }
-
-            // All Deities — Horizontal Scroll
+            // 5. All Deities — Horizontal Scroll
             item {
                 Column(modifier = Modifier.padding(start = 16.dp)) {
                     SectionHeader(
@@ -664,97 +499,7 @@ fun HomeScreen(
                 }
             }
 
-            // Recently Viewed Section
-            if (recentHistory.isNotEmpty()) {
-                item {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        SectionHeader(
-                            titleTelugu = "ఇటీవల చదివినవి",
-                            titleEnglish = "Recently Viewed",
-                        )
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
-                items(recentHistory.take(5), key = { "history_${it.id}" }) { entry ->
-                    GlassmorphicCard(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        onClick = { onNavigateToBookmark(entry.contentType, entry.contentId) },
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                Icons.Default.History,
-                                contentDescription = null,
-                                tint = TempleGold,
-                                modifier = Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    entry.titleTelugu,
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = (14 * fontScale).sp),
-                                    fontWeight = FontWeight.Medium,
-                                    maxLines = 1,
-                                )
-                                Text(
-                                    entry.title,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Bookmarks Section
-            if (bookmarks.isNotEmpty()) {
-                item {
-                    Column(modifier = Modifier.padding(start = 16.dp)) {
-                        SectionHeader(
-                            titleTelugu = "మీ ఇష్టాలు",
-                            titleEnglish = "Your Favorites",
-                            modifier = Modifier.padding(end = 16.dp),
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(end = 16.dp),
-                        ) {
-                            items(bookmarks.take(5), key = { "bm_${it.id}" }) { bookmark ->
-                                GlassmorphicCard(
-                                    cornerRadius = 12.dp,
-                                    contentPadding = 12.dp,
-                                    onClick = { onNavigateToBookmark(bookmark.contentType, bookmark.contentId) },
-                                    modifier = Modifier.width(140.dp),
-                                ) {
-                                    Icon(
-                                        Icons.Default.Bookmark,
-                                        contentDescription = null,
-                                        tint = TempleGold,
-                                        modifier = Modifier.size(18.dp),
-                                    )
-                                    Spacer(Modifier.height(4.dp))
-                                    Text(
-                                        bookmark.contentType.replaceFirstChar { it.uppercase() },
-                                        style = MaterialTheme.typography.titleSmall.copy(fontSize = (13 * fontScale).sp),
-                                        fontWeight = FontWeight.Medium,
-                                        maxLines = 1,
-                                    )
-                                    Text(
-                                        "#${bookmark.contentId}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            // Recently Viewed and Bookmarks moved to Profile screen
         }
     }
 }

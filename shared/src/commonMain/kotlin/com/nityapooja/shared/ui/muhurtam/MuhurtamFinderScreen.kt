@@ -165,6 +165,7 @@ fun MuhurtamFinderScreen(
                 DropdownMenu(
                     expanded = showNakshatraDropdown,
                     onDismissRequest = { showNakshatraDropdown = false },
+                    modifier = Modifier.heightIn(max = 400.dp),
                 ) {
                     // Option to clear selection
                     DropdownMenuItem(

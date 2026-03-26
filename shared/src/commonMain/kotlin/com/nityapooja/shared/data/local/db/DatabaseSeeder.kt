@@ -26,7 +26,7 @@ class DatabaseSeeder(
 
     companion object {
         // Bump this whenever content changes to force re-seed on existing installs
-        const val CONTENT_VERSION = 7
+        const val CONTENT_VERSION = 8
 
         // Audio hosted via GitHub releases — upload MP3s to this release tag
         private const val GH_AUDIO = "https://raw.githubusercontent.com/dpchavali1/NityaPoojaAudio/main/"
@@ -553,7 +553,7 @@ class DatabaseSeeder(
                 descriptionTelugu = "వినాయక చవితి భాద్రపద శుద్ధ చవితి నాడు జరుగుతుంది, 11 రోజుల పాటు మట్టి గణేశ విగ్రహాలను ఇళ్ళలో మరియు పందిళ్ళలో ప్రతిష్ఠిస్తారు. చివరి రోజున గణేశ విసర్జన పేరుతో ఊరేగింపుతో నీటిలో నిమజ్జనం చేస్తారు. తెలుగు రాష్ట్రాలు పెద్ద కళాత్మక గణేశ విగ్రహాలు మరియు సమాజ వేడుకలకు ప్రసిద్ధి.",
                 significance = "Lord Ganesha is the remover of obstacles and is always invoked first in any Telugu ritual, making him the most universally worshipped deity in Telugu households. Vinayaka Chavithi is a community festival that brings families, neighbours, and entire towns together. The tradition of public Ganesha celebrations was revived by Bal Gangadhar Tilak to foster national unity and remains a vibrant social tradition.",
                 significanceTelugu = "శ్రీ గణేశుడు విఘ్నాలను తొలగించే దేవుడు, ప్రతి తెలుగు పూజలో మొదట ఆహ్వానించబడతారు, దీనివల్ల ఆయన తెలుగు ఇళ్ళలో అత్యంత విశ్వవ్యాప్తంగా పూజించబడే దేవుడు. వినాయక చవితి కుటుంబాలు, పొరుగువారు మరియు మొత్తం పట్టణాలను ఒక్కచోటకు చేర్చే సమాజ పండుగ. బాలగంగాధర తిలక్ జాతీయ ఐక్యత కోసం పునరుద్ధరించిన ఈ సంప్రదాయం ఇప్పటికీ చైతన్యవంతమైన సామాజిక వేడుకగా నిలిచింది.",
-                dateThisYear = "2026-09-12", dateNextYear = "2027-09-01"),
+                dateThisYear = "2026-09-14", dateNextYear = "2027-09-04"),
             FestivalEntity(4, "Dasara / Vijayadashami", "దసరా / విజయదశమి",
                 description = "Dasara celebrates the victory of Goddess Durga over the demon Mahishasura and Lord Rama's triumph over Ravana. In Telangana, Bathukamma — a unique floral festival — is the highlight of the nine-day Navaratri leading to Vijayadashami. Telugu people also observe Ayudha Puja, worshipping their tools, vehicles, and instruments on this day.",
                 descriptionTelugu = "దసరా దేవి దుర్గ మహిషాసురుని వధించిన విజయాన్ని మరియు రాముడు రావణుని జయించిన విజయాన్ని జరుపుకుంటుంది. తెలంగాణలో, నవరాత్రులలో బతుకమ్మ పండుగ ప్రత్యేక ఆకర్షణగా నిలుస్తుంది. తెలుగు ప్రజలు ఈ రోజు తమ పనిముట్లు, వాహనాలు, పరికరాలకు ఆయుధ పూజ కూడా చేస్తారు.",
@@ -583,19 +583,19 @@ class DatabaseSeeder(
                 descriptionTelugu = "చైత్ర పౌర్ణమి రోజున తెలుగు ప్రజలు హనుమాన్ జయంతిని సుందరకాండ పారాయణంతో జరుపుకుంటారు — హనుమంతుడు లంకలో సీతను కనుగొన్న వాల్మీకి రామాయణ అధ్యాయాన్ని పఠిస్తారు. హనుమంతుని గుళ్ళు దాదాపు ప్రతి తెలుగు గ్రామంలో మరియు ఇరుగు పొరుగున కనిపిస్తాయి, అతని అపారమైన ప్రజాదరణను ప్రతిబింబిస్తాయి. భక్తులు ఉపవాసం పాటించి మల్లె మరియు ఎర్రని పువ్వుల దండలు అర్పిస్తారు.",
                 significance = "Hanuman is believed to grant strength, courage, protection, and fearlessness — qualities that Telugu people traditionally pray for. He is the ideal devotee (bhakta) and is revered as both a warrior and a spiritual master. Sundara Kanda parayanam is a weekly and festival practice in Telugu households, believed to remove all obstacles and bring peace to the family.",
                 significanceTelugu = "హనుమంతుడు బలం, ధైర్యం, రక్షణ మరియు నిర్భయత్వాన్ని ప్రసాదిస్తాడని నమ్మకం — తెలుగు ప్రజలు సంప్రదాయకంగా ప్రార్థించే గుణాలు. ఆయన ఆదర్శ భక్తుడు మరియు యోధుడు మరియు ఆధ్యాత్మిక గురువు రెండుగా పూజించబడతారు. సుందరకాండ పారాయణం తెలుగు ఇళ్ళలో వారపు మరియు పండుగ పద్ధతి, ఇది అన్ని విఘ్నాలను తొలగించి కుటుంబానికి శాంతి తెస్తుందని నమ్ముతారు.",
-                dateThisYear = "2026-04-04", dateNextYear = "2027-04-24"),
+                dateThisYear = "2026-04-02", dateNextYear = "2027-04-20"),
             FestivalEntity(9, "Krishna Janmashtami", "కృష్ణ జన్మాష్టమి",
                 description = "Krishna Janmashtami celebrates Lord Krishna's birth at midnight on Bhadrapada Krishna Ashtami. Telugu families observe a day-long fast broken only at midnight when Krishna is believed to have been born, followed by bhajans and Dahi Handi (pot-breaking) celebrations. Temples are beautifully decorated with cradles, flowers, and peacock feathers.",
                 descriptionTelugu = "కృష్ణ జన్మాష్టమి భాద్రపద కృష్ణ అష్టమి అర్ధరాత్రి శ్రీకృష్ణుని జన్మను జరుపుకుంటుంది. తెలుగు కుటుంబాలు పగటంతా ఉపవాసం పాటించి కృష్ణుడు జన్మించినట్లు భావించే అర్ధరాత్రి వ్రతం వదులుకుంటారు, తర్వాత భజనలు మరియు దహి హండి వేడుకలు జరుపుతారు. దేవాలయాలను ఊయలలు, పువ్వులు మరియు నెమలి పింఛాలతో అందంగా అలంకరిస్తారు.",
                 significance = "Lord Krishna's Bhagavad Gita teachings — delivered on the battlefield of Kurukshetra — are especially revered in Telugu households and form the philosophical backbone of Telugu devotional culture. Krishna is worshipped as the playful child (Bal Krishna), the romantic hero (Radha-Krishna), and the divine teacher (Jagadguru). The Pothana Bhagavatam — a Telugu classic — vividly narrates Krishna's life and is recited in every Telugu household.",
                 significanceTelugu = "కురుక్షేత్ర రణక్షేత్రంలో అందించిన శ్రీకృష్ణుని భగవద్గీత బోధనలు తెలుగు ఇళ్ళలో విశేష గౌరవం పొందుతాయి మరియు తెలుగు భక్తి సంస్కృతికి తాత్విక వెన్నెముకను అందిస్తాయి. కృష్ణుడు బాలకృష్ణుడు, రాధాకృష్ణుడు మరియు జగద్గురువుగా పూజించబడతారు. పోతన భాగవతం — తెలుగు క్లాసిక్ — కృష్ణుని జీవితాన్ని వివరంగా వర్ణిస్తుంది, ప్రతి తెలుగు ఇంట్లో పఠించబడుతుంది.",
-                dateThisYear = "2026-08-25", dateNextYear = "2027-08-15"),
+                dateThisYear = "2026-09-04", dateNextYear = "2027-08-25"),
             FestivalEntity(10, "Varalakshmi Vratam", "వరలక్ష్మీ వ్రతం",
                 description = "Varalakshmi Vratam is observed by Telugu women on the Friday before Shravan Pournami. Goddess Lakshmi is worshipped in her boon-giving form (Varalakshmi) to bring wealth, health, and happiness to the family. The vratam involves creating a kalasam (pot) decorated with turmeric, kumkum, and mango leaves, and performing elaborate puja with stories and songs.",
                 descriptionTelugu = "వరలక్ష్మీ వ్రతం శ్రావణ పౌర్ణమికి ముందు శుక్రవారం తెలుగు మహిళలు ఆచరిస్తారు. కుటుంబానికి సంపద, ఆరోగ్యం మరియు సంతోషం తేవడానికి లక్ష్మీదేవిని వరలక్ష్మి రూపంలో పూజిస్తారు. పసుపు, కుంకుమ, మామిడి ఆకులతో అలంకరించిన కలశంతో పూజ చేసి కథలు మరియు పాటలతో వేడుక జరుపుకుంటారు.",
                 significance = "Varalakshmi Vratam is unique to Telugu and Kannada communities and holds deep family-bonding significance, as women pray for the well-being of their entire family. It is one of the few festivals exclusively led by women, reflecting the matriarchal devotional tradition in Telugu culture. The festival reinforces the spiritual role of women as guardians of family prosperity and dharma.",
                 significanceTelugu = "వరలక్ష్మీ వ్రతం తెలుగు మరియు కన్నడ సమాజాలకు విశిష్టమైనది మరియు మహిళలు తమ మొత్తం కుటుంబ శ్రేయస్సు కోసం ప్రార్థించే లోతైన కుటుంబ బంధ ప్రాముఖ్యతను కలిగి ఉంది. మహిళలు మాత్రమే నేతృత్వం వహించే కొన్ని పండుగలలో ఇది ఒకటి, తెలుగు సంస్కృతిలో మాతృ భక్తి సంప్రదాయాన్ని ప్రతిబింబిస్తుంది. కుటుంబ సంపద మరియు ధర్మానికి సంరక్షకులుగా మహిళల ఆధ్యాత్మిక పాత్రను ఈ పండుగ బలపరుస్తుంది.",
-                dateThisYear = "2026-08-07", dateNextYear = "2027-07-30"),
+                dateThisYear = "2026-08-28", dateNextYear = "2027-08-13"),
         ))
     }
 

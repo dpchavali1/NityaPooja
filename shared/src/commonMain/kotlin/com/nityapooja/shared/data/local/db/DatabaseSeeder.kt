@@ -26,7 +26,7 @@ class DatabaseSeeder(
 
     companion object {
         // Bump this whenever content changes to force re-seed on existing installs
-        const val CONTENT_VERSION = 6
+        const val CONTENT_VERSION = 7
 
         // Audio hosted via GitHub releases — upload MP3s to this release tag
         private const val GH_AUDIO = "https://raw.githubusercontent.com/dpchavali1/NityaPoojaAudio/main/"
@@ -547,7 +547,7 @@ class DatabaseSeeder(
                 descriptionTelugu = "చైత్ర శుద్ధ నవమి నాడు తెలుగు ఇళ్ళలో శ్రీరాముని జన్మదినాన్ని జరుపుకుంటారు. కుటుంబాలు ఉపవాసం పాటించి దేవాలయాలలో రామ-సీతల కళ్యాణోత్సవం నిర్వహిస్తాయి. రోజంతా రామాయణ పారాయణం మరియు భజనలు జరుగుతాయి.",
                 significance = "Lord Rama is the ideal king, ideal son, and embodiment of dharma in Hindu tradition — qualities deeply revered in Telugu culture. The Telugu Ramayana by Valmiki and later by Bammera Pothana holds a special place in Telugu literature. Bhadrachalam Rama temple in Telangana is one of the most sacred Rama shrines, drawing lakhs of pilgrims on this day.",
                 significanceTelugu = "శ్రీరాముడు హిందూ సంప్రదాయంలో ఆదర్శ రాజు, ఆదర్శ కుమారుడు, ధర్మ స్వరూపుడు — తెలుగు సంస్కృతిలో అత్యంత పూజ్యమైన గుణాలు. వాల్మీకి రామాయణం మరియు బమ్మెర పోతన రచనలు తెలుగు సాహిత్యంలో విశేష స్థానం కలిగి ఉన్నాయి. తెలంగాణలోని భద్రాచలం రాముని దేవాలయం ఈ రోజున లక్షలాది మంది భక్తులను ఆకర్షిస్తుంది.",
-                dateThisYear = "2026-03-28", dateNextYear = "2027-04-16"),
+                dateThisYear = "2026-03-26", dateNextYear = "2027-04-15"),
             FestivalEntity(3, "Vinayaka Chavithi", "వినాయక చవితి",
                 description = "Vinayaka Chavithi falls on Bhadrapada Shudda Chavithi and is celebrated for 11 days with elaborate clay Ganesha idols installed in homes and public pandals. The idols are immersed in water on the final day in a grand procession called Ganesh Visarjan. Telugu states are famous for their large, artistic Ganesha idols and community celebrations.",
                 descriptionTelugu = "వినాయక చవితి భాద్రపద శుద్ధ చవితి నాడు జరుగుతుంది, 11 రోజుల పాటు మట్టి గణేశ విగ్రహాలను ఇళ్ళలో మరియు పందిళ్ళలో ప్రతిష్ఠిస్తారు. చివరి రోజున గణేశ విసర్జన పేరుతో ఊరేగింపుతో నీటిలో నిమజ్జనం చేస్తారు. తెలుగు రాష్ట్రాలు పెద్ద కళాత్మక గణేశ విగ్రహాలు మరియు సమాజ వేడుకలకు ప్రసిద్ధి.",

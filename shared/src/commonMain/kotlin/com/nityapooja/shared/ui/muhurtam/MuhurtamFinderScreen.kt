@@ -218,7 +218,7 @@ fun MuhurtamFinderScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(scoredDates) { scoredDate ->
-                        MuhurtamDateCard(scoredDate, fontScale, "${selectedEvent.nameTelugu} · ${selectedEvent.nameEnglish}")
+                        MuhurtamDateCard(scoredDate, fontScale, "${selectedEvent.nameTelugu} · ${selectedEvent.nameEnglish}", selectedNakshatra)
                     }
                 }
             }
@@ -227,7 +227,7 @@ fun MuhurtamFinderScreen(
 }
 
 @Composable
-private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName: String) {
+private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName: String, forNakshatra: String) {
     val scoreColor = when (scoredDate.result.score) {
         MuhurtamScore.EXCELLENT -> AuspiciousGreen
         MuhurtamScore.GOOD -> TempleGold
@@ -349,7 +349,7 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName
 
             Spacer(Modifier.height(4.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = { shareText(buildMuhurtamShareText(scoredDate, eventName)) }) {
+                TextButton(onClick = { shareText(buildMuhurtamShareText(scoredDate, eventName, forNakshatra)) }) {
                     Icon(Icons.Default.Share, "Share", Modifier.size(16.dp), tint = TempleGold)
                     Spacer(Modifier.width(4.dp))
                     Text("Share", style = MaterialTheme.typography.labelSmall, color = TempleGold)
@@ -359,7 +359,7 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName
     }
 }
 
-private fun buildMuhurtamShareText(scoredDate: ScoredDate, eventName: String): String {
+private fun buildMuhurtamShareText(scoredDate: ScoredDate, eventName: String, forNakshatra: String): String {
     val p = scoredDate.panchangamData
     val r = scoredDate.result
     val scoreEmoji = when (r.score) {
@@ -375,22 +375,32 @@ private fun buildMuhurtamShareText(scoredDate: ScoredDate, eventName: String): S
         append("╚══════════════════════╝\n\n")
         append("📅 ${p.dateDisplay}\n")
         append("   ${p.teluguDay}\n\n")
-        append("🕉 $eventName\n\n")
+        append("🕉 $eventName\n")
+        if (forNakshatra.isNotBlank()) {
+            append("👤 జన్మ నక్షత్రం: $forNakshatra\n")
+        }
+        append("\n")
         append("━━ పంచాంగం ━━\n")
         append("🔸 తిథి: ${p.tithi.nameTelugu} · ${p.tithi.pakshaTelugu}\n")
         append("🔸 నక్షత్రం: ${p.nakshatra.nameTelugu}\n")
         append("🔸 యోగం: ${p.yoga.nameTelugu}\n")
-        append("🔸 సూర్యోదయం: ${p.sunTimes.sunrise}\n\n")
+        append("🔸 సూర్యోదయం: ${p.sunTimes.sunrise}\n")
+        append("🔸 సూర్యాస్తమయం: ${p.sunTimes.sunset}\n\n")
         scoredDate.taraBalam?.let { tara ->
             val taraEmoji = if (tara.isGood) "✅" else "❌"
-            append("🌟 తార బలం: ${tara.nameTelugu} $taraEmoji\n\n")
+            append("🌟 తార బలం: ${tara.nameTelugu} ($forNakshatra) $taraEmoji\n\n")
         }
+        append("━━ శుభ సమయాలు ━━\n")
+        append("🕐 అభిజిత్ ముహూర్తం: ${p.abhijitMuhurt.startTime} - ${p.abhijitMuhurt.endTime}\n")
+        append("🕐 బ్రహ్మ ముహూర్తం: ${p.brahmaMuhurta.startTime} - ${p.brahmaMuhurta.endTime}\n")
+        append("⚠ రాహు కాలం: ${p.rahuKaal.startTime} - ${p.rahuKaal.endTime} (నివారించండి)\n")
+        append("⚠ యమగండం: ${p.yamagandam.startTime} - ${p.yamagandam.endTime} (నివారించండి)\n\n")
         append("━━ ఫలితం ━━\n")
-        append("$scoreEmoji ${r.score.labelTelugu} (${r.points}/100)\n\n")
+        append("$scoreEmoji ${r.score.labelTelugu} · ${r.score.labelEnglish} (${r.points}/100)\n\n")
         r.reasons.forEach { reason ->
             val icon = if (reason.isPositive) "✅" else "❌"
             append("$icon ${reason.textTelugu}\n")
         }
-        append("\n— NityaPooja App")
+        append("\n— NityaPooja App 🙏")
     }
 }

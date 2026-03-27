@@ -26,6 +26,7 @@ import com.nityapooja.shared.ui.theme.AuspiciousGreen
 import com.nityapooja.shared.ui.theme.DeepVermillion
 import com.nityapooja.shared.ui.theme.SacredTurmeric
 import com.nityapooja.shared.ui.theme.TempleGold
+import com.nityapooja.shared.platform.shareText
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -217,7 +218,7 @@ fun MuhurtamFinderScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(scoredDates) { scoredDate ->
-                        MuhurtamDateCard(scoredDate, fontScale)
+                        MuhurtamDateCard(scoredDate, fontScale, "${selectedEvent.nameTelugu} · ${selectedEvent.nameEnglish}")
                     }
                 }
             }
@@ -226,7 +227,7 @@ fun MuhurtamFinderScreen(
 }
 
 @Composable
-private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float) {
+private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName: String) {
     val scoreColor = when (scoredDate.result.score) {
         MuhurtamScore.EXCELLENT -> AuspiciousGreen
         MuhurtamScore.GOOD -> TempleGold
@@ -320,7 +321,7 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float) {
             }
         }
 
-        // Reasons
+        // Reasons + Share
         if (scoredDate.result.reasons.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
@@ -345,6 +346,51 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float) {
                     )
                 }
             }
+
+            Spacer(Modifier.height(4.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = { shareText(buildMuhurtamShareText(scoredDate, eventName)) }) {
+                    Icon(Icons.Default.Share, "Share", Modifier.size(16.dp), tint = TempleGold)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Share", style = MaterialTheme.typography.labelSmall, color = TempleGold)
+                }
+            }
         }
+    }
+}
+
+private fun buildMuhurtamShareText(scoredDate: ScoredDate, eventName: String): String {
+    val p = scoredDate.panchangamData
+    val r = scoredDate.result
+    val scoreEmoji = when (r.score) {
+        MuhurtamScore.EXCELLENT -> "🟢"
+        MuhurtamScore.GOOD -> "🟡"
+        MuhurtamScore.AVERAGE -> "🟠"
+        MuhurtamScore.AVOID -> "🔴"
+    }
+
+    return buildString {
+        append("╔══════════════════════╗\n")
+        append("   శుభ ముహూర్తం · MUHURTAM\n")
+        append("╚══════════════════════╝\n\n")
+        append("📅 ${p.dateDisplay}\n")
+        append("   ${p.teluguDay}\n\n")
+        append("🕉 $eventName\n\n")
+        append("━━ పంచాంగం ━━\n")
+        append("🔸 తిథి: ${p.tithi.nameTelugu} · ${p.tithi.pakshaTelugu}\n")
+        append("🔸 నక్షత్రం: ${p.nakshatra.nameTelugu}\n")
+        append("🔸 యోగం: ${p.yoga.nameTelugu}\n")
+        append("🔸 సూర్యోదయం: ${p.sunTimes.sunrise}\n\n")
+        scoredDate.taraBalam?.let { tara ->
+            val taraEmoji = if (tara.isGood) "✅" else "❌"
+            append("🌟 తార బలం: ${tara.nameTelugu} $taraEmoji\n\n")
+        }
+        append("━━ ఫలితం ━━\n")
+        append("$scoreEmoji ${r.score.labelTelugu} (${r.points}/100)\n\n")
+        r.reasons.forEach { reason ->
+            val icon = if (reason.isPositive) "✅" else "❌"
+            append("$icon ${reason.textTelugu}\n")
+        }
+        append("\n— NityaPooja App")
     }
 }

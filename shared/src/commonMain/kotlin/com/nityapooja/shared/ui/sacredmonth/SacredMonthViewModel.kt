@@ -47,22 +47,25 @@ class SacredMonthViewModel(
 
         data class MonthDate(val masaName: String, val start: String, val end: String)
 
+        // Verified against drikpanchang.com (Hyderabad) + prokerala.com Telugu calendar
+        // Amanta system: masa starts Shukla Padyami, ends Amavasya
+        // Note: 2026 has Adhika Jyeshtha — pushes Shravana+ forward by 1 month
         val allDates = listOf(
             // 2025-2026
             MonthDate("Chaitra", "2025-03-30", "2025-04-27"),
             MonthDate("Shravana", "2025-07-25", "2025-08-23"),
             MonthDate("Karthika", "2025-10-22", "2025-11-20"),
-            MonthDate("Margashira", "2025-11-21", "2025-12-19"),
-            // 2026-2027
+            MonthDate("Margashira", "2025-11-21", "2025-12-20"),
+            // 2026-2027 (Adhika Jyeshtha year)
             MonthDate("Chaitra", "2026-03-19", "2026-04-17"),
-            MonthDate("Shravana", "2026-07-14", "2026-08-12"),
-            MonthDate("Karthika", "2026-10-11", "2026-11-09"),
-            MonthDate("Margashira", "2026-11-10", "2026-12-09"),
+            MonthDate("Shravana", "2026-08-13", "2026-09-11"),
+            MonthDate("Karthika", "2026-11-10", "2026-12-08"),
+            MonthDate("Margashira", "2026-12-09", "2027-01-07"),
             // 2027-2028
             MonthDate("Chaitra", "2027-04-07", "2027-05-06"),
-            MonthDate("Shravana", "2027-08-02", "2027-08-31"),
+            MonthDate("Shravana", "2027-08-03", "2027-08-31"),
             MonthDate("Karthika", "2027-10-30", "2027-11-28"),
-            MonthDate("Margashira", "2027-11-29", "2027-12-28"),
+            MonthDate("Margashira", "2027-11-29", "2027-12-27"),
         )
 
         val ranges = mutableListOf<SacredMonthDateRange>()

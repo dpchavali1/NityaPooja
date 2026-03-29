@@ -27,7 +27,7 @@ class DatabaseSeeder(
 
     companion object {
         // Bump this whenever content changes to force re-seed on existing installs
-        const val CONTENT_VERSION = 10
+        const val CONTENT_VERSION = 11
 
         // Audio hosted via GitHub releases — upload MP3s to this release tag
         private const val GH_AUDIO = "https://raw.githubusercontent.com/dpchavali1/NityaPoojaAudio/main/"
@@ -705,7 +705,7 @@ class DatabaseSeeder(
                 descriptionTelugu = "చైత్ర శుద్ధ పాడ్యమి నాడు తెలుగు ప్రజలు ఉగాదిని నూతన సంవత్సరంగా జరుపుకుంటారు. ఆరు రుచులతో చేసిన ఉగాది పచ్చడి జీవితంలో సుఖ దుఃఖాల మిళితానికి చిహ్నం. పురోహితులు పంచాంగం చదివి సంవత్సరఫలాన్ని వినిపిస్తారు.",
                 significance = "Ugadi is the most important festival for Telugu and Kannada people, marking the start of a new Hindu lunar calendar year. It is observed in Andhra Pradesh, Telangana, and Karnataka with new clothes, home cleaning, and community gatherings. The festival embodies the philosophy that life's beauty lies in embracing all its flavors.",
                 significanceTelugu = "ఉగాది తెలుగు మరియు కన్నడ ప్రజలకు అత్యంత ముఖ్యమైన పండుగ, హిందూ చాంద్రమాన నూతన సంవత్సర ప్రారంభాన్ని సూచిస్తుంది. ఆంధ్రప్రదేశ్, తెలంగాణ మరియు కర్ణాటకలో కొత్త బట్టలు, ఇల్లు శుభ్రపరచడం, సమాజ సమావేశాలతో జరుపుకుంటారు. జీవితపు అందం దాని అన్ని రుచులను స్వీకరించడంలో ఉందని ఈ పండుగ బోధిస్తుంది.",
-                dateThisYear = "2026-03-19", dateNextYear = "2027-04-07"),
+                dateThisYear = "2026-03-19", dateNextYear = "2027-04-08"),
             FestivalEntity(2, "Sri Rama Navami", "శ్రీ రామ నవమి",
                 description = "Telugu households celebrate Sri Rama Navami on Chaitra Shudda Navami as the birthday of Lord Rama. Families fast and conduct Kalyanotsavam — a ceremonial wedding of Rama and Sita — in temples and homes. The Ramayana is recited and bhajans praising Rama are sung throughout the day.",
                 descriptionTelugu = "చైత్ర శుద్ధ నవమి నాడు తెలుగు ఇళ్ళలో శ్రీరాముని జన్మదినాన్ని జరుపుకుంటారు. కుటుంబాలు ఉపవాసం పాటించి దేవాలయాలలో రామ-సీతల కళ్యాణోత్సవం నిర్వహిస్తాయి. రోజంతా రామాయణ పారాయణం మరియు భజనలు జరుగుతాయి.",
@@ -793,7 +793,7 @@ class DatabaseSeeder(
             FestivalEntity(16, "Vaikunta Ekadashi", "వైకుంఠ ఏకాదశి",
                 description = "Vaikunta Ekadashi is the most sacred Ekadashi. The gates of Vaikuntam (Vishnu's abode) are believed to open on this day. Tirumala witnesses record crowds.",
                 descriptionTelugu = "వైకుంఠ ఏకాదశి అత్యంత పవిత్రమైన ఏకాదశి. ఈ రోజు వైకుంఠ ద్వారాలు తెరుచుకుంటాయని నమ్మకం. తిరుమలలో రికార్డు సంఖ్యలో భక్తులు వస్తారు.",
-                dateThisYear = "2026-12-20", dateNextYear = "2028-01-08",
+                dateThisYear = "2026-12-20", dateNextYear = "2027-01-10",
                 category = "ekadashi",
                 ritualsTelugu = "ఉపవాసం, విష్ణు సహస్రనామం, తిరుమల దర్శనం"),
             FestivalEntity(17, "Ratha Saptami", "రథ సప్తమి",

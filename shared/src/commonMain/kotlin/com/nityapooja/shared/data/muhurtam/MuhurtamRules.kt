@@ -190,6 +190,34 @@ object MuhurtamRules {
     }
 
     /**
+     * Chandrabalam — Moon strength based on moon's current rashi relative to birth rashi.
+     * Good positions (from birth rashi): 1, 3, 6, 7, 10, 11
+     * Bad positions: 2, 4, 5, 8, 9, 12
+     */
+    data class ChandraBalam(val position: Int, val isGood: Boolean, val nameTelugu: String, val nameEnglish: String)
+
+    private val GOOD_CHANDRA_POSITIONS = setOf(1, 3, 6, 7, 10, 11)
+
+    fun calculateChandraBalam(birthRashiIndex: Int, moonRashiIndex: Int): ChandraBalam {
+        val position = ((moonRashiIndex - birthRashiIndex + 12) % 12) + 1 // 1-based
+        val isGood = position in GOOD_CHANDRA_POSITIONS
+        val nameTelugu = if (isGood) "చంద్ర బలం ఉంది" else "చంద్ర బలం లేదు"
+        val nameEnglish = if (isGood) "Chandrabalam present" else "Chandrabalam absent"
+        return ChandraBalam(position, isGood, nameTelugu, nameEnglish)
+    }
+
+    // Rashi names for lookup
+    private val RASHI_TELUGU = arrayOf(
+        "మేషం", "వృషభం", "మిథునం", "కర్కాటకం",
+        "సింహం", "కన్య", "తుల", "వృశ్చికం",
+        "ధనుస్సు", "మకరం", "కుంభం", "మీనం",
+    )
+
+    fun rashiIndexFromTelugu(name: String): Int {
+        return RASHI_TELUGU.indexOfFirst { name.contains(it) || it.contains(name) }
+    }
+
+    /**
      * Resolve a nakshatra name (Telugu) to its index (0-26). Returns -1 if not found.
      */
     fun nakshatraIndexFromTelugu(name: String): Int {
@@ -201,7 +229,7 @@ object MuhurtamRules {
      * Returns a MuhurtamResult with score, points (0-100), and bilingual reasons.
      * If birthNakshatraIndex >= 0, Tara Balam is factored into the score.
      */
-    fun scoreMuhurtam(panchangam: PanchangamData, eventType: EventType, birthNakshatraIndex: Int = -1): MuhurtamResult {
+    fun scoreMuhurtam(panchangam: PanchangamData, eventType: EventType, birthNakshatraIndex: Int = -1, birthRashiIndex: Int = -1): MuhurtamResult {
         val eventRules = rules[eventType] ?: return MuhurtamResult(MuhurtamScore.AVERAGE, 50, emptyList())
 
         var points = 50 // start neutral
@@ -318,6 +346,26 @@ object MuhurtamRules {
                 reasons.add(MuhurtamReason(
                     "తార బలం: ${tara.nameTelugu} - మీ జన్మ నక్షత్రానికి అశుభం",
                     "Tara Balam: ${tara.nameEnglish} - Inauspicious for your birth star",
+                    false,
+                ))
+            }
+        }
+
+        // Chandrabalam (personalized based on birth rashi)
+        if (birthRashiIndex in 0..11) {
+            val chandra = calculateChandraBalam(birthRashiIndex, panchangam.moonRashi.index)
+            if (chandra.isGood) {
+                points += 10
+                reasons.add(MuhurtamReason(
+                    "చంద్ర బలం ఉంది (${chandra.position}వ స్థానం) - శుభం",
+                    "Chandrabalam present (${chandra.position}th position) - Auspicious",
+                    true,
+                ))
+            } else {
+                points -= 15
+                reasons.add(MuhurtamReason(
+                    "చంద్ర బలం లేదు (${chandra.position}వ స్థానం) - అశుభం",
+                    "Chandrabalam absent (${chandra.position}th position) - Inauspicious",
                     false,
                 ))
             }

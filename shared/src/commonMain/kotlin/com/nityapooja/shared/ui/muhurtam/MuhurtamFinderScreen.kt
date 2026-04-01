@@ -234,7 +234,10 @@ fun MuhurtamFinderScreen(
     if (showAddFamilyDialog) {
         var nameInput by remember { mutableStateOf("") }
         var nakshatraInput by remember { mutableStateOf("") }
+        var rashiInput by remember { mutableStateOf("") }
         var showNakshatraPicker by remember { mutableStateOf(false) }
+        var showRashiPicker by remember { mutableStateOf(false) }
+        val allRashis = listOf("మేషం", "వృషభం", "మిథునం", "కర్కాటకం", "సింహం", "కన్య", "తుల", "వృశ్చికం", "ధనుస్సు", "మకరం", "కుంభం", "మీనం")
 
         AlertDialog(
             onDismissRequest = { showAddFamilyDialog = false },
@@ -274,13 +277,39 @@ fun MuhurtamFinderScreen(
                             }
                         }
                     }
+                    // Rashi dropdown
+                    ExposedDropdownMenuBox(
+                        expanded = showRashiPicker,
+                        onExpandedChange = { showRashiPicker = it },
+                    ) {
+                        OutlinedTextField(
+                            value = rashiInput.ifBlank { "" },
+                            onValueChange = {},
+                            label = { Text("రాశి / Rashi (చంద్ర బలం)") },
+                            readOnly = true,
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showRashiPicker) },
+                        )
+                        ExposedDropdownMenu(
+                            expanded = showRashiPicker,
+                            onDismissRequest = { showRashiPicker = false },
+                        ) {
+                            allRashis.forEach { rashi ->
+                                DropdownMenuItem(
+                                    text = { Text(rashi) },
+                                    onClick = { rashiInput = rashi; showRashiPicker = false },
+                                )
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
                         if (nameInput.isNotBlank() && nakshatraInput.isNotBlank()) {
-                            viewModel.addFamilyMember(nameInput, nakshatraInput)
+                            viewModel.addFamilyMember(nameInput, nakshatraInput, rashiInput)
                             showAddFamilyDialog = false
                         }
                     },
@@ -353,6 +382,21 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                                 fontWeight = FontWeight.Bold,
                                 color = if (tara.isGood) AuspiciousGreen else DeepVermillion,
+                            )
+                        }
+                    }
+                    scoredDate.chandraBalam?.let { chandra ->
+                        Spacer(Modifier.width(4.dp))
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = (if (chandra.isGood) AuspiciousGreen else DeepVermillion).copy(alpha = 0.12f),
+                        ) {
+                            Text(
+                                "చం: ${if (chandra.isGood) "✓" else "✗"}",
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = if (chandra.isGood) AuspiciousGreen else DeepVermillion,
                             )
                         }
                     }
@@ -456,9 +500,13 @@ private fun buildMuhurtamShareText(scoredDate: ScoredDate, eventName: String, fo
         append("🔸 సూర్యాస్తమయం: ${p.sunTimes.sunset}\n\n")
         scoredDate.taraBalam?.let { tara ->
             val taraEmoji = if (tara.isGood) "✅" else "❌"
-            append("🌟 తార బలం: ${tara.nameTelugu} ($forNakshatra) $taraEmoji\n\n")
+            append("🌟 తార బలం: ${tara.nameTelugu} ($forNakshatra) $taraEmoji\n")
         }
-        append("━━ శుభ సమయాలు ━━\n")
+        scoredDate.chandraBalam?.let { chandra ->
+            val chandraEmoji = if (chandra.isGood) "✅" else "❌"
+            append("🌙 చంద్ర బలం: ${chandra.nameTelugu} (${chandra.position}వ స్థానం) $chandraEmoji\n")
+        }
+        append("\n━━ శుభ సమయాలు ━━\n")
         append("🕐 అభిజిత్ ముహూర్తం: ${p.abhijitMuhurt.startTime} - ${p.abhijitMuhurt.endTime}\n")
         append("🕐 బ్రహ్మ ముహూర్తం: ${p.brahmaMuhurta.startTime} - ${p.brahmaMuhurta.endTime}\n")
         append("⚠ రాహు కాలం: ${p.rahuKaal.startTime} - ${p.rahuKaal.endTime} (నివారించండి)\n")

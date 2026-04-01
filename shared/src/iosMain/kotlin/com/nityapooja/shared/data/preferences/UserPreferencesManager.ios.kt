@@ -129,4 +129,11 @@ actual class UserPreferencesManager {
     actual suspend fun setSeededVersion(version: Int) {
         defaults.setInteger(version.toLong(), "seeded_version")
     }
+
+    actual suspend fun getWhatsNewVersion(): Int =
+        if (defaults.objectForKey("whats_new_version") != null) defaults.integerForKey("whats_new_version").toInt() else 0
+
+    actual suspend fun setWhatsNewVersion(version: Int) {
+        defaults.setInteger(version.toLong(), "whats_new_version")
+    }
 }

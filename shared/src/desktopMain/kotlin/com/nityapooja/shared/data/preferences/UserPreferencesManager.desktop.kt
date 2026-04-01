@@ -114,4 +114,7 @@ actual class UserPreferencesManager {
     actual suspend fun getSeededVersion(): Int = prefs.getInt("seeded_version", 0)
 
     actual suspend fun setSeededVersion(version: Int) { prefs.putInt("seeded_version", version) }
+
+    actual suspend fun getWhatsNewVersion(): Int = prefs.getInt("whats_new_version", 0)
+    actual suspend fun setWhatsNewVersion(version: Int) { prefs.putInt("whats_new_version", version) }
 }

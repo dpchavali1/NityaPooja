@@ -57,4 +57,6 @@ expect class UserPreferencesManager {
 
     suspend fun getSeededVersion(): Int
     suspend fun setSeededVersion(version: Int)
+    suspend fun getWhatsNewVersion(): Int
+    suspend fun setWhatsNewVersion(version: Int)
 }

@@ -8,7 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import com.nityapooja.shared.ui.components.WhatsNewDialog
+import com.nityapooja.shared.ui.components.WHATS_NEW_VERSION
 import androidx.compose.ui.Modifier
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -82,11 +88,28 @@ fun NityaPoojaNavHost(
     val currentDestination = navBackStackEntry?.destination
     val audioViewModel: AudioPlayerViewModel = koinViewModel()
 
-    // Seed database on first launch + schedule festival notifications
+    // Inject dependencies
     val seeder = org.koin.compose.koinInject<com.nityapooja.shared.data.local.db.DatabaseSeeder>()
     val notificationScheduler = org.koin.compose.koinInject<com.nityapooja.shared.platform.NotificationScheduler>()
     val festivalDao = org.koin.compose.koinInject<com.nityapooja.shared.data.local.dao.FestivalDao>()
     val preferencesManager = org.koin.compose.koinInject<com.nityapooja.shared.data.preferences.UserPreferencesManager>()
+
+    // What's New dialog — shown once per WHATS_NEW_VERSION
+    var showWhatsNew by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        val seen = preferencesManager.getWhatsNewVersion()
+        if (seen < WHATS_NEW_VERSION && onboardingCompleted) {
+            showWhatsNew = true
+        }
+    }
+    if (showWhatsNew) {
+        WhatsNewDialog(onDismiss = {
+            showWhatsNew = false
+            kotlinx.coroutines.MainScope().launch { preferencesManager.setWhatsNewVersion(WHATS_NEW_VERSION) }
+        })
+    }
+
+    // Seed database on first launch + schedule festival notifications
     LaunchedEffect(Unit) {
         seeder.seed()
         // Schedule festival notifications for all festivals on every app start

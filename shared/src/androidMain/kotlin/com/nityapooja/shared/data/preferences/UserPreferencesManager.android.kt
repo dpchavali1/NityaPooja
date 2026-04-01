@@ -151,4 +151,14 @@ actual class UserPreferencesManager(private val context: Context) {
         val prefs = context.getSharedPreferences("nityapooja_internal", Context.MODE_PRIVATE)
         prefs.edit().putInt("seeded_version", version).apply()
     }
+
+    actual suspend fun getWhatsNewVersion(): Int {
+        val prefs = context.getSharedPreferences("nityapooja_internal", Context.MODE_PRIVATE)
+        return prefs.getInt("whats_new_version", 0)
+    }
+
+    actual suspend fun setWhatsNewVersion(version: Int) {
+        val prefs = context.getSharedPreferences("nityapooja_internal", Context.MODE_PRIVATE)
+        prefs.edit().putInt("whats_new_version", version).apply()
+    }
 }

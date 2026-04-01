@@ -209,7 +209,7 @@ fun MuhurtamFinderScreen(
                 }
             } else {
                 Text(
-                    "రాబోయే 30 రోజులలో ${selectedEvent.nameTelugu}కు శుభ ముహూర్తాలు",
+                    "${selectedEvent.nameTelugu}కు అత్యుత్తమ శుభ ముహూర్తాలు · Best dates for ${selectedEvent.nameEnglish}",
                     style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),

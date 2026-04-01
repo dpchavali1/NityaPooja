@@ -6,6 +6,7 @@ import com.nityapooja.shared.data.muhurtam.MuhurtamRules
 import kotlinx.coroutines.Dispatchers
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.EventType
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules.MuhurtamResult
+import com.nityapooja.shared.data.muhurtam.MuhurtamRules.MuhurtamScore
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.ui.panchangam.PanchangamData
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
@@ -170,30 +171,31 @@ class MuhurtamFinderViewModel(
             _selectedNakshatra.value = userNakshatra.value
         }
 
-        // Progressive loading: first 7 days fast, then remaining 23 in background
+        // Progressive loading: first 15 days fast, then extend to 90 in background
+        // Only show top 10 best-scored dates
         _isLoading.value = true
         viewModelScope.launch {
-            // Phase 1: First 7 days (shows results quickly)
-            val first7 = withContext(Dispatchers.Default) {
+            // Phase 1: First 15 days (shows top results quickly)
+            val phase1 = withContext(Dispatchers.Default) {
                 val today = Clock.System.todayIn(TimeZone.of(timezone))
-                (0 until 7).map { i ->
+                (0 until 15).map { i ->
                     val date = today.plus(i, DateTimeUnit.DAY)
                     panchangamViewModel.calculatePanchangam(lat, lng, timezone, SelectedDate(date.year, date.monthNumber, date.dayOfMonth))
                 }
             }
-            cachedPanchangams = first7
+            cachedPanchangams = phase1
             _isLoading.value = false
             scoreWithEvent(_selectedEvent.value)
 
-            // Phase 2: Remaining 23 days in background
-            val remaining = withContext(Dispatchers.Default) {
+            // Phase 2: Extend to 90 days in background for better top results
+            val phase2 = withContext(Dispatchers.Default) {
                 val today = Clock.System.todayIn(TimeZone.of(timezone))
-                (7 until 30).map { i ->
+                (15 until 90).map { i ->
                     val date = today.plus(i, DateTimeUnit.DAY)
                     panchangamViewModel.calculatePanchangam(lat, lng, timezone, SelectedDate(date.year, date.monthNumber, date.dayOfMonth))
                 }
             }
-            cachedPanchangams = first7 + remaining
+            cachedPanchangams = phase1 + phase2
             scoreWithEvent(_selectedEvent.value)
         }
     }
@@ -214,6 +216,9 @@ class MuhurtamFinderViewModel(
                 taraBalam = taraBalam,
                 chandraBalam = chandraBalam,
             )
-        }.sortedByDescending { it.result.points }
+        }
+        .filter { it.result.score != MuhurtamScore.AVOID } // Hide "Avoid" dates
+        .sortedByDescending { it.result.points }
+        .take(10) // Show only top 10 best dates
     }
 }

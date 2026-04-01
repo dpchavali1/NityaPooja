@@ -209,11 +209,10 @@ object NotificationScheduler {
                 }
                 if (festivalAt7am.timeInMillis <= now) continue
 
-                val nameDisplay = if (userName.isNotBlank()) "$userName గారు" else ""
-                val greeting = if (nameDisplay.isNotBlank())
-                    "శుభ ${festival.nameTelugu}, $nameDisplay! / Happy ${festival.name}!"
+                val greeting = if (userName.isNotBlank())
+                    "మీకు మీ కుటుంబానికి ${festival.nameTelugu} శుభాకాంక్షలు $userName గారు / Happy ${festival.name} to you and your family $userName"
                 else
-                    "శుభ ${festival.nameTelugu}! / Happy ${festival.name}!"
+                    "మీకు మీ కుటుంబానికి ${festival.nameTelugu} శుభాకాంక్షలు / Happy ${festival.name} to you and your family"
 
                 val inputData = workDataOf(
                     NotificationWorker.KEY_NOTIFICATION_BODY to greeting,

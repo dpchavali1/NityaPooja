@@ -137,11 +137,10 @@ class IosNotificationScheduler : NotificationScheduler {
                 val parts = festival.dateString.split("-")
                 val year = parts[0].toInt(); val month = parts[1].toInt(); val day = parts[2].toInt()
 
-                val nameDisplay = if (userName.isNotBlank()) "$userName గారు" else ""
-                val greeting = if (nameDisplay.isNotBlank())
-                    "శుభ ${festival.nameTelugu}, $nameDisplay! / Happy ${festival.name}!"
+                val greeting = if (userName.isNotBlank())
+                    "మీకు మీ కుటుంబానికి ${festival.nameTelugu} శుభాకాంక్షలు $userName గారు / Happy ${festival.name} to you and your family $userName"
                 else
-                    "శుభ ${festival.nameTelugu}! / Happy ${festival.name}!"
+                    "మీకు మీ కుటుంబానికి ${festival.nameTelugu} శుభాకాంక్షలు / Happy ${festival.name} to you and your family"
 
                 val dateComponents = NSDateComponents().apply {
                     this.year = year.toLong()

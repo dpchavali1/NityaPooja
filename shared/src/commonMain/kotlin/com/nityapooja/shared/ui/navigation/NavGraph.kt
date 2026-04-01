@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Modifier
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -81,10 +82,31 @@ fun NityaPoojaNavHost(
     val currentDestination = navBackStackEntry?.destination
     val audioViewModel: AudioPlayerViewModel = koinViewModel()
 
-    // Seed database on first launch
+    // Seed database on first launch + schedule festival notifications
     val seeder = org.koin.compose.koinInject<com.nityapooja.shared.data.local.db.DatabaseSeeder>()
+    val notificationScheduler = org.koin.compose.koinInject<com.nityapooja.shared.platform.NotificationScheduler>()
+    val festivalDao = org.koin.compose.koinInject<com.nityapooja.shared.data.local.dao.FestivalDao>()
+    val preferencesManager = org.koin.compose.koinInject<com.nityapooja.shared.data.preferences.UserPreferencesManager>()
     LaunchedEffect(Unit) {
         seeder.seed()
+        // Schedule festival notifications for all festivals on every app start
+        val userName = preferencesManager.userName.first()
+        val timezone = preferencesManager.locationTimezone.first()
+        val festivals = festivalDao.getAllFestivals().first()
+        val festivalInfos = festivals.mapNotNull { f ->
+            val date = f.dateThisYear ?: f.dateNextYear ?: return@mapNotNull null
+            com.nityapooja.shared.platform.FestivalNotificationInfo(
+                id = f.id.toString(), name = f.name, nameTelugu = f.nameTelugu, dateString = date,
+            )
+        }
+        val nextYearInfos = festivals.mapNotNull { f ->
+            val date = f.dateNextYear ?: return@mapNotNull null
+            if (date == f.dateThisYear) return@mapNotNull null
+            com.nityapooja.shared.platform.FestivalNotificationInfo(
+                id = "${f.id}_next", name = f.name, nameTelugu = f.nameTelugu, dateString = date,
+            )
+        }
+        notificationScheduler.scheduleFestivalGreetings(festivalInfos + nextYearInfos, timezone, userName)
     }
 
     val startDestination = if (onboardingCompleted) Screen.Home.route else Screen.Onboarding.route

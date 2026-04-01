@@ -18,6 +18,9 @@ interface FestivalDao {
     @Query("SELECT * FROM festivals WHERE id = :id")
     fun getFestivalById(id: Int): Flow<FestivalEntity?>
 
+    @Query("SELECT * FROM festivals WHERE category = :category ORDER BY date")
+    fun getFestivalsByCategory(category: String): Flow<List<FestivalEntity>>
+
     @Query("SELECT COUNT(*) FROM festivals")
     suspend fun getCount(): Int
 

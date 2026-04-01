@@ -42,6 +42,7 @@ fun SettingsScreen(
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
     viewModel: SettingsViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val themeMode by viewModel.themeMode.collectAsState()
     val userName by viewModel.userName.collectAsState()
@@ -57,6 +58,8 @@ fun SettingsScreen(
     val quizNotificationHour by viewModel.quizNotificationHour.collectAsState()
     val quizNotificationMinute by viewModel.quizNotificationMinute.collectAsState()
     val grahanamNotification by viewModel.grahanamNotification.collectAsState()
+    val vrataNotification by viewModel.vrataNotification.collectAsState()
+    val sacredMonthNotification by viewModel.sacredMonthNotification.collectAsState()
 
     val dataCleared by viewModel.dataCleared.collectAsState()
 
@@ -449,6 +452,44 @@ fun SettingsScreen(
                 }
             }
 
+            // Vrata Reminders
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("వ్రత రిమైండర్లు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Vrata Reminders · Daily 6:00 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = vrataNotification,
+                        onCheckedChange = { viewModel.setVrataNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
+            }
+
+            // Sacred Month Reminders
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("పవిత్ర మాస రిమైండర్లు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Sacred Month · Daily 5:30 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = sacredMonthNotification,
+                        onCheckedChange = { viewModel.setSacredMonthNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
+            }
+
             // Music / Spotify (Android only)
             if (onLinkSpotify != null) {
                 SectionHeader(titleTelugu = "సంగీతం", titleEnglish = "Music")
@@ -590,7 +631,7 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Version 1.5.2",
+                        "Version 2.0.0",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -659,6 +700,8 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            bannerAd?.invoke()
 
             Spacer(Modifier.height(32.dp))
         }

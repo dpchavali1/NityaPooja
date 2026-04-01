@@ -26,6 +26,10 @@ actual class UserPreferencesManager {
     private val _quizNotificationHour = MutableStateFlow(prefs.getInt("quiz_notification_hour", 19))
     private val _quizNotificationMinute = MutableStateFlow(prefs.getInt("quiz_notification_minute", 30))
     private val _grahanamNotification = MutableStateFlow(prefs.getBoolean("grahanam_notification", true))
+    private val _vrataNotification = MutableStateFlow(prefs.getBoolean("vrata_notification", false))
+    private val _sacredMonthNotification = MutableStateFlow(prefs.getBoolean("sacred_month_notification", false))
+    private val _favoriteVrataIds = MutableStateFlow(prefs.get("favorite_vrata_ids", ""))
+    private val _familyProfiles = MutableStateFlow(prefs.get("family_profiles", ""))
     private val _japaTargetMalas = MutableStateFlow(prefs.getInt("japa_target_malas", 3))
     private val _onboardingCompleted = MutableStateFlow(prefs.getBoolean("onboarding_completed", false))
     private val _spotifyLinked = MutableStateFlow(prefs.getBoolean("spotify_linked", false))
@@ -51,6 +55,10 @@ actual class UserPreferencesManager {
     actual val quizNotificationHour: Flow<Int> = _quizNotificationHour
     actual val quizNotificationMinute: Flow<Int> = _quizNotificationMinute
     actual val grahanamNotification: Flow<Boolean> = _grahanamNotification
+    actual val vrataNotification: Flow<Boolean> = _vrataNotification
+    actual val sacredMonthNotification: Flow<Boolean> = _sacredMonthNotification
+    actual val favoriteVrataIds: Flow<String> = _favoriteVrataIds
+    actual val familyProfiles: Flow<String> = _familyProfiles
     actual val japaTargetMalas: Flow<Int> = _japaTargetMalas
     actual val onboardingCompleted: Flow<Boolean> = _onboardingCompleted
     actual val spotifyLinked: Flow<Boolean> = _spotifyLinked
@@ -80,6 +88,10 @@ actual class UserPreferencesManager {
     actual suspend fun setPanchangNotifications(enabled: Boolean) { prefs.putBoolean("panchang_notifications", enabled); _panchangNotifications.value = enabled }
     actual suspend fun setQuizNotification(enabled: Boolean) { prefs.putBoolean("quiz_notification", enabled); _quizNotification.value = enabled }
     actual suspend fun setGrahanamNotification(enabled: Boolean) { prefs.putBoolean("grahanam_notification", enabled); _grahanamNotification.value = enabled }
+    actual suspend fun setVrataNotification(enabled: Boolean) { prefs.putBoolean("vrata_notification", enabled); _vrataNotification.value = enabled }
+    actual suspend fun setSacredMonthNotification(enabled: Boolean) { prefs.putBoolean("sacred_month_notification", enabled); _sacredMonthNotification.value = enabled }
+    actual suspend fun setFavoriteVrataIds(ids: String) { prefs.put("favorite_vrata_ids", ids); _favoriteVrataIds.value = ids }
+    actual suspend fun setFamilyProfiles(profiles: String) { prefs.put("family_profiles", profiles); _familyProfiles.value = profiles }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
         prefs.putInt("quiz_notification_hour", hour); _quizNotificationHour.value = hour
         prefs.putInt("quiz_notification_minute", minute); _quizNotificationMinute.value = minute
@@ -102,4 +114,7 @@ actual class UserPreferencesManager {
     actual suspend fun getSeededVersion(): Int = prefs.getInt("seeded_version", 0)
 
     actual suspend fun setSeededVersion(version: Int) { prefs.putInt("seeded_version", version) }
+
+    actual suspend fun getWhatsNewVersion(): Int = prefs.getInt("whats_new_version", 0)
+    actual suspend fun setWhatsNewVersion(version: Int) { prefs.putInt("whats_new_version", version) }
 }

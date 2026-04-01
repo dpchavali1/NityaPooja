@@ -8,6 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import com.nityapooja.shared.ui.components.WhatsNewDialog
+import com.nityapooja.shared.ui.components.WHATS_NEW_VERSION
 import androidx.compose.ui.Modifier
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -59,6 +66,10 @@ import com.nityapooja.shared.ui.mantra.MantraChantingScreen
 import com.nityapooja.shared.ui.onboarding.OnboardingScreen
 import com.nityapooja.shared.ui.store.DevotionalStoreScreen
 import com.nityapooja.shared.ui.quiz.PuranaQuizScreen
+import com.nityapooja.shared.ui.muhurtam.MuhurtamFinderScreen
+import com.nityapooja.shared.ui.vrata.VrataListScreen
+import com.nityapooja.shared.ui.vrata.VrataDetailScreen
+import com.nityapooja.shared.ui.sacredmonth.SacredMonthScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,10 +88,48 @@ fun NityaPoojaNavHost(
     val currentDestination = navBackStackEntry?.destination
     val audioViewModel: AudioPlayerViewModel = koinViewModel()
 
-    // Seed database on first launch
+    // Inject dependencies
     val seeder = org.koin.compose.koinInject<com.nityapooja.shared.data.local.db.DatabaseSeeder>()
+    val notificationScheduler = org.koin.compose.koinInject<com.nityapooja.shared.platform.NotificationScheduler>()
+    val festivalDao = org.koin.compose.koinInject<com.nityapooja.shared.data.local.dao.FestivalDao>()
+    val preferencesManager = org.koin.compose.koinInject<com.nityapooja.shared.data.preferences.UserPreferencesManager>()
+
+    // What's New dialog — shown once per WHATS_NEW_VERSION
+    var showWhatsNew by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        val seen = preferencesManager.getWhatsNewVersion()
+        if (seen < WHATS_NEW_VERSION && onboardingCompleted) {
+            showWhatsNew = true
+        }
+    }
+    if (showWhatsNew) {
+        WhatsNewDialog(onDismiss = {
+            showWhatsNew = false
+            kotlinx.coroutines.MainScope().launch { preferencesManager.setWhatsNewVersion(WHATS_NEW_VERSION) }
+        })
+    }
+
+    // Seed database on first launch + schedule festival notifications
     LaunchedEffect(Unit) {
         seeder.seed()
+        // Schedule festival notifications for all festivals on every app start
+        val userName = preferencesManager.userName.first()
+        val timezone = preferencesManager.locationTimezone.first()
+        val festivals = festivalDao.getAllFestivals().first()
+        val festivalInfos = festivals.mapNotNull { f ->
+            val date = f.dateThisYear ?: f.dateNextYear ?: return@mapNotNull null
+            com.nityapooja.shared.platform.FestivalNotificationInfo(
+                id = f.id.toString(), name = f.name, nameTelugu = f.nameTelugu, dateString = date,
+            )
+        }
+        val nextYearInfos = festivals.mapNotNull { f ->
+            val date = f.dateNextYear ?: return@mapNotNull null
+            if (date == f.dateThisYear) return@mapNotNull null
+            com.nityapooja.shared.platform.FestivalNotificationInfo(
+                id = "${f.id}_next", name = f.name, nameTelugu = f.nameTelugu, dateString = date,
+            )
+        }
+        notificationScheduler.scheduleFestivalGreetings(festivalInfos + nextYearInfos, timezone, userName)
     }
 
     val startDestination = if (onboardingCompleted) Screen.Home.route else Screen.Onboarding.route
@@ -165,6 +214,7 @@ fun NityaPoojaNavHost(
                             restoreState = true
                         }
                     },
+                    onNavigateToMuhurtam = { navController.navigate(Screen.MuhurtamFinder.route) },
                     onNavigateToRashifal = { navController.navigate(Screen.Rashifal.route) },
                     onNavigateToBookmark = { type, id ->
                         when (type) {
@@ -218,6 +268,9 @@ fun NityaPoojaNavHost(
                     onNavigateToSavedProfiles = { navController.navigate(Screen.SavedProfiles.route) },
                     onNavigateToVirtualPoojaRoom = { navController.navigate(Screen.VirtualPoojaRoom.route) },
                     onNavigateToPuranaQuiz = { navController.navigate(Screen.PuranaQuiz.route) },
+                    onNavigateToMuhurtam = { navController.navigate(Screen.MuhurtamFinder.route) },
+                    onNavigateToVratas = { navController.navigate(Screen.VrataList.route) },
+                    onNavigateToSacredMonth = { navController.navigate(Screen.SacredMonth.route) },
                     bannerAd = bannerAd,
                 )
             }
@@ -365,7 +418,8 @@ fun NityaPoojaNavHost(
             ) { backStackEntry ->
                 TempleDetailScreen(
                     templeId = backStackEntry.arguments?.getInt("id") ?: 0,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -406,6 +460,7 @@ fun NityaPoojaNavHost(
                     spotifyLinked = spotifyLinked,
                     spotifyConnecting = spotifyConnecting,
                     spotifyInstalled = spotifyInstalled,
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.PrivacyPolicy.route) {
@@ -421,6 +476,7 @@ fun NityaPoojaNavHost(
                     onMantraClick = { id -> navController.navigate(Screen.MantraDetail.createRoute(id)) },
                     onBhajanClick = { id -> navController.navigate(Screen.BhajanDetail.createRoute(id)) },
                     onChalisaClick = { id -> navController.navigate(Screen.ChalisaDetail.createRoute(id)) },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.Profile.route) {
@@ -439,6 +495,7 @@ fun NityaPoojaNavHost(
                             "chalisa" -> navController.navigate(Screen.ChalisaDetail.createRoute(id))
                         }
                     },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -471,11 +528,13 @@ fun NityaPoojaNavHost(
             composable(Screen.GuidedPuja.route) {
                 GuidedPujaScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.PoojaTimer.route) {
                 PoojaTimerScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -484,16 +543,19 @@ fun NityaPoojaNavHost(
                 JatakaChakramScreen(
                     onBack = { navController.popBackStack() },
                     onNavigateToSavedProfiles = { navController.navigate(Screen.SavedProfiles.route) },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.GunaMilan.route) {
                 GunaMilanScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
             composable(Screen.SavedProfiles.route) {
                 SavedProfilesScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -501,6 +563,7 @@ fun NityaPoojaNavHost(
             composable(Screen.DevotionalStore.route) {
                 DevotionalStoreScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
@@ -508,6 +571,38 @@ fun NityaPoojaNavHost(
             composable(Screen.PuranaQuiz.route) {
                 PuranaQuizScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
+                )
+            }
+
+            // Telugu Culture features
+            composable(Screen.MuhurtamFinder.route) {
+                MuhurtamFinderScreen(
+                    onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
+                )
+            }
+            composable(Screen.VrataList.route) {
+                VrataListScreen(
+                    onNavigateToDetail = { id -> navController.navigate(Screen.VrataDetail.createRoute(id)) },
+                    onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
+                )
+            }
+            composable(
+                Screen.VrataDetail.route,
+                arguments = listOf(navArgument("id") { type = NavType.IntType }),
+            ) { backStackEntry ->
+                VrataDetailScreen(
+                    vrataId = backStackEntry.arguments?.getInt("id") ?: 0,
+                    onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
+                )
+            }
+            composable(Screen.SacredMonth.route) {
+                SacredMonthScreen(
+                    onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 

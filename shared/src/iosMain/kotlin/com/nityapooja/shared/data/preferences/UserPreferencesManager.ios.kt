@@ -26,6 +26,10 @@ actual class UserPreferencesManager {
     private val _quizNotificationHour = MutableStateFlow(readInt("quiz_notification_hour", 19))
     private val _quizNotificationMinute = MutableStateFlow(readInt("quiz_notification_minute", 30))
     private val _grahanamNotification = MutableStateFlow(readBool("grahanam_notification", true))
+    private val _vrataNotification = MutableStateFlow(readBool("vrata_notification", false))
+    private val _sacredMonthNotification = MutableStateFlow(readBool("sacred_month_notification", false))
+    private val _favoriteVrataIds = MutableStateFlow(defaults.stringForKey("favorite_vrata_ids") ?: "")
+    private val _familyProfiles = MutableStateFlow(defaults.stringForKey("family_profiles") ?: "")
     private val _japaTargetMalas = MutableStateFlow(readInt("japa_target_malas", 3))
     private val _onboardingCompleted = MutableStateFlow(readBool("onboarding_completed", false))
     private val _spotifyLinked = MutableStateFlow(readBool("spotify_linked", false))
@@ -58,6 +62,10 @@ actual class UserPreferencesManager {
     actual val quizNotificationHour: Flow<Int> = _quizNotificationHour
     actual val quizNotificationMinute: Flow<Int> = _quizNotificationMinute
     actual val grahanamNotification: Flow<Boolean> = _grahanamNotification
+    actual val vrataNotification: Flow<Boolean> = _vrataNotification
+    actual val sacredMonthNotification: Flow<Boolean> = _sacredMonthNotification
+    actual val favoriteVrataIds: Flow<String> = _favoriteVrataIds
+    actual val familyProfiles: Flow<String> = _familyProfiles
     actual val japaTargetMalas: Flow<Int> = _japaTargetMalas
     actual val onboardingCompleted: Flow<Boolean> = _onboardingCompleted
     actual val spotifyLinked: Flow<Boolean> = _spotifyLinked
@@ -89,6 +97,10 @@ actual class UserPreferencesManager {
     actual suspend fun setPanchangNotifications(enabled: Boolean) { defaults.setBool(enabled, "panchang_notifications"); _panchangNotifications.value = enabled }
     actual suspend fun setQuizNotification(enabled: Boolean) { defaults.setBool(enabled, "quiz_notification"); _quizNotification.value = enabled }
     actual suspend fun setGrahanamNotification(enabled: Boolean) { defaults.setBool(enabled, "grahanam_notification"); _grahanamNotification.value = enabled }
+    actual suspend fun setVrataNotification(enabled: Boolean) { defaults.setBool(enabled, "vrata_notification"); _vrataNotification.value = enabled }
+    actual suspend fun setSacredMonthNotification(enabled: Boolean) { defaults.setBool(enabled, "sacred_month_notification"); _sacredMonthNotification.value = enabled }
+    actual suspend fun setFavoriteVrataIds(ids: String) { defaults.setObject(ids, "favorite_vrata_ids"); _favoriteVrataIds.value = ids }
+    actual suspend fun setFamilyProfiles(profiles: String) { defaults.setObject(profiles, "family_profiles"); _familyProfiles.value = profiles }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
         defaults.setInteger(hour.toLong(), "quiz_notification_hour"); _quizNotificationHour.value = hour
         defaults.setInteger(minute.toLong(), "quiz_notification_minute"); _quizNotificationMinute.value = minute
@@ -116,5 +128,12 @@ actual class UserPreferencesManager {
 
     actual suspend fun setSeededVersion(version: Int) {
         defaults.setInteger(version.toLong(), "seeded_version")
+    }
+
+    actual suspend fun getWhatsNewVersion(): Int =
+        if (defaults.objectForKey("whats_new_version") != null) defaults.integerForKey("whats_new_version").toInt() else 0
+
+    actual suspend fun setWhatsNewVersion(version: Int) {
+        defaults.setInteger(version.toLong(), "whats_new_version")
     }
 }

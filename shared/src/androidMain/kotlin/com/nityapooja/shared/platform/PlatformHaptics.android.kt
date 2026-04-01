@@ -1,5 +1,6 @@
 package com.nityapooja.shared.platform
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
@@ -46,26 +47,14 @@ actual class PlatformHaptics(private val context: Context) {
         vibrate(20, 60)
     }
 
+    @SuppressLint("MissingPermission")
     private fun vibrate(durationMs: Long, amplitude: Int) {
-        vibrator?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                it.vibrate(VibrationEffect.createOneShot(durationMs, amplitude))
-            } else {
-                @Suppress("DEPRECATION")
-                it.vibrate(durationMs)
-            }
-        }
+        vibrator?.vibrate(VibrationEffect.createOneShot(durationMs, amplitude))
     }
 
+    @SuppressLint("MissingPermission")
     private fun vibratePattern(pattern: LongArray) {
-        vibrator?.let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                it.vibrate(VibrationEffect.createWaveform(pattern, -1))
-            } else {
-                @Suppress("DEPRECATION")
-                it.vibrate(pattern, -1)
-            }
-        }
+        vibrator?.vibrate(VibrationEffect.createWaveform(pattern, -1))
     }
 
     private fun playTone(tone: Int, durationMs: Int, volume: Int) {

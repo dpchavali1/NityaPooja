@@ -70,6 +70,7 @@ private val tierOptions = listOf(
 fun GuidedPujaScreen(
     onBack: () -> Unit = {},
     viewModel: GuidedPujaViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val steps by viewModel.steps.collectAsState()
     val currentStepIndex by viewModel.currentStepIndex.collectAsState()
@@ -128,16 +129,19 @@ fun GuidedPujaScreen(
             )
         }
     ) { padding ->
-        AnimatedContent(
-            targetState = isStepMode,
-            transitionSpec = {
-                slideInHorizontally { it } + fadeIn() togetherWith
-                    slideOutHorizontally { -it } + fadeOut()
-            },
-            label = "pujaMode",
-        ) { showSteps ->
-            if (showSteps) {
-                PujaStepContent(
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            bannerAd?.invoke()
+            AnimatedContent(
+                targetState = isStepMode,
+                transitionSpec = {
+                    slideInHorizontally { it } + fadeIn() togetherWith
+                        slideOutHorizontally { -it } + fadeOut()
+                },
+                label = "pujaMode",
+                modifier = Modifier.weight(1f),
+            ) { showSteps ->
+                if (showSteps) {
+                    PujaStepContent(
                     steps = steps,
                     currentStepIndex = currentStepIndex,
                     onNext = { viewModel.nextStep() },
@@ -151,8 +155,7 @@ fun GuidedPujaScreen(
                     timezone = locationInfo.timezone,
                     pujaType = selectedPujaType,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                        .fillMaxSize(),
                 )
             } else {
                 PujaSelectionContent(
@@ -172,9 +175,9 @@ fun GuidedPujaScreen(
                     },
                     showTierWarning = showTierWarning,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
+                        .fillMaxSize(),
                 )
+            }
             }
         }
     }

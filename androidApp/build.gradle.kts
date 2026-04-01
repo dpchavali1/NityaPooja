@@ -25,8 +25,8 @@ android {
         applicationId = "com.nityapooja.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 23
-        versionName = "1.5.2"
+        versionCode = 24
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -37,8 +37,8 @@ android {
         manifestPlaceholders["redirectSchemeName"] = "nityapooja"
         manifestPlaceholders["redirectHostName"] = "spotify-callback"
 
-        // AdMob Banner Ad Unit ID
-        buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-4962910048695842/3520646134\"")
+        // AdMob Banner Ad Unit ID (overridden per build type below)
+        buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
     }
 
     signingConfigs {
@@ -62,6 +62,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-4962910048695842/3520646134\"")
             ndk {
                 debugSymbolLevel = "FULL"
             }

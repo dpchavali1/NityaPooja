@@ -142,6 +142,7 @@ private val indiaProducts = listOf(
 fun DevotionalStoreScreen(
     onBack: () -> Unit = {},
     settingsViewModel: SettingsViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val uriHandler = LocalUriHandler.current
     var selectedCategory by remember { mutableStateOf("All") }
@@ -222,6 +223,8 @@ fun DevotionalStoreScreen(
                     )
                 }
             }
+
+            bannerAd?.invoke()
 
             // Affiliate disclosure
             Text(

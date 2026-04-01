@@ -30,6 +30,10 @@ actual class UserPreferencesManager(private val context: Context) {
         val QUIZ_NOTIFICATION_HOUR = intPreferencesKey("quiz_notification_hour")
         val QUIZ_NOTIFICATION_MINUTE = intPreferencesKey("quiz_notification_minute")
         val GRAHANAM_NOTIFICATION = booleanPreferencesKey("grahanam_notification")
+        val VRATA_NOTIFICATION = booleanPreferencesKey("vrata_notification")
+        val SACRED_MONTH_NOTIFICATION = booleanPreferencesKey("sacred_month_notification")
+        val FAVORITE_VRATA_IDS = stringPreferencesKey("favorite_vrata_ids")
+        val FAMILY_PROFILES = stringPreferencesKey("family_profiles")
         val JAPA_TARGET_MALAS = intPreferencesKey("japa_target_malas")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val GOTRA = stringPreferencesKey("gotra")
@@ -75,6 +79,10 @@ actual class UserPreferencesManager(private val context: Context) {
     actual val quizNotificationHour: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION_HOUR] ?: 19 }
     actual val quizNotificationMinute: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.QUIZ_NOTIFICATION_MINUTE] ?: 30 }
     actual val grahanamNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.GRAHANAM_NOTIFICATION] ?: true }
+    actual val vrataNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.VRATA_NOTIFICATION] ?: false }
+    actual val sacredMonthNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SACRED_MONTH_NOTIFICATION] ?: false }
+    actual val favoriteVrataIds: Flow<String> = context.dataStore.data.map { prefs -> prefs[Keys.FAVORITE_VRATA_IDS] ?: "" }
+    actual val familyProfiles: Flow<String> = context.dataStore.data.map { prefs -> prefs[Keys.FAMILY_PROFILES] ?: "" }
     actual val japaTargetMalas: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.JAPA_TARGET_MALAS] ?: 3 }
     actual val onboardingCompleted: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.ONBOARDING_COMPLETED] ?: false }
     actual val spotifyLinked: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SPOTIFY_LINKED] ?: false }
@@ -109,6 +117,10 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setPanchangNotifications(enabled: Boolean) { context.dataStore.edit { it[Keys.PANCHANG_NOTIFICATIONS] = enabled } }
     actual suspend fun setQuizNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.QUIZ_NOTIFICATION] = enabled } }
     actual suspend fun setGrahanamNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.GRAHANAM_NOTIFICATION] = enabled } }
+    actual suspend fun setVrataNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.VRATA_NOTIFICATION] = enabled } }
+    actual suspend fun setSacredMonthNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.SACRED_MONTH_NOTIFICATION] = enabled } }
+    actual suspend fun setFavoriteVrataIds(ids: String) { context.dataStore.edit { it[Keys.FAVORITE_VRATA_IDS] = ids } }
+    actual suspend fun setFamilyProfiles(profiles: String) { context.dataStore.edit { it[Keys.FAMILY_PROFILES] = profiles } }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
         context.dataStore.edit { it[Keys.QUIZ_NOTIFICATION_HOUR] = hour; it[Keys.QUIZ_NOTIFICATION_MINUTE] = minute }
     }
@@ -138,5 +150,15 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setSeededVersion(version: Int) {
         val prefs = context.getSharedPreferences("nityapooja_internal", Context.MODE_PRIVATE)
         prefs.edit().putInt("seeded_version", version).apply()
+    }
+
+    actual suspend fun getWhatsNewVersion(): Int {
+        val prefs = context.getSharedPreferences("nityapooja_internal", Context.MODE_PRIVATE)
+        return prefs.getInt("whats_new_version", 0)
+    }
+
+    actual suspend fun setWhatsNewVersion(version: Int) {
+        val prefs = context.getSharedPreferences("nityapooja_internal", Context.MODE_PRIVATE)
+        prefs.edit().putInt("whats_new_version", version).apply()
     }
 }

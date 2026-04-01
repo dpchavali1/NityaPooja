@@ -54,6 +54,7 @@ fun SearchScreen(
     onMantraClick: (Int) -> Unit = {},
     onBhajanClick: (Int) -> Unit = {},
     onChalisaClick: (Int) -> Unit = {},
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val query by viewModel.query.collectAsState()
     val selectedFilter by viewModel.selectedFilter.collectAsState()
@@ -172,6 +173,7 @@ fun SearchScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
+                    item { bannerAd?.invoke() }
                     items(results, key = { "${it.type}_${it.id}" }) { result ->
                         SearchResultCard(
                             result = result,

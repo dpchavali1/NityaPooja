@@ -137,11 +137,10 @@ class IosNotificationScheduler : NotificationScheduler {
                 val parts = festival.dateString.split("-")
                 val year = parts[0].toInt(); val month = parts[1].toInt(); val day = parts[2].toInt()
 
-                val nameDisplay = if (userName.isNotBlank()) "$userName గారు" else ""
-                val greeting = if (nameDisplay.isNotBlank())
-                    "శుభ ${festival.nameTelugu}, $nameDisplay! / Happy ${festival.name}!"
+                val greeting = if (userName.isNotBlank())
+                    "మీకు మీ కుటుంబానికి ${festival.nameTelugu} శుభాకాంక్షలు $userName గారు / Happy ${festival.name} to you and your family $userName"
                 else
-                    "శుభ ${festival.nameTelugu}! / Happy ${festival.name}!"
+                    "మీకు మీ కుటుంబానికి ${festival.nameTelugu} శుభాకాంక్షలు / Happy ${festival.name} to you and your family"
 
                 val dateComponents = NSDateComponents().apply {
                     this.year = year.toLong()
@@ -172,6 +171,36 @@ class IosNotificationScheduler : NotificationScheduler {
                 center.removePendingNotificationRequestsWithIdentifiers(ids)
             }
         }
+    }
+
+    override fun scheduleVrataReminder(vrataName: String, vrataNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        scheduleDaily(
+            id = "vrata_reminder",
+            title = "NityaPooja - వ్రత రిమైండర్",
+            body = "$vrataNameTelugu / $vrataName - Upcoming vratam tomorrow",
+            hour = hour,
+            minute = minute,
+            route = "vrata_list",
+        )
+    }
+
+    override fun cancelVrataReminders() {
+        center.removePendingNotificationRequestsWithIdentifiers(listOf("vrata_reminder"))
+    }
+
+    override fun scheduleSacredMonthReminder(masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {
+        scheduleDaily(
+            id = "sacred_month_reminder",
+            title = "NityaPooja - పవిత్ర మాసం",
+            body = "$masaNameTelugu - దైనందిన ఆచరణ సమయం / Time for daily sacred month practice",
+            hour = hour,
+            minute = minute,
+            route = "sacred_month",
+        )
+    }
+
+    override fun cancelSacredMonthReminders() {
+        center.removePendingNotificationRequestsWithIdentifiers(listOf("sacred_month_reminder"))
     }
 
     override fun cancelAll() {

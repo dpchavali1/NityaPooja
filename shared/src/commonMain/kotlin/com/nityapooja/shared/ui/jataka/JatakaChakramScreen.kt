@@ -30,6 +30,7 @@ fun JatakaChakramScreen(
     onNavigateToSavedProfiles: () -> Unit = {},
     viewModel: JatakaChakramViewModel = koinViewModel(),
     savedProfilesViewModel: SavedProfilesViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var birthDetails by remember { mutableStateOf(BirthDetails()) }
@@ -79,6 +80,8 @@ fun JatakaChakramScreen(
                     onDetailsChange = { birthDetails = it },
                 )
             }
+
+            item { bannerAd?.invoke() }
 
             // Calculate + Save buttons
             item {

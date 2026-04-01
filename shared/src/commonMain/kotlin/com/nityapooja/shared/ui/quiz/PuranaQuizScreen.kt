@@ -30,6 +30,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun PuranaQuizScreen(
     onBack: () -> Unit,
     viewModel: PuranaQuizViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -78,6 +79,8 @@ fun PuranaQuizScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
+                    item { bannerAd?.invoke() }
+
                     // Score header (shown when all answered)
                     if (uiState.allAnswered) {
                         item {

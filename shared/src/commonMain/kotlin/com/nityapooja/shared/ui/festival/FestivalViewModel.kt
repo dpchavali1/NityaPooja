@@ -11,5 +11,10 @@ class FestivalViewModel(
 ) : ViewModel() {
 
     val allFestivals: StateFlow<List<FestivalEntity>> = repository.getAllFestivals()
+        .map { festivals ->
+            festivals.sortedBy { festival ->
+                festival.getUpcomingDateInfo()?.daysUntil ?: Int.MAX_VALUE
+            }
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

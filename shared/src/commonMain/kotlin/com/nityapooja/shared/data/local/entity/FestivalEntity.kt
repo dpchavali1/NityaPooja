@@ -1,5 +1,6 @@
 package com.nityapooja.shared.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
@@ -22,6 +23,19 @@ data class FestivalEntity(
     val specialAartiId: Int = 0,
     val dateThisYear: String? = null,
     val dateNextYear: String? = null,
+    // v2 Telugu culture fields
+    @ColumnInfo(defaultValue = "major")
+    val category: String = "major", // major, ekadashi, pradosham, pournami, amavasya, regional, monthly
+    @ColumnInfo(defaultValue = "")
+    val ritualsTelugu: String? = null,
+    @ColumnInfo(defaultValue = "")
+    val ritualsEnglish: String? = null,
+    @ColumnInfo(defaultValue = "")
+    val specialFoodsTelugu: String? = null,
+    @ColumnInfo(defaultValue = "")
+    val specialFoodsEnglish: String? = null,
+    @ColumnInfo(defaultValue = "1")
+    val durationDays: Int = 1,
 ) {
     @Ignore
     fun getUpcomingDateInfo(): FestivalDateInfo? {

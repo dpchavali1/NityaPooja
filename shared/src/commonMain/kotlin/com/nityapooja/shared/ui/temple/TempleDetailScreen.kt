@@ -36,6 +36,7 @@ fun TempleDetailScreen(
     viewModel: TempleViewModel = koinViewModel(),
     onBack: () -> Unit,
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val templeFlow = remember(templeId) { viewModel.getTempleById(templeId) }
     val temple by templeFlow.collectAsState(initial = null)
@@ -278,6 +279,8 @@ fun TempleDetailScreen(
                         )
                     }
                 }
+
+                bannerAd?.invoke()
 
                 // Bottom spacing
                 Spacer(Modifier.height(24.dp))

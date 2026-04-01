@@ -22,6 +22,10 @@ expect class UserPreferencesManager {
     val quizNotificationHour: Flow<Int>
     val quizNotificationMinute: Flow<Int>
     val grahanamNotification: Flow<Boolean>
+    val vrataNotification: Flow<Boolean>
+    val sacredMonthNotification: Flow<Boolean>
+    val favoriteVrataIds: Flow<String> // comma-separated IDs e.g. "1,3,7"
+    val familyProfiles: Flow<String> // "name1:nakshatra1,name2:nakshatra2"
     val japaTargetMalas: Flow<Int>
     val onboardingCompleted: Flow<Boolean>
     val spotifyLinked: Flow<Boolean>
@@ -41,6 +45,10 @@ expect class UserPreferencesManager {
     suspend fun setQuizNotification(enabled: Boolean)
     suspend fun setQuizNotificationTime(hour: Int, minute: Int)
     suspend fun setGrahanamNotification(enabled: Boolean)
+    suspend fun setVrataNotification(enabled: Boolean)
+    suspend fun setSacredMonthNotification(enabled: Boolean)
+    suspend fun setFavoriteVrataIds(ids: String)
+    suspend fun setFamilyProfiles(profiles: String)
     suspend fun setJapaTargetMalas(target: Int)
     suspend fun setOnboardingCompleted(completed: Boolean)
     suspend fun setSpotifyToken(token: String, expiresIn: Int)
@@ -49,4 +57,6 @@ expect class UserPreferencesManager {
 
     suspend fun getSeededVersion(): Int
     suspend fun setSeededVersion(version: Int)
+    suspend fun getWhatsNewVersion(): Int
+    suspend fun setWhatsNewVersion(version: Int)
 }

@@ -249,20 +249,22 @@ fun MuhurtamFinderScreen(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Box {
+                    ExposedDropdownMenuBox(
+                        expanded = showNakshatraPicker,
+                        onExpandedChange = { showNakshatraPicker = it },
+                    ) {
                         OutlinedTextField(
-                            value = nakshatraInput,
+                            value = nakshatraInput.ifBlank { "" },
                             onValueChange = {},
                             label = { Text("నక్షత్రం / Nakshatra") },
                             readOnly = true,
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth().clickable { showNakshatraPicker = true },
-                            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },
+                            modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showNakshatraPicker) },
                         )
-                        DropdownMenu(
+                        ExposedDropdownMenu(
                             expanded = showNakshatraPicker,
                             onDismissRequest = { showNakshatraPicker = false },
-                            modifier = Modifier.heightIn(max = 300.dp),
                         ) {
                             allNakshatras.forEach { nak ->
                                 DropdownMenuItem(

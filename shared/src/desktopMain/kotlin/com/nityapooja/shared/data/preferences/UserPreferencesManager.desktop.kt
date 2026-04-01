@@ -29,6 +29,7 @@ actual class UserPreferencesManager {
     private val _vrataNotification = MutableStateFlow(prefs.getBoolean("vrata_notification", false))
     private val _sacredMonthNotification = MutableStateFlow(prefs.getBoolean("sacred_month_notification", false))
     private val _favoriteVrataIds = MutableStateFlow(prefs.get("favorite_vrata_ids", ""))
+    private val _familyProfiles = MutableStateFlow(prefs.get("family_profiles", ""))
     private val _japaTargetMalas = MutableStateFlow(prefs.getInt("japa_target_malas", 3))
     private val _onboardingCompleted = MutableStateFlow(prefs.getBoolean("onboarding_completed", false))
     private val _spotifyLinked = MutableStateFlow(prefs.getBoolean("spotify_linked", false))
@@ -57,6 +58,7 @@ actual class UserPreferencesManager {
     actual val vrataNotification: Flow<Boolean> = _vrataNotification
     actual val sacredMonthNotification: Flow<Boolean> = _sacredMonthNotification
     actual val favoriteVrataIds: Flow<String> = _favoriteVrataIds
+    actual val familyProfiles: Flow<String> = _familyProfiles
     actual val japaTargetMalas: Flow<Int> = _japaTargetMalas
     actual val onboardingCompleted: Flow<Boolean> = _onboardingCompleted
     actual val spotifyLinked: Flow<Boolean> = _spotifyLinked
@@ -89,6 +91,7 @@ actual class UserPreferencesManager {
     actual suspend fun setVrataNotification(enabled: Boolean) { prefs.putBoolean("vrata_notification", enabled); _vrataNotification.value = enabled }
     actual suspend fun setSacredMonthNotification(enabled: Boolean) { prefs.putBoolean("sacred_month_notification", enabled); _sacredMonthNotification.value = enabled }
     actual suspend fun setFavoriteVrataIds(ids: String) { prefs.put("favorite_vrata_ids", ids); _favoriteVrataIds.value = ids }
+    actual suspend fun setFamilyProfiles(profiles: String) { prefs.put("family_profiles", profiles); _familyProfiles.value = profiles }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
         prefs.putInt("quiz_notification_hour", hour); _quizNotificationHour.value = hour
         prefs.putInt("quiz_notification_minute", minute); _quizNotificationMinute.value = minute

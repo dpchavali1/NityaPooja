@@ -25,6 +25,7 @@ expect class UserPreferencesManager {
     val vrataNotification: Flow<Boolean>
     val sacredMonthNotification: Flow<Boolean>
     val favoriteVrataIds: Flow<String> // comma-separated IDs e.g. "1,3,7"
+    val familyProfiles: Flow<String> // "name1:nakshatra1,name2:nakshatra2"
     val japaTargetMalas: Flow<Int>
     val onboardingCompleted: Flow<Boolean>
     val spotifyLinked: Flow<Boolean>
@@ -47,6 +48,7 @@ expect class UserPreferencesManager {
     suspend fun setVrataNotification(enabled: Boolean)
     suspend fun setSacredMonthNotification(enabled: Boolean)
     suspend fun setFavoriteVrataIds(ids: String)
+    suspend fun setFamilyProfiles(profiles: String)
     suspend fun setJapaTargetMalas(target: Int)
     suspend fun setOnboardingCompleted(completed: Boolean)
     suspend fun setSpotifyToken(token: String, expiresIn: Int)

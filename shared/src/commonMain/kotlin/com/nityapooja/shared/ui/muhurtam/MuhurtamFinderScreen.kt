@@ -1,5 +1,6 @@
 package com.nityapooja.shared.ui.muhurtam
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,10 +45,13 @@ fun MuhurtamFinderScreen(
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
     val userNakshatra by viewModel.userNakshatra.collectAsState()
     val selectedNakshatra by viewModel.selectedNakshatra.collectAsState()
+    val selectedPersonName by viewModel.selectedPersonName.collectAsState()
+    val familyMembers by viewModel.familyMembers.collectAsState()
     val isPersonalized = selectedNakshatra.isNotBlank()
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
     val fontScale = fontSize / 16f
     var showNakshatraDropdown by remember { mutableStateOf(false) }
+    var showAddFamilyDialog by remember { mutableStateOf(false) }
 
     val allNakshatras = listOf(
         "అశ్విని", "భరణి", "కృత్తిక", "రోహిణి", "మృగశిర",
@@ -118,81 +122,82 @@ fun MuhurtamFinderScreen(
                 }
             }
 
-            // Nakshatra selector for Tara Balam personalization
-            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                    color = if (isPersonalized) AuspiciousGreen.copy(alpha = 0.08f)
-                           else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    onClick = { showNakshatraDropdown = true },
+            // Family member quick-switch chips + nakshatra selector
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                // Quick-switch row: Self + saved family members + Add button
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(Icons.Default.Person, null, tint = if (isPersonalized) AuspiciousGreen else TempleGold, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            if (isPersonalized) {
-                                Text(
-                                    "జన్మ నక్షత్రం: $selectedNakshatra · తార బలం",
-                                    style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp),
-                                    fontWeight = FontWeight.Bold,
-                                    color = AuspiciousGreen,
-                                )
-                                Text(
-                                    "Tara Balam personalized · Tap to change",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
-                                    color = AuspiciousGreen.copy(alpha = 0.7f),
-                                )
-                            } else {
-                                Text(
-                                    "జన్మ నక్షత్రం ఎంచుకోండి",
-                                    style = MaterialTheme.typography.labelMedium.copy(fontSize = (12 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Text(
-                                    "Select birth star for personalized Tara Balam",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                        Icon(Icons.Default.ArrowDropDown, null, tint = if (isPersonalized) AuspiciousGreen else TempleGold)
+                    // Self chip
+                    if (userNakshatra.isNotBlank()) {
+                        FilterChip(
+                            selected = selectedPersonName.isBlank() && selectedNakshatra == userNakshatra,
+                            onClick = { viewModel.selectSelf() },
+                            label = { Text("నేను (${userNakshatra})", style = MaterialTheme.typography.labelSmall) },
+                            leadingIcon = { Icon(Icons.Default.Person, null, modifier = Modifier.size(16.dp)) },
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = AuspiciousGreen.copy(alpha = 0.2f), selectedLabelColor = AuspiciousGreen),
+                        )
                     }
+                    // Family member chips
+                    familyMembers.forEachIndexed { index, member ->
+                        FilterChip(
+                            selected = selectedPersonName == member.name && selectedNakshatra == member.nakshatra,
+                            onClick = { viewModel.selectFamilyMember(member) },
+                            label = { Text("${member.name} (${member.nakshatra})", style = MaterialTheme.typography.labelSmall) },
+                            leadingIcon = { Icon(Icons.Default.People, null, modifier = Modifier.size(16.dp)) },
+                            trailingIcon = {
+                                Icon(Icons.Default.Close, "Remove", modifier = Modifier.size(14.dp).clickable { viewModel.removeFamilyMember(index) })
+                            },
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = TempleGold.copy(alpha = 0.2f), selectedLabelColor = TempleGold),
+                        )
+                    }
+                    // Add family member button
+                    AssistChip(
+                        onClick = { showAddFamilyDialog = true },
+                        label = { Text("+ కుటుంబం", style = MaterialTheme.typography.labelSmall) },
+                        leadingIcon = { Icon(Icons.Default.PersonAdd, null, modifier = Modifier.size(16.dp)) },
+                    )
                 }
 
+                // Current selection info
+                if (isPersonalized) {
+                    Spacer(Modifier.height(4.dp))
+                    val displayName = if (selectedPersonName.isNotBlank()) "$selectedPersonName · " else ""
+                    Text(
+                        "${displayName}జన్మ నక్షత్రం: $selectedNakshatra · తార బలం",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                        color = AuspiciousGreen,
+                    )
+                }
+            }
+
+            // Nakshatra dropdown (for manual selection)
+            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                TextButton(onClick = { showNakshatraDropdown = true }) {
+                    Text("నక్షత్రం మార్చండి · Change nakshatra", style = MaterialTheme.typography.labelSmall, color = TempleGold)
+                    Icon(Icons.Default.ArrowDropDown, null, tint = TempleGold, modifier = Modifier.size(16.dp))
+                }
                 DropdownMenu(
                     expanded = showNakshatraDropdown,
                     onDismissRequest = { showNakshatraDropdown = false },
                     modifier = Modifier.heightIn(max = 400.dp),
                 ) {
-                    // Option to clear selection
                     DropdownMenuItem(
                         text = { Text("నక్షత్రం లేకుండా · Without birth star", style = MaterialTheme.typography.bodySmall) },
-                        onClick = {
-                            viewModel.selectNakshatra("")
-                            showNakshatraDropdown = false
-                        },
+                        onClick = { viewModel.selectNakshatra(""); showNakshatraDropdown = false },
                     )
                     HorizontalDivider()
                     allNakshatras.forEach { nakshatra ->
-                        val isSelf = nakshatra == userNakshatra
                         DropdownMenuItem(
                             text = {
                                 Row {
                                     Text(nakshatra, style = MaterialTheme.typography.bodyMedium, fontWeight = if (nakshatra == selectedNakshatra) FontWeight.Bold else FontWeight.Normal)
-                                    if (isSelf) {
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("(మీది)", style = MaterialTheme.typography.labelSmall, color = AuspiciousGreen)
-                                    }
+                                    if (nakshatra == userNakshatra) { Spacer(Modifier.width(8.dp)); Text("(మీది)", style = MaterialTheme.typography.labelSmall, color = AuspiciousGreen) }
                                 }
                             },
-                            onClick = {
-                                viewModel.selectNakshatra(nakshatra)
-                                showNakshatraDropdown = false
-                            },
+                            onClick = { viewModel.selectNakshatra(nakshatra); showNakshatraDropdown = false },
                         )
                     }
                 }
@@ -223,6 +228,67 @@ fun MuhurtamFinderScreen(
                 }
             }
         }
+    }
+
+    // Add Family Member Dialog
+    if (showAddFamilyDialog) {
+        var nameInput by remember { mutableStateOf("") }
+        var nakshatraInput by remember { mutableStateOf("") }
+        var showNakshatraPicker by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = { showAddFamilyDialog = false },
+            title = { Text("కుటుంబ సభ్యుని చేర్చండి", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Add Family Member", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedTextField(
+                        value = nameInput,
+                        onValueChange = { nameInput = it },
+                        label = { Text("పేరు / Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Box {
+                        OutlinedTextField(
+                            value = nakshatraInput,
+                            onValueChange = {},
+                            label = { Text("నక్షత్రం / Nakshatra") },
+                            readOnly = true,
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().clickable { showNakshatraPicker = true },
+                            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },
+                        )
+                        DropdownMenu(
+                            expanded = showNakshatraPicker,
+                            onDismissRequest = { showNakshatraPicker = false },
+                            modifier = Modifier.heightIn(max = 300.dp),
+                        ) {
+                            allNakshatras.forEach { nak ->
+                                DropdownMenuItem(
+                                    text = { Text(nak) },
+                                    onClick = { nakshatraInput = nak; showNakshatraPicker = false },
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (nameInput.isNotBlank() && nakshatraInput.isNotBlank()) {
+                            viewModel.addFamilyMember(nameInput, nakshatraInput)
+                            showAddFamilyDialog = false
+                        }
+                    },
+                    enabled = nameInput.isNotBlank() && nakshatraInput.isNotBlank(),
+                ) { Text("చేర్చండి / Add", color = TempleGold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddFamilyDialog = false }) { Text("రద్దు / Cancel") }
+            },
+        )
     }
 }
 

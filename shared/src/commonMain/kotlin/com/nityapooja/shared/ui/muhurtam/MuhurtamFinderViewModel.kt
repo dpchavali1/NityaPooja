@@ -10,6 +10,7 @@ import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.ui.panchangam.PanchangamData
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.panchangam.SelectedDate
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -51,6 +52,59 @@ class MuhurtamFinderViewModel(
     private val _selectedNakshatra = MutableStateFlow("")
     val selectedNakshatra: StateFlow<String> = _selectedNakshatra.asStateFlow()
 
+    // Selected person name (for display)
+    private val _selectedPersonName = MutableStateFlow("")
+    val selectedPersonName: StateFlow<String> = _selectedPersonName.asStateFlow()
+
+    // Family profiles: list of name:nakshatra pairs
+    data class FamilyMember(val name: String, val nakshatra: String)
+
+    val familyMembers: StateFlow<List<FamilyMember>> = preferencesManager.familyProfiles
+        .map { str: String ->
+            if (str.isBlank()) emptyList<FamilyMember>()
+            else str.split(",").mapNotNull { entry ->
+                val parts = entry.split(":")
+                if (parts.size == 2 && parts[0].isNotBlank() && parts[1].isNotBlank())
+                    FamilyMember(parts[0].trim(), parts[1].trim())
+                else null
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun addFamilyMember(name: String, nakshatra: String) {
+        viewModelScope.launch {
+            val current = familyMembers.value.toMutableList()
+            current.add(FamilyMember(name.trim(), nakshatra.trim()))
+            preferencesManager.setFamilyProfiles(current.joinToString(",") { "${it.name}:${it.nakshatra}" })
+        }
+    }
+
+    fun removeFamilyMember(index: Int) {
+        viewModelScope.launch {
+            val current = familyMembers.value.toMutableList()
+            if (index in current.indices) {
+                current.removeAt(index)
+                preferencesManager.setFamilyProfiles(current.joinToString(",") { "${it.name}:${it.nakshatra}" })
+            }
+        }
+    }
+
+    fun selectFamilyMember(member: FamilyMember) {
+        _selectedNakshatra.value = member.nakshatra
+        _selectedPersonName.value = member.name
+        if (cachedPanchangams.isNotEmpty()) {
+            scoreWithEvent(_selectedEvent.value)
+        }
+    }
+
+    fun selectSelf() {
+        _selectedNakshatra.value = userNakshatra.value
+        _selectedPersonName.value = ""
+        if (cachedPanchangams.isNotEmpty()) {
+            scoreWithEvent(_selectedEvent.value)
+        }
+    }
+
     private var cachedPanchangams: List<PanchangamData> = emptyList()
     private var cachedLat = 0.0
     private var cachedLng = 0.0
@@ -64,6 +118,7 @@ class MuhurtamFinderViewModel(
 
     fun selectNakshatra(nakshatra: String) {
         _selectedNakshatra.value = nakshatra
+        _selectedPersonName.value = ""
         if (cachedPanchangams.isNotEmpty()) {
             scoreWithEvent(_selectedEvent.value)
         }

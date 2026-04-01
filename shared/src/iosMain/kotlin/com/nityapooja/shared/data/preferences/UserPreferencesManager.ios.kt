@@ -29,6 +29,7 @@ actual class UserPreferencesManager {
     private val _vrataNotification = MutableStateFlow(readBool("vrata_notification", false))
     private val _sacredMonthNotification = MutableStateFlow(readBool("sacred_month_notification", false))
     private val _favoriteVrataIds = MutableStateFlow(defaults.stringForKey("favorite_vrata_ids") ?: "")
+    private val _familyProfiles = MutableStateFlow(defaults.stringForKey("family_profiles") ?: "")
     private val _japaTargetMalas = MutableStateFlow(readInt("japa_target_malas", 3))
     private val _onboardingCompleted = MutableStateFlow(readBool("onboarding_completed", false))
     private val _spotifyLinked = MutableStateFlow(readBool("spotify_linked", false))
@@ -64,6 +65,7 @@ actual class UserPreferencesManager {
     actual val vrataNotification: Flow<Boolean> = _vrataNotification
     actual val sacredMonthNotification: Flow<Boolean> = _sacredMonthNotification
     actual val favoriteVrataIds: Flow<String> = _favoriteVrataIds
+    actual val familyProfiles: Flow<String> = _familyProfiles
     actual val japaTargetMalas: Flow<Int> = _japaTargetMalas
     actual val onboardingCompleted: Flow<Boolean> = _onboardingCompleted
     actual val spotifyLinked: Flow<Boolean> = _spotifyLinked
@@ -98,6 +100,7 @@ actual class UserPreferencesManager {
     actual suspend fun setVrataNotification(enabled: Boolean) { defaults.setBool(enabled, "vrata_notification"); _vrataNotification.value = enabled }
     actual suspend fun setSacredMonthNotification(enabled: Boolean) { defaults.setBool(enabled, "sacred_month_notification"); _sacredMonthNotification.value = enabled }
     actual suspend fun setFavoriteVrataIds(ids: String) { defaults.setObject(ids, "favorite_vrata_ids"); _favoriteVrataIds.value = ids }
+    actual suspend fun setFamilyProfiles(profiles: String) { defaults.setObject(profiles, "family_profiles"); _familyProfiles.value = profiles }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
         defaults.setInteger(hour.toLong(), "quiz_notification_hour"); _quizNotificationHour.value = hour
         defaults.setInteger(minute.toLong(), "quiz_notification_minute"); _quizNotificationMinute.value = minute

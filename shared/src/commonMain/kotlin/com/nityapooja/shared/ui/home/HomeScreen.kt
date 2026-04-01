@@ -329,10 +329,10 @@ fun HomeScreen(
                             onClick = onNavigateToFestivals,
                         )
                         QuickAccessCircle(
-                            icon = Icons.Default.Stars,
-                            labelTelugu = "రాశిఫలం",
-                            labelEnglish = "Rashifal",
-                            onClick = onNavigateToRashifal,
+                            icon = Icons.Default.EventAvailable,
+                            labelTelugu = "ముహూర్తం",
+                            labelEnglish = "Muhurtam",
+                            onClick = onNavigateToMuhurtam,
                         )
                     }
                 }

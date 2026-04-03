@@ -83,10 +83,14 @@ class AndroidSpotifyPlaybackBridge(
             Log.d(TAG, "Found track: ${bestMatch.name} by ${bestMatch.artists.firstOrNull()?.name}, uri=${bestMatch.uri}")
 
             // AppRemote authenticates via Spotify app, not OAuth token
-            spotifyManager.connectAppRemote(showAuth = false)
-
-            spotifyManager.connectionStatus.first {
-                it == SpotifyConnectionStatus.CONNECTED || it == SpotifyConnectionStatus.ERROR
+            if (spotifyManager.connectionStatus.value != SpotifyConnectionStatus.CONNECTED) {
+                spotifyManager.connectAppRemote(showAuth = false)
+                // Wait up to 5 seconds for connection
+                kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                    spotifyManager.connectionStatus.first {
+                        it == SpotifyConnectionStatus.CONNECTED || it == SpotifyConnectionStatus.ERROR
+                    }
+                }
             }
 
             if (spotifyManager.connectionStatus.value == SpotifyConnectionStatus.CONNECTED) {

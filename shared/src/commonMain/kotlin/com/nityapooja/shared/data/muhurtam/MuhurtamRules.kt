@@ -405,4 +405,157 @@ object MuhurtamRules {
             else -> 0
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Choghadiya — 8 day + 8 night time slots
+    // ═══════════════════════════════════════════════════════════════
+
+    enum class ChoghadiyaType(
+        val nameTelugu: String,
+        val nameEnglish: String,
+        val isAuspicious: Boolean,
+        val descriptionTelugu: String,
+        val descriptionEnglish: String,
+    ) {
+        AMRIT("అమృత", "Amrit", true, "అన్ని పనులకు అత్యుత్తమ కాలం", "Best time for all activities"),
+        SHUBH("శుభ", "Shubh", true, "శుభ కార్యాలకు మంచి కాలం", "Good for auspicious activities"),
+        LABH("లాభ", "Labh", true, "వ్యాపారం మరియు కొత్త పనులకు మంచిది", "Good for business and new ventures"),
+        CHAL("చర", "Chal", true, "యాత్రలకు అనువైన కాలం", "Suitable for travel"),
+        UDVEG("ఉద్వేగ", "Udveg", false, "ఈ కాలంలో ముఖ్యమైన పనులు నివారించండి", "Avoid important tasks in this period"),
+        KAAL("కాల", "Kaal", false, "ముఖ్యమైన పనులు నివారించండి", "Avoid important activities"),
+        ROG("రోగ", "Rog", false, "ముఖ్యమైన పనులు నివారించండి", "Avoid important activities"),
+    }
+
+    data class ChoghadiyaSlot(
+        val type: ChoghadiyaType,
+        val startTime: String,
+        val endTime: String,
+        val isActive: Boolean,
+        val isDay: Boolean,
+    )
+
+    data class ChoghadiyaResult(
+        val daySlots: List<ChoghadiyaSlot>,
+        val nightSlots: List<ChoghadiyaSlot>,
+    )
+
+    // Enum ordinals: AMRIT=0, SHUBH=1, LABH=2, CHAL=3, UDVEG=4, KAAL=5, ROG=6
+    // Day Choghadiya sequences indexed [dayOfWeek 0=Sunday..6=Saturday][slot 0..7]
+    private val DAY_SEQUENCES = arrayOf(
+        // Sunday:    Udveg, Chal, Labh, Amrit, Kaal, Shubh, Rog, Udveg
+        intArrayOf(4, 3, 2, 0, 5, 1, 6, 4),
+        // Monday:    Amrit, Kaal, Shubh, Rog, Udveg, Chal, Labh, Amrit
+        intArrayOf(0, 5, 1, 6, 4, 3, 2, 0),
+        // Tuesday:   Rog, Udveg, Chal, Labh, Amrit, Kaal, Shubh, Rog
+        intArrayOf(6, 4, 3, 2, 0, 5, 1, 6),
+        // Wednesday: Labh, Amrit, Kaal, Shubh, Rog, Udveg, Chal, Labh
+        intArrayOf(2, 0, 5, 1, 6, 4, 3, 2),
+        // Thursday:  Shubh, Rog, Udveg, Chal, Labh, Amrit, Kaal, Shubh
+        intArrayOf(1, 6, 4, 3, 2, 0, 5, 1),
+        // Friday:    Chal, Labh, Amrit, Kaal, Shubh, Rog, Udveg, Chal
+        intArrayOf(3, 2, 0, 5, 1, 6, 4, 3),
+        // Saturday:  Kaal, Shubh, Rog, Udveg, Chal, Labh, Amrit, Kaal
+        intArrayOf(5, 1, 6, 4, 3, 2, 0, 5),
+    )
+
+    // Night Choghadiya sequences indexed [dayOfWeek 0=Sunday..6=Saturday][slot 0..7]
+    private val NIGHT_SEQUENCES = arrayOf(
+        // Sunday night:    Shubh, Amrit, Chal, Rog, Kaal, Labh, Udveg, Shubh
+        intArrayOf(1, 0, 3, 6, 5, 2, 4, 1),
+        // Monday night:    Chal, Rog, Kaal, Labh, Udveg, Shubh, Amrit, Chal
+        intArrayOf(3, 6, 5, 2, 4, 1, 0, 3),
+        // Tuesday night:   Kaal, Labh, Udveg, Shubh, Amrit, Chal, Rog, Kaal
+        intArrayOf(5, 2, 4, 1, 0, 3, 6, 5),
+        // Wednesday night: Udveg, Shubh, Amrit, Chal, Rog, Kaal, Labh, Udveg
+        intArrayOf(4, 1, 0, 3, 6, 5, 2, 4),
+        // Thursday night:  Amrit, Chal, Rog, Kaal, Labh, Udveg, Shubh, Amrit
+        intArrayOf(0, 3, 6, 5, 2, 4, 1, 0),
+        // Friday night:    Rog, Kaal, Labh, Udveg, Shubh, Amrit, Chal, Rog
+        intArrayOf(6, 5, 2, 4, 1, 0, 3, 6),
+        // Saturday night:  Labh, Udveg, Shubh, Amrit, Chal, Rog, Kaal, Labh
+        intArrayOf(2, 4, 1, 0, 3, 6, 5, 2),
+    )
+
+    private val CHOGHADIYA_TYPES = ChoghadiyaType.entries.toTypedArray()
+
+    /**
+     * Calculate Choghadiya slots for a given day.
+     *
+     * @param sunriseDecimal Sunrise in local decimal hours (e.g. 6.25 = 06:15)
+     * @param sunsetDecimal  Sunset in local decimal hours (e.g. 18.75 = 18:45)
+     * @param dayOfWeek      0=Sunday, 1=Monday ... 6=Saturday
+     * @param currentDecimal Current time in local decimal hours
+     */
+    fun calculateChoghadiya(
+        sunriseDecimal: Double,
+        sunsetDecimal: Double,
+        dayOfWeek: Int,
+        currentDecimal: Double,
+    ): ChoghadiyaResult {
+        val dow = dayOfWeek.coerceIn(0, 6)
+        val dayLength = sunsetDecimal - sunriseDecimal
+        val slotDuration = dayLength / 8.0
+        // Night from sunset to next sunrise (approx sunrise + 24h)
+        val nightLength = 24.0 - dayLength
+        val nightSlotDuration = nightLength / 8.0
+
+        val daySlots = DAY_SEQUENCES[dow].mapIndexed { i, typeIndex ->
+            val start = sunriseDecimal + i * slotDuration
+            val end = start + slotDuration
+            ChoghadiyaSlot(
+                type = CHOGHADIYA_TYPES[typeIndex],
+                startTime = formatDecimalTime(start),
+                endTime = formatDecimalTime(end),
+                isActive = currentDecimal >= start && currentDecimal < end,
+                isDay = true,
+            )
+        }
+
+        val nightSlots = NIGHT_SEQUENCES[dow].mapIndexed { i, typeIndex ->
+            val start = sunsetDecimal + i * nightSlotDuration
+            val end = start + nightSlotDuration
+            // Wrap times past midnight
+            val activeStart = start % 24.0
+            val activeEnd = end % 24.0
+            val isActive = if (activeEnd > activeStart) {
+                currentDecimal >= activeStart && currentDecimal < activeEnd
+            } else {
+                // Wraps midnight: active if after start OR before end
+                currentDecimal >= activeStart || currentDecimal < activeEnd
+            }
+            ChoghadiyaSlot(
+                type = CHOGHADIYA_TYPES[typeIndex],
+                startTime = formatDecimalTime(start),
+                endTime = formatDecimalTime(end),
+                isActive = isActive,
+                isDay = false,
+            )
+        }
+
+        return ChoghadiyaResult(daySlots, nightSlots)
+    }
+
+    /** Format decimal hours to "HH:MM" local time string */
+    private fun formatDecimalTime(decimal: Double): String {
+        val normalized = ((decimal % 24.0 + 24.0) % 24.0)
+        val hours = normalized.toInt()
+        val minutes = ((normalized - hours) * 60.0).toInt()
+        val h = if (hours > 12) hours - 12 else if (hours == 0) 12 else hours
+        val ampm = if (((decimal % 24.0 + 24.0) % 24.0) < 12.0) "AM" else "PM"
+        return "$h:${minutes.toString().padStart(2, '0')} $ampm"
+    }
+
+    /** Convert teluguDay string to 0=Sunday..6=Saturday index */
+    fun dayOfWeekIndexFromTelugu(teluguDay: String): Int {
+        return when {
+            teluguDay.contains("ఆదివారం") -> 0
+            teluguDay.contains("సోమవారం") -> 1
+            teluguDay.contains("మంగళవారం") -> 2
+            teluguDay.contains("బుధవారం") -> 3
+            teluguDay.contains("గురువారం") -> 4
+            teluguDay.contains("శుక్రవారం") -> 5
+            teluguDay.contains("శనివారం") -> 6
+            else -> 0
+        }
+    }
 }

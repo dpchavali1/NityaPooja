@@ -7,15 +7,11 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.nityapooja.app.MainActivity
 import com.nityapooja.app.R
 import com.nityapooja.shared.data.local.db.NityaPoojaDatabase
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -42,9 +38,18 @@ class NotificationWorker(
         const val TYPE_GRAHANAM_BEFORE = "grahanam_before"
         const val TYPE_GRAHANAM_ON = "grahanam_on"
         const val TYPE_FESTIVAL = "festival"
+        const val TYPE_SHLOKA = "shloka"
+        const val TYPE_RAHU_KALAM_SCHEDULER = "rahu_kalam_scheduler"
+        const val TYPE_RAHU_KALAM = "rahu_kalam"
+        const val TYPE_YAMAGANDAM = "yamagandam"
+        const val TYPE_GULIKA = "gulika"
+        const val TYPE_PLANET_TRANSIT = "planet_transit"
         const val KEY_SPARSHA = "sparsha_time"
         const val KEY_MADHYAM = "madhyam_time"
         const val KEY_MOKSHAM = "moksham_time"
+        const val KEY_GRAHA_NAME_TELUGU = "graha_name_telugu"
+        const val KEY_FROM_RASHI_TELUGU = "from_rashi_telugu"
+        const val KEY_TO_RASHI_TELUGU = "to_rashi_telugu"
         const val EXTRA_NAV_ROUTE = "nav_route"
     }
 
@@ -69,25 +74,22 @@ class NotificationWorker(
         return Result.success()
     }
 
-    /**
-     * Enqueues a new one-shot work request for the same time tomorrow,
-     * re-anchoring to the exact clock time rather than drifting on a 24h interval.
-     */
     private fun rescheduleForTomorrow() {
         val workName = inputData.getString(KEY_WORK_NAME) ?: return
         val hour = inputData.getInt(KEY_HOUR, -1).takeIf { it >= 0 } ?: return
         val minute = inputData.getInt(KEY_MINUTE, -1).takeIf { it >= 0 } ?: return
         val timezoneId = inputData.getString(KEY_TIMEZONE) ?: ""
 
-        val delay = NotificationScheduler.calculateDelayMillis(hour, minute, timezoneId)
-
-        val next = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setInputData(inputData)
-            .build()
-
-        WorkManager.getInstance(applicationContext)
-            .enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, next)
+        val intent = android.content.Intent(applicationContext, AlarmReceiver::class.java).apply {
+            putExtra(KEY_NOTIFICATION_BODY, inputData.getString(KEY_NOTIFICATION_BODY) ?: "")
+            putExtra(KEY_NOTIFICATION_ID, inputData.getInt(KEY_NOTIFICATION_ID, 1001))
+            putExtra(KEY_NOTIFICATION_TYPE, inputData.getString(KEY_NOTIFICATION_TYPE) ?: "")
+            putExtra(KEY_HOUR, hour)
+            putExtra(KEY_MINUTE, minute)
+            putExtra(KEY_TIMEZONE, timezoneId)
+            putExtra(KEY_WORK_NAME, workName)
+        }
+        NotificationScheduler.rescheduleRecurring(applicationContext, workName, hour, minute, timezoneId, intent)
     }
 
     private suspend fun enrichNotificationBody(type: String, fallback: String): String {

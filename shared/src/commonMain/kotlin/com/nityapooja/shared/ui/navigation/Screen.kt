@@ -91,6 +91,8 @@ sealed class Screen(val route: String) {
         fun createRoute(id: Int) = "vrata_detail/$id"
     }
     data object SacredMonth : Screen("sacred_month")
+    data object Choghadiya : Screen("choghadiya")
+    data object PlanetTransits : Screen("planet_transits")
 }
 
 data class BottomNavItem(

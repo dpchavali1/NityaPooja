@@ -82,6 +82,12 @@ class SettingsViewModel(
     val sacredMonthNotification: StateFlow<Boolean> = preferencesManager.sacredMonthNotification
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val shlokaNotification: StateFlow<Boolean> = preferencesManager.shlokaNotification
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val rahuKalamAlerts: StateFlow<Boolean> = preferencesManager.rahuKalamAlerts
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     fun setVrataNotification(enabled: Boolean) {
         viewModelScope.launch {
             preferencesManager.setVrataNotification(enabled)
@@ -175,6 +181,32 @@ class SettingsViewModel(
         }
     }
 
+    fun setShlokaNotification(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesManager.setShlokaNotification(enabled)
+            if (enabled) {
+                val tz = preferencesManager.locationTimezone.first()
+                notificationScheduler.scheduleShlokaReminder(7, 0, tz)
+            } else {
+                notificationScheduler.cancelShlokaReminder()
+            }
+        }
+    }
+
+    fun setRahuKalamAlerts(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesManager.setRahuKalamAlerts(enabled)
+            val lat = preferencesManager.locationLat.first()
+            val lng = preferencesManager.locationLng.first()
+            val tz = preferencesManager.locationTimezone.first()
+            if (enabled) {
+                notificationScheduler.scheduleRahuKalamAlerts(lat, lng, tz)
+            } else {
+                notificationScheduler.cancelRahuKalamAlerts()
+            }
+        }
+    }
+
     fun setGrahanamNotification(enabled: Boolean) {
         viewModelScope.launch {
             preferencesManager.setGrahanamNotification(enabled)
@@ -205,6 +237,22 @@ class SettingsViewModel(
         if (grahanamNotification.value) {
             val grahanamList = GrahanamRepository.getUpcomingGrahanam(Clock.System.now())
             notificationScheduler.scheduleGrahanamNotifications(grahanamList, timezone)
+        }
+        if (vrataNotification.value) {
+            notificationScheduler.scheduleVrataReminder("Vratam", "వ్రతం", 6, 0, timezone)
+        }
+        if (sacredMonthNotification.value) {
+            notificationScheduler.scheduleSacredMonthReminder("పవిత్ర మాసం", 5, 30, timezone)
+        }
+        if (shlokaNotification.value) {
+            notificationScheduler.scheduleShlokaReminder(7, 0, timezone)
+        }
+        if (rahuKalamAlerts.value) {
+            viewModelScope.launch {
+                val lat = preferencesManager.locationLat.first()
+                val lng = preferencesManager.locationLng.first()
+                notificationScheduler.scheduleRahuKalamAlerts(lat, lng, timezone)
+            }
         }
         // Always schedule festival greeting notifications
         scheduleFestivalNotifications(timezone)
@@ -240,6 +288,19 @@ class SettingsViewModel(
 
     fun clearAllUserData() {
         viewModelScope.launch {
+            // Cancel all scheduled alarms before clearing prefs (avoid orphaned alarms)
+            notificationScheduler.cancelMorningReminder()
+            notificationScheduler.cancelEveningReminder()
+            notificationScheduler.cancelPanchangReminder()
+            notificationScheduler.cancelQuizReminder()
+            notificationScheduler.cancelGrahanamNotifications()
+            notificationScheduler.cancelVrataReminders()
+            notificationScheduler.cancelSacredMonthReminders()
+            notificationScheduler.cancelShlokaReminder()
+            notificationScheduler.cancelRahuKalamAlerts()
+            notificationScheduler.cancelPlanetTransitAlerts()
+            notificationScheduler.cancelFestivalGreetings()
+
             bookmarkDao.clearAll()
             japaSessionDao.clearAll()
             readingHistoryDao.clearAll()

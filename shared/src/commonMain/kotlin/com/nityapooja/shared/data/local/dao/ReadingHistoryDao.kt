@@ -23,4 +23,8 @@ interface ReadingHistoryDao {
 
     @Query("SELECT COUNT(*) FROM reading_history")
     suspend fun getCount(): Int
+
+    /** Delete oldest entries, keeping only the [keep] most recent. */
+    @Query("DELETE FROM reading_history WHERE id NOT IN (SELECT id FROM reading_history ORDER BY timestamp DESC LIMIT :keep)")
+    suspend fun deleteOldestBeyond(keep: Int)
 }

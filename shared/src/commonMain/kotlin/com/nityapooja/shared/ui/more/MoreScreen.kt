@@ -10,13 +10,18 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.nityapooja.shared.ui.components.FontSizeControls
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.theme.TempleGold
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,8 +49,12 @@ fun MoreScreen(
     onNavigateToMuhurtam: () -> Unit = {},
     onNavigateToVratas: () -> Unit = {},
     onNavigateToSacredMonth: () -> Unit = {},
+    onNavigateToChoghadiya: () -> Unit = {},
+    onNavigateToPlanetTransits: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
+    fontSizeViewModel: FontSizeViewModel = koinViewModel(),
 ) {
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -54,6 +63,13 @@ fun MoreScreen(
                         Text("మరిన్ని", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text("More", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
+                },
+                actions = {
+                    FontSizeControls(
+                        fontSize = fontSize,
+                        onDecrease = fontSizeViewModel::decrease,
+                        onIncrease = fontSizeViewModel::increase,
+                    )
                 }
             )
         }
@@ -91,6 +107,8 @@ fun MoreScreen(
                 Spacer(Modifier.height(8.dp))
             }
             item { MoreMenuItem("శుభ ముహూర్తాలు", "Muhurtam Finder", Icons.Default.EventAvailable, onNavigateToMuhurtam) }
+            item { MoreMenuItem("చోఘడియా", "Choghadiya", Icons.Default.WatchLater, onNavigateToChoghadiya) }
+            item { MoreMenuItem("గ్రహ పరివర్తనలు", "Planet Transits", Icons.Default.Star, onNavigateToPlanetTransits) }
             item { MoreMenuItem("వ్రతాలు", "Vratas & Observances", Icons.Default.Brightness5, onNavigateToVratas) }
             item { MoreMenuItem("పవిత్ర మాసాలు", "Sacred Months", Icons.Default.CalendarMonth, onNavigateToSacredMonth) }
 

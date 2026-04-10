@@ -78,6 +78,7 @@ fun NityaPoojaNavHost(
     deepLinkRoute: String? = null,
     onLinkSpotify: (() -> Unit)? = null,
     onUnlinkSpotify: (() -> Unit)? = null,
+    onRequestExactAlarmPermission: (() -> Unit)? = null,
     spotifyLinked: Boolean = false,
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
@@ -271,6 +272,8 @@ fun NityaPoojaNavHost(
                     onNavigateToMuhurtam = { navController.navigate(Screen.MuhurtamFinder.route) },
                     onNavigateToVratas = { navController.navigate(Screen.VrataList.route) },
                     onNavigateToSacredMonth = { navController.navigate(Screen.SacredMonth.route) },
+                    onNavigateToChoghadiya = { navController.navigate(Screen.Choghadiya.route) },
+                    onNavigateToPlanetTransits = { navController.navigate(Screen.PlanetTransits.route) },
                     bannerAd = bannerAd,
                 )
             }
@@ -457,6 +460,7 @@ fun NityaPoojaNavHost(
                     onNavigateToPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) },
                     onLinkSpotify = onLinkSpotify,
                     onUnlinkSpotify = onUnlinkSpotify,
+                    onRequestExactAlarmPermission = onRequestExactAlarmPermission,
                     spotifyLinked = spotifyLinked,
                     spotifyConnecting = spotifyConnecting,
                     spotifyInstalled = spotifyInstalled,
@@ -603,6 +607,18 @@ fun NityaPoojaNavHost(
                 SacredMonthScreen(
                     onBack = { navController.popBackStack() },
                     bannerAd = bannerAd,
+                )
+            }
+
+            composable(Screen.Choghadiya.route) {
+                com.nityapooja.shared.ui.choghadiya.ChoghadiyaScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            composable(Screen.PlanetTransits.route) {
+                com.nityapooja.shared.ui.transits.PlanetTransitsScreen(
+                    onBack = { navController.popBackStack() },
                 )
             }
 

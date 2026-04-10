@@ -65,8 +65,8 @@ class GunaMilanViewModel : ViewModel() {
             fallbackUtcOffsetHours = brideTzOffset,
         )
         val brideGrahas = AstronomicalCalculator.allGrahaPositions(brideJd)
-        val brideMoon = brideGrahas[1] // Moon = index 1
-        val brideMars = brideGrahas[2] // Mars = index 2
+        val brideMoon = brideGrahas.getOrNull(1) ?: run { _uiState.value = GunaMilanUiState(); return }
+        val brideMars = brideGrahas.getOrNull(2) ?: run { _uiState.value = GunaMilanUiState(); return }
         val brideLagna = calculateLagnaRashiIndex(brideJd, brideLat, brideLng)
 
         // Calculate Moon position for groom
@@ -80,8 +80,8 @@ class GunaMilanViewModel : ViewModel() {
             fallbackUtcOffsetHours = groomTzOffset,
         )
         val groomGrahas = AstronomicalCalculator.allGrahaPositions(groomJd)
-        val groomMoon = groomGrahas[1] // Moon = index 1
-        val groomMars = groomGrahas[2] // Mars = index 2
+        val groomMoon = groomGrahas.getOrNull(1) ?: run { _uiState.value = GunaMilanUiState(); return }
+        val groomMars = groomGrahas.getOrNull(2) ?: run { _uiState.value = GunaMilanUiState(); return }
         val groomLagna = calculateLagnaRashiIndex(groomJd, groomLat, groomLng)
 
         val brideResult = PersonResult(

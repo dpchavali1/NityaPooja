@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nityapooja.shared.platform.KeepScreenOn
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
@@ -88,7 +89,7 @@ fun MantraChantingScreen(
         viewModel.loadContent(contentId, contentType)
     }
 
-    // TODO: Add keep-screen-on via expect/actual (was Android View.keepScreenOn)
+    KeepScreenOn()
 
     // Auto-scroll
     var scrollSpeed by remember { mutableFloatStateOf(1f) }

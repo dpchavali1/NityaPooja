@@ -24,6 +24,8 @@ expect class UserPreferencesManager {
     val grahanamNotification: Flow<Boolean>
     val vrataNotification: Flow<Boolean>
     val sacredMonthNotification: Flow<Boolean>
+    val shlokaNotification: Flow<Boolean>
+    val rahuKalamAlerts: Flow<Boolean>
     val favoriteVrataIds: Flow<String> // comma-separated IDs e.g. "1,3,7"
     val familyProfiles: Flow<String> // "name1:nakshatra1,name2:nakshatra2"
     val japaTargetMalas: Flow<Int>
@@ -47,6 +49,8 @@ expect class UserPreferencesManager {
     suspend fun setGrahanamNotification(enabled: Boolean)
     suspend fun setVrataNotification(enabled: Boolean)
     suspend fun setSacredMonthNotification(enabled: Boolean)
+    suspend fun setShlokaNotification(enabled: Boolean)
+    suspend fun setRahuKalamAlerts(enabled: Boolean)
     suspend fun setFavoriteVrataIds(ids: String)
     suspend fun setFamilyProfiles(profiles: String)
     suspend fun setJapaTargetMalas(target: Int)
@@ -59,4 +63,6 @@ expect class UserPreferencesManager {
     suspend fun setSeededVersion(version: Int)
     suspend fun getWhatsNewVersion(): Int
     suspend fun setWhatsNewVersion(version: Int)
+    suspend fun getSeenInfoScreens(): String
+    suspend fun setSeenInfoScreens(screens: String)
 }

@@ -26,5 +26,11 @@ interface NotificationScheduler {
     fun cancelVrataReminders()
     fun scheduleSacredMonthReminder(masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String)
     fun cancelSacredMonthReminders()
+    fun scheduleShlokaReminder(hour: Int, minute: Int, timezoneId: String)
+    fun cancelShlokaReminder()
+    fun scheduleRahuKalamAlerts(lat: Double, lng: Double, timezoneId: String)
+    fun cancelRahuKalamAlerts()
+    fun schedulePlanetTransitAlert(grahaNameTelugu: String, fromRashiTelugu: String, toRashiTelugu: String, epochMillis: Long, timezoneId: String)
+    fun cancelPlanetTransitAlerts()
     fun cancelAll()
 }

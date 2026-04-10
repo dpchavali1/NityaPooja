@@ -28,6 +28,8 @@ actual class UserPreferencesManager {
     private val _grahanamNotification = MutableStateFlow(readBool("grahanam_notification", true))
     private val _vrataNotification = MutableStateFlow(readBool("vrata_notification", false))
     private val _sacredMonthNotification = MutableStateFlow(readBool("sacred_month_notification", false))
+    private val _shlokaNotification = MutableStateFlow(readBool("shloka_notification", false))
+    private val _rahuKalamAlerts = MutableStateFlow(readBool("rahu_kalam_alerts", false))
     private val _favoriteVrataIds = MutableStateFlow(defaults.stringForKey("favorite_vrata_ids") ?: "")
     private val _familyProfiles = MutableStateFlow(defaults.stringForKey("family_profiles") ?: "")
     private val _japaTargetMalas = MutableStateFlow(readInt("japa_target_malas", 3))
@@ -64,6 +66,8 @@ actual class UserPreferencesManager {
     actual val grahanamNotification: Flow<Boolean> = _grahanamNotification
     actual val vrataNotification: Flow<Boolean> = _vrataNotification
     actual val sacredMonthNotification: Flow<Boolean> = _sacredMonthNotification
+    actual val shlokaNotification: Flow<Boolean> = _shlokaNotification
+    actual val rahuKalamAlerts: Flow<Boolean> = _rahuKalamAlerts
     actual val favoriteVrataIds: Flow<String> = _favoriteVrataIds
     actual val familyProfiles: Flow<String> = _familyProfiles
     actual val japaTargetMalas: Flow<Int> = _japaTargetMalas
@@ -99,6 +103,8 @@ actual class UserPreferencesManager {
     actual suspend fun setGrahanamNotification(enabled: Boolean) { defaults.setBool(enabled, "grahanam_notification"); _grahanamNotification.value = enabled }
     actual suspend fun setVrataNotification(enabled: Boolean) { defaults.setBool(enabled, "vrata_notification"); _vrataNotification.value = enabled }
     actual suspend fun setSacredMonthNotification(enabled: Boolean) { defaults.setBool(enabled, "sacred_month_notification"); _sacredMonthNotification.value = enabled }
+    actual suspend fun setShlokaNotification(enabled: Boolean) { defaults.setBool(enabled, "shloka_notification"); _shlokaNotification.value = enabled }
+    actual suspend fun setRahuKalamAlerts(enabled: Boolean) { defaults.setBool(enabled, "rahu_kalam_alerts"); _rahuKalamAlerts.value = enabled }
     actual suspend fun setFavoriteVrataIds(ids: String) { defaults.setObject(ids, "favorite_vrata_ids"); _favoriteVrataIds.value = ids }
     actual suspend fun setFamilyProfiles(profiles: String) { defaults.setObject(profiles, "family_profiles"); _familyProfiles.value = profiles }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
@@ -135,5 +141,12 @@ actual class UserPreferencesManager {
 
     actual suspend fun setWhatsNewVersion(version: Int) {
         defaults.setInteger(version.toLong(), "whats_new_version")
+    }
+
+    actual suspend fun getSeenInfoScreens(): String =
+        defaults.stringForKey("seen_info_screens") ?: ""
+
+    actual suspend fun setSeenInfoScreens(screens: String) {
+        defaults.setObject(screens, "seen_info_screens")
     }
 }

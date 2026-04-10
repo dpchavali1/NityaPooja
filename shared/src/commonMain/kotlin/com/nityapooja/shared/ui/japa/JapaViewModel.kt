@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -63,9 +64,29 @@ class JapaViewModel(
         .map { sessions -> sessions.sumOf { it.malasCompleted } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val currentStreak: StateFlow<Int> = japaSessionDao.getAllSessionDates()
+    private val allSessionDates = japaSessionDao.getAllSessionDates()
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
+
+    val currentStreak: StateFlow<Int> = allSessionDates
         .map { dates -> calculateStreak(dates) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val longestStreak: StateFlow<Int> = allSessionDates
+        .map { dates -> calculateLongestStreak(dates) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    /** true/false for each of the last 7 days (index 0 = 6 days ago, index 6 = today) */
+    val last7DaysActivity: StateFlow<List<Boolean>> = allSessionDates
+        .map { dates ->
+            val dateSet = dates.toHashSet()
+            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            (6 downTo 0).map { daysBack ->
+                val d = today.toEpochDays() - daysBack
+                // rebuild date string from epoch days via LocalDate
+                LocalDate.fromEpochDays(d).toString() in dateSet
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), List(7) { false })
 
     val activeDaysCount: StateFlow<Int> = japaSessionDao.getActiveDaysCount()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -95,6 +116,24 @@ class JapaViewModel(
             }
         }
         return streak
+    }
+
+    private fun calculateLongestStreak(dates: List<String>): Int {
+        if (dates.isEmpty()) return 0
+        val sorted = dates.mapNotNull { runCatching { LocalDate.parse(it) }.getOrNull() }.sortedDescending()
+        if (sorted.isEmpty()) return 0
+        var longest = 1
+        var current = 1
+        for (i in 0 until sorted.size - 1) {
+            val diff = sorted[i].toEpochDays() - sorted[i + 1].toEpochDays()
+            if (diff == 1) {
+                current++
+                if (current > longest) longest = current
+            } else {
+                current = 1
+            }
+        }
+        return longest
     }
 
     fun selectMantra(mantra: MantraEntity) {

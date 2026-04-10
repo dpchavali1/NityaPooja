@@ -6,6 +6,7 @@ import com.nityapooja.shared.data.spotify.SpotifyCredentials
 import com.nityapooja.shared.platform.PlatformAudioPlayer
 import com.nityapooja.shared.platform.PlatformHaptics
 import com.nityapooja.shared.platform.PlatformSoundEffect
+import com.nityapooja.shared.platform.SankalpamTtsPlayer
 import com.nityapooja.shared.platform.IosNotificationScheduler
 import com.nityapooja.shared.platform.NotificationScheduler
 import com.nityapooja.shared.platform.PreviewSpotifyPlaybackBridge
@@ -25,4 +26,5 @@ val iosPlatformModule = module {
     ) }
     single<SpotifyPlaybackBridge> { PreviewSpotifyPlaybackBridge(get(), get()) }
     single<NotificationScheduler> { IosNotificationScheduler() }
+    single { SankalpamTtsPlayer() }
 }

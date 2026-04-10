@@ -5,6 +5,7 @@ import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.platform.PlatformAudioPlayer
 import com.nityapooja.shared.platform.PlatformHaptics
 import com.nityapooja.shared.platform.PlatformSoundEffect
+import com.nityapooja.shared.platform.SankalpamTtsPlayer
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -14,4 +15,5 @@ val androidPlatformModule = module {
     single { PlatformAudioPlayer(androidContext()) }
     single { PlatformSoundEffect(androidContext()) }
     single { PlatformHaptics(androidContext()) }
+    single { SankalpamTtsPlayer(androidContext()) }
 }

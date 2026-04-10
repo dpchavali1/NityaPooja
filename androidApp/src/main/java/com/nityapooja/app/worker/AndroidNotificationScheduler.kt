@@ -73,6 +73,30 @@ class AndroidNotificationScheduler(
         NotificationScheduler.cancelSacredMonthReminders(context)
     }
 
+    override fun scheduleShlokaReminder(hour: Int, minute: Int, timezoneId: String) {
+        NotificationScheduler.scheduleShlokaReminder(context, hour, minute, timezoneId)
+    }
+
+    override fun cancelShlokaReminder() {
+        NotificationScheduler.cancelShlokaReminder(context)
+    }
+
+    override fun scheduleRahuKalamAlerts(lat: Double, lng: Double, timezoneId: String) {
+        NotificationScheduler.scheduleRahuKalamAlerts(context, timezoneId)
+    }
+
+    override fun cancelRahuKalamAlerts() {
+        NotificationScheduler.cancelRahuKalamAlerts(context)
+    }
+
+    override fun schedulePlanetTransitAlert(grahaNameTelugu: String, fromRashiTelugu: String, toRashiTelugu: String, epochMillis: Long, timezoneId: String) {
+        NotificationScheduler.schedulePlanetTransitAlert(context, grahaNameTelugu, fromRashiTelugu, toRashiTelugu, epochMillis, timezoneId)
+    }
+
+    override fun cancelPlanetTransitAlerts() {
+        NotificationScheduler.cancelPlanetTransitAlerts(context)
+    }
+
     override fun cancelAll() {
         cancelMorningReminder()
         cancelEveningReminder()
@@ -82,5 +106,8 @@ class AndroidNotificationScheduler(
         cancelFestivalGreetings()
         cancelVrataReminders()
         cancelSacredMonthReminders()
+        cancelShlokaReminder()
+        cancelRahuKalamAlerts()
+        cancelPlanetTransitAlerts()
     }
 }

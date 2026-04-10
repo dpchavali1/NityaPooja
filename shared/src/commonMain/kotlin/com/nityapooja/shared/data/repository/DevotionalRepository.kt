@@ -132,7 +132,7 @@ class DevotionalRepository(
         )
         val count = readingHistoryDao.getCount()
         if (count > 50) {
-            readingHistoryDao.clearAll()
+            readingHistoryDao.deleteOldestBeyond(50)
         }
     }
     suspend fun clearHistory() = readingHistoryDao.clearAll()

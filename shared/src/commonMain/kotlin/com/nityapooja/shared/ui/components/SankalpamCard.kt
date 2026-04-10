@@ -2,14 +2,20 @@ package com.nityapooja.shared.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nityapooja.shared.platform.SankalpamTtsPlayer
+import org.koin.compose.koinInject
 import com.nityapooja.shared.ui.panchangam.PanchangamData
 import com.nityapooja.shared.utils.JyotishConstants
 import com.nityapooja.shared.ui.theme.NityaPoojaTextStyles
@@ -150,6 +156,8 @@ fun SankalpamCard(
     modifier: Modifier = Modifier,
 ) {
     val missingInfo = gotra.isBlank() || userNakshatra.isBlank()
+    val ttsPlayer: SankalpamTtsPlayer = koinInject()
+    val isSpeaking by ttsPlayer.isSpeaking.collectAsState()
 
     GlassmorphicCard(
         modifier = modifier,
@@ -185,6 +193,29 @@ fun SankalpamCard(
             ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        Spacer(Modifier.height(12.dp))
+        FilledTonalButton(
+            onClick = {
+                if (isSpeaking) {
+                    ttsPlayer.stop()
+                } else {
+                    ttsPlayer.speak(buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType))
+                }
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        ) {
+            Icon(
+                if (isSpeaking) Icons.Default.Stop else Icons.Default.RecordVoiceOver,
+                contentDescription = if (isSpeaking) "Stop" else "Listen",
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                if (isSpeaking) "ఆపండి · Stop" else "వినండి · Listen",
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
 
         if (missingInfo && onNavigateToSettings != null) {
             Spacer(Modifier.height(12.dp))

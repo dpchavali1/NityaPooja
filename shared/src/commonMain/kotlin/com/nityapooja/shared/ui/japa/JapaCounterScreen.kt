@@ -29,6 +29,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.collectAsState
@@ -55,6 +59,8 @@ fun JapaCounterScreen(
     val mantras by viewModel.mantras.collectAsState()
     val selectedMantra by viewModel.selectedMantra.collectAsState()
     val currentStreak by viewModel.currentStreak.collectAsState()
+    val longestStreak by viewModel.longestStreak.collectAsState()
+    val last7DaysActivity by viewModel.last7DaysActivity.collectAsState()
     val activeDaysCount by viewModel.activeDaysCount.collectAsState()
 
     val fontSizeViewModel: FontSizeViewModel = koinViewModel()
@@ -484,12 +490,20 @@ fun JapaCounterScreen(
 
             // Streak & Lifetime Stats
             item {
-                if (currentStreak > 0) {
+                if (currentStreak > 0 || last7DaysActivity.any { it }) {
+                    val milestoneLabel = when {
+                        currentStreak >= 108 -> "🙏 108 రోజులు!"
+                        currentStreak >= 40 -> "⭐ 40 రోజులు!"
+                        currentStreak >= 21 -> "✨ 21 రోజులు!"
+                        currentStreak >= 7 -> "🔥 7 రోజులు!"
+                        else -> null
+                    }
                     GlassmorphicCard(
                         cornerRadius = 16.dp,
                         contentPadding = 16.dp,
                         accentColor = AuspiciousGreen,
                     ) {
+                        // Header row: streak count + milestone badge
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -497,22 +511,90 @@ fun JapaCounterScreen(
                             Icon(
                                 Icons.Default.LocalFireDepartment,
                                 contentDescription = null,
-                                tint = DeepVermillion,
-                                modifier = Modifier.size(32.dp),
+                                tint = if (currentStreak > 0) DeepVermillion else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(28.dp),
                             )
-                            Spacer(Modifier.width(12.dp))
+                            Spacer(Modifier.width(10.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "$currentStreak ${if (currentStreak == 1) "day" else "days"} streak!",
-                                    style = MaterialTheme.typography.titleMedium,
+                                    if (currentStreak > 0) "$currentStreak ${if (currentStreak == 1) "day" else "days"} streak"
+                                    else "Start your streak today!",
+                                    style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = DeepVermillion,
+                                    color = if (currentStreak > 0) DeepVermillion else MaterialTheme.colorScheme.onSurface,
                                 )
-                                Text(
-                                    "$activeDaysCount total active days",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                if (longestStreak > currentStreak && longestStreak > 0) {
+                                    Text(
+                                        "Best: $longestStreak days  ·  $activeDaysCount total active",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                } else {
+                                    Text(
+                                        "$activeDaysCount total active days",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            if (milestoneLabel != null) {
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = AuspiciousGreen.copy(alpha = 0.15f),
+                                ) {
+                                    Text(
+                                        milestoneLabel,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = AuspiciousGreen,
+                                    )
+                                }
+                            }
+                        }
+                        // 7-day sparkline
+                        Spacer(Modifier.height(12.dp))
+                        val dayLabels = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+                        val today = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()) }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                        ) {
+                            last7DaysActivity.forEachIndexed { i, active ->
+                                val dayEpoch = today.toEpochDays() - (6 - i)
+                                val dayOfWeek = LocalDate.fromEpochDays(dayEpoch).dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+                                val isToday = i == 6
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                when {
+                                                    active -> AuspiciousGreen.copy(alpha = 0.85f)
+                                                    isToday -> TempleGold.copy(alpha = 0.25f)
+                                                    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                                }
+                                            ),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        if (active) {
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = null,
+                                                tint = androidx.compose.ui.graphics.Color.White,
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
+                                    }
+                                    Spacer(Modifier.height(3.dp))
+                                    Text(
+                                        dayOfWeek,
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                                        color = if (isToday) TempleGold else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                                    )
+                                }
                             }
                         }
                     }

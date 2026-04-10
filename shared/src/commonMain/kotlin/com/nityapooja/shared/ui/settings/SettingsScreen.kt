@@ -38,6 +38,7 @@ fun SettingsScreen(
     onNavigateToPrivacyPolicy: () -> Unit = {},
     onLinkSpotify: (() -> Unit)? = null,
     onUnlinkSpotify: (() -> Unit)? = null,
+    onRequestExactAlarmPermission: (() -> Unit)? = null,
     spotifyLinked: Boolean = false,
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
@@ -60,8 +61,16 @@ fun SettingsScreen(
     val grahanamNotification by viewModel.grahanamNotification.collectAsState()
     val vrataNotification by viewModel.vrataNotification.collectAsState()
     val sacredMonthNotification by viewModel.sacredMonthNotification.collectAsState()
+    val shlokaNotification by viewModel.shlokaNotification.collectAsState()
+    val rahuKalamAlerts by viewModel.rahuKalamAlerts.collectAsState()
 
     val dataCleared by viewModel.dataCleared.collectAsState()
+
+    // Request exact alarm permission (Android 12+) when user enables any notification.
+    // On iOS/Desktop this is null and nothing happens.
+    val requestPermissionOnEnable: (Boolean) -> Unit = { enabled ->
+        if (enabled) onRequestExactAlarmPermission?.invoke()
+    }
 
     var showCityPicker by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
@@ -341,7 +350,7 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = morningNotification,
-                        onCheckedChange = { viewModel.setMorningNotification(it) },
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setMorningNotification(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -359,7 +368,7 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = eveningNotification,
-                        onCheckedChange = { viewModel.setEveningNotification(it) },
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setEveningNotification(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -377,7 +386,7 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = panchangNotifications,
-                        onCheckedChange = { viewModel.setPanchangNotifications(it) },
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setPanchangNotifications(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -396,7 +405,7 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = quizNotification,
-                        onCheckedChange = { viewModel.setQuizNotification(it) },
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setQuizNotification(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -446,7 +455,7 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = grahanamNotification,
-                        onCheckedChange = { viewModel.setGrahanamNotification(it) },
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setGrahanamNotification(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -465,7 +474,7 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = vrataNotification,
-                        onCheckedChange = { viewModel.setVrataNotification(it) },
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setVrataNotification(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }
@@ -484,7 +493,45 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = sacredMonthNotification,
-                        onCheckedChange = { viewModel.setSacredMonthNotification(it) },
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setSacredMonthNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
+            }
+
+            // Daily Shloka Reminder
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text("రోజువారీ శ్లోకం", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Daily Shloka · 7:00 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = shlokaNotification,
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setShlokaNotification(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
+            }
+
+            // Rahu Kalam / Yamagandam / Gulika Kalam alerts
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("రాహు కాల హెచ్చరికలు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Rahu Kalam / Yamagandam / Gulika · 10 min advance alert", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = rahuKalamAlerts,
+                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setRahuKalamAlerts(it) },
                         colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
                     )
                 }

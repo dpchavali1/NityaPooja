@@ -70,6 +70,9 @@ object GrahanamRepository {
         return localSparsha.toEpochDays() - localNow.toEpochDays() == 1
     }
 
+    /** All known eclipse IDs — used for alarm cancellation. */
+    fun getAllIds(): List<String> = eclipses.map { it.id }
+
     /** Returns true if [grahanam]'s Sparsha falls within [days] calendar days from now. */
     fun isWithinDays(grahanam: GrahanamData, days: Int, now: Instant, tz: TimeZone): Boolean {
         val localNow = now.toLocalDateTime(tz).date

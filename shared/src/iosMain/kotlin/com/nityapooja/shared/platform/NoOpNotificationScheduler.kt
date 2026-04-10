@@ -20,5 +20,11 @@ class NoOpNotificationScheduler : NotificationScheduler {
     override fun cancelVrataReminders() {}
     override fun scheduleSacredMonthReminder(masaNameTelugu: String, hour: Int, minute: Int, timezoneId: String) {}
     override fun cancelSacredMonthReminders() {}
+    override fun scheduleShlokaReminder(hour: Int, minute: Int, timezoneId: String) {}
+    override fun cancelShlokaReminder() {}
+    override fun scheduleRahuKalamAlerts(lat: Double, lng: Double, timezoneId: String) {}
+    override fun cancelRahuKalamAlerts() {}
+    override fun schedulePlanetTransitAlert(grahaNameTelugu: String, fromRashiTelugu: String, toRashiTelugu: String, epochMillis: Long, timezoneId: String) {}
+    override fun cancelPlanetTransitAlerts() {}
     override fun cancelAll() {}
 }

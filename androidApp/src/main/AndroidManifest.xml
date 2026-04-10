@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <queries>
         <package android:name="com.spotify.music" />
@@ -40,6 +42,29 @@
                 <data android:scheme="nityapooja" android:host="spotify-callback" />
             </intent-filter>
         </activity>
+
+        <!-- Notification alarm receiver — fires exact alarms even in Doze mode -->
+        <receiver
+            android:name=".worker.AlarmReceiver"
+            android:exported="false" />
+
+        <!-- Reschedules alarms after device reboot (post-unlock only — DataStore not available at locked boot) -->
+        <receiver
+            android:name=".worker.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Re-schedules with exact precision when SCHEDULE_EXACT_ALARM permission is granted -->
+        <receiver
+            android:name=".worker.AlarmPermissionReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Panchangam Home Screen Widget -->
         <receiver

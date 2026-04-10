@@ -3,6 +3,7 @@ package com.nityapooja.shared.platform
 import com.nityapooja.shared.data.grahanam.GrahanamData
 import com.nityapooja.shared.data.grahanam.GrahanamType
 import com.nityapooja.shared.platform.FestivalNotificationInfo
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import platform.Foundation.NSDateComponents
@@ -201,6 +202,80 @@ class IosNotificationScheduler : NotificationScheduler {
 
     override fun cancelSacredMonthReminders() {
         center.removePendingNotificationRequestsWithIdentifiers(listOf("sacred_month_reminder"))
+    }
+
+    override fun scheduleShlokaReminder(hour: Int, minute: Int, timezoneId: String) {
+        scheduleDaily(
+            id = "shloka_reminder",
+            title = "NityaPooja - రోజువారీ శ్లోకం",
+            body = "నేటి శ్లోకం చదవండి / Read today's daily shloka",
+            hour = hour,
+            minute = minute,
+            route = "home",
+        )
+    }
+
+    override fun cancelShlokaReminder() {
+        center.removePendingNotificationRequestsWithIdentifiers(listOf("shloka_reminder"))
+    }
+
+    override fun scheduleRahuKalamAlerts(lat: Double, lng: Double, timezoneId: String) {
+        // iOS: schedule a daily morning reminder to check Rahu Kalam in the app
+        scheduleDaily(
+            id = "rahu_kalam_reminder",
+            title = "NityaPooja - రాహు కాల హెచ్చరిక",
+            body = "నేటి రాహు కాలం/యమగండం/గులిక కాలం తేదీలు పంచాంగంలో చూడండి / Check today's Rahu Kalam timings",
+            hour = 6,
+            minute = 0,
+            route = "panchangam",
+        )
+    }
+
+    override fun cancelRahuKalamAlerts() {
+        center.removePendingNotificationRequestsWithIdentifiers(listOf("rahu_kalam_reminder"))
+    }
+
+    override fun schedulePlanetTransitAlert(
+        grahaNameTelugu: String,
+        fromRashiTelugu: String,
+        toRashiTelugu: String,
+        epochMillis: Long,
+        timezoneId: String,
+    ) {
+        val tz = try { TimeZone.of(timezoneId) } catch (_: Exception) { TimeZone.of("Asia/Kolkata") }
+        // 3 days before the transit
+        val alertMs = epochMillis - 3L * 24 * 60 * 60 * 1000
+        if (alertMs <= kotlinx.datetime.Clock.System.now().toEpochMilliseconds()) return
+
+        val alertInstant = Instant.fromEpochMilliseconds(alertMs)
+        val alertLocal = alertInstant.toLocalDateTime(tz)
+
+        val dateComponents = NSDateComponents().apply {
+            this.year = alertLocal.year.toLong()
+            this.month = alertLocal.monthNumber.toLong()
+            this.day = alertLocal.dayOfMonth.toLong()
+            this.hour = 8
+            this.minute = 0
+        }
+        scheduleOnce(
+            id = "transit_${grahaNameTelugu}_$epochMillis",
+            title = "NityaPooja - గ్రహ పరివర్తన",
+            body = "$grahaNameTelugu $fromRashiTelugu నుండి $toRashiTelugu లోకి 3 రోజుల్లో / $grahaNameTelugu transits from $fromRashiTelugu to $toRashiTelugu in 3 days",
+            dateComponents = dateComponents,
+            route = "planet_transits",
+        )
+    }
+
+    override fun cancelPlanetTransitAlerts() {
+        center.getPendingNotificationRequestsWithCompletionHandler { requests ->
+            val ids = (requests as? List<UNNotificationRequest>)
+                ?.filter { it.identifier.startsWith("transit_") }
+                ?.map { it.identifier }
+                ?: emptyList()
+            if (ids.isNotEmpty()) {
+                center.removePendingNotificationRequestsWithIdentifiers(ids)
+            }
+        }
     }
 
     override fun cancelAll() {

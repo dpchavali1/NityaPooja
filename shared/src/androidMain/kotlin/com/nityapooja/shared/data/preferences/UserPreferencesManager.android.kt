@@ -32,6 +32,8 @@ actual class UserPreferencesManager(private val context: Context) {
         val GRAHANAM_NOTIFICATION = booleanPreferencesKey("grahanam_notification")
         val VRATA_NOTIFICATION = booleanPreferencesKey("vrata_notification")
         val SACRED_MONTH_NOTIFICATION = booleanPreferencesKey("sacred_month_notification")
+        val SHLOKA_NOTIFICATION = booleanPreferencesKey("shloka_notification")
+        val RAHU_KALAM_ALERTS = booleanPreferencesKey("rahu_kalam_alerts")
         val FAVORITE_VRATA_IDS = stringPreferencesKey("favorite_vrata_ids")
         val FAMILY_PROFILES = stringPreferencesKey("family_profiles")
         val JAPA_TARGET_MALAS = intPreferencesKey("japa_target_malas")
@@ -81,6 +83,8 @@ actual class UserPreferencesManager(private val context: Context) {
     actual val grahanamNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.GRAHANAM_NOTIFICATION] ?: true }
     actual val vrataNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.VRATA_NOTIFICATION] ?: false }
     actual val sacredMonthNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SACRED_MONTH_NOTIFICATION] ?: false }
+    actual val shlokaNotification: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SHLOKA_NOTIFICATION] ?: false }
+    actual val rahuKalamAlerts: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.RAHU_KALAM_ALERTS] ?: false }
     actual val favoriteVrataIds: Flow<String> = context.dataStore.data.map { prefs -> prefs[Keys.FAVORITE_VRATA_IDS] ?: "" }
     actual val familyProfiles: Flow<String> = context.dataStore.data.map { prefs -> prefs[Keys.FAMILY_PROFILES] ?: "" }
     actual val japaTargetMalas: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.JAPA_TARGET_MALAS] ?: 3 }
@@ -119,6 +123,8 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setGrahanamNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.GRAHANAM_NOTIFICATION] = enabled } }
     actual suspend fun setVrataNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.VRATA_NOTIFICATION] = enabled } }
     actual suspend fun setSacredMonthNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.SACRED_MONTH_NOTIFICATION] = enabled } }
+    actual suspend fun setShlokaNotification(enabled: Boolean) { context.dataStore.edit { it[Keys.SHLOKA_NOTIFICATION] = enabled } }
+    actual suspend fun setRahuKalamAlerts(enabled: Boolean) { context.dataStore.edit { it[Keys.RAHU_KALAM_ALERTS] = enabled } }
     actual suspend fun setFavoriteVrataIds(ids: String) { context.dataStore.edit { it[Keys.FAVORITE_VRATA_IDS] = ids } }
     actual suspend fun setFamilyProfiles(profiles: String) { context.dataStore.edit { it[Keys.FAMILY_PROFILES] = profiles } }
     actual suspend fun setQuizNotificationTime(hour: Int, minute: Int) {
@@ -160,5 +166,14 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setWhatsNewVersion(version: Int) {
         val prefs = context.getSharedPreferences("nityapooja_internal", Context.MODE_PRIVATE)
         prefs.edit().putInt("whats_new_version", version).apply()
+    }
+
+    actual suspend fun getSeenInfoScreens(): String =
+        context.getSharedPreferences("nityapooja_prefs", Context.MODE_PRIVATE)
+            .getString("seen_info_screens", "") ?: ""
+
+    actual suspend fun setSeenInfoScreens(screens: String) {
+        context.getSharedPreferences("nityapooja_prefs", Context.MODE_PRIVATE)
+            .edit().putString("seen_info_screens", screens).apply()
     }
 }

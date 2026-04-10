@@ -18,6 +18,7 @@ import com.nityapooja.shared.data.local.entity.VrataEntity
 import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
+import com.nityapooja.shared.ui.components.InfoBottomSheet
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.theme.AuspiciousGreen
@@ -43,6 +44,7 @@ fun VrataListScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
     val fontScale = fontSize / 16f
+    var showInfoSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(locationInfo, allVratas) {
         if (allVratas.isNotEmpty()) {
@@ -65,6 +67,9 @@ fun VrataListScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showInfoSheet = true }) {
+                        Icon(Icons.Default.Info, contentDescription = "Info", tint = TempleGold)
+                    }
                     FontSizeControls(fontSize = fontSize, onDecrease = fontSizeViewModel::decrease, onIncrease = fontSizeViewModel::increase)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
@@ -98,6 +103,22 @@ fun VrataListScreen(
                 }
             }
         }
+    }
+
+    if (showInfoSheet) {
+        InfoBottomSheet(
+            titleTelugu = "వ్రతం అంటే ఏమిటి?",
+            titleEnglish = "What is a Vrata?",
+            bodyTelugu = "వ్రతం అంటే నిర్దిష్ట దేవత ప్రీత్యర్థం ఒక నిర్దిష్ట తిథి లేదా నక్షత్రంలో ఆచరించే ఉపవాస మరియు పూజా విధానం. ఉపవాసం ఉంటూ నిర్దిష్ట పూజలు, పారాయణలు చేయడం వ్రత ఆచరణ.",
+            bodyEnglish = "A Vrata is a Hindu observance — typically combining fasting with specific worship — performed on particular Tithis or Nakshatras to honor a deity. Common Vratas include Ekadashi (for Vishnu), Pradosh (for Shiva), Varalakshmi Vratam, and Satyanarayana Puja.",
+            whyItMatters = "వ్రత ఆచరణ వల్ల మనోబలం, ఆరోగ్యం మరియు ఆధ్యాత్మిక శక్తి పెరుగుతుందని నమ్మకం. రాబోయే వ్రతాల తేదీలు ఈ పేజీలో ఉన్నాయి. · Regular Vrata observance is believed to strengthen willpower, improve health, and deepen spiritual connection.",
+            tips = listOf(
+                "ఏకాదశి వ్రతం నెలకు రెండుసార్లు — శుక్ల మరియు కృష్ణ ఏకాదశి · Ekadashi occurs twice monthly — Shukla and Krishna Ekadashi",
+                "వ్రత వివరాలు చదివి ఉపవాస నియమాలు అర్థం చేసుకోండి · Read vrata details to understand fasting rules",
+                "నోటిఫికేషన్ ఆన్ చేయండి — మరచిపోకుండా రిమైండర్ పొందండి · Enable notifications for timely reminders",
+            ),
+            onDismiss = { showInfoSheet = false },
+        )
     }
 }
 

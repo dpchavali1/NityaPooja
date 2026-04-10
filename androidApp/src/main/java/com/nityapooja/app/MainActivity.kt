@@ -1,10 +1,14 @@
 package com.nityapooja.app
 
 import android.Manifest
+import android.app.AlarmManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,8 +29,6 @@ import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.app.ui.components.BannerAd
 import com.nityapooja.shared.ui.NityaPoojaApp
 import com.nityapooja.app.worker.NotificationWorker
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -55,8 +57,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         requestNotificationPermission()
 
-        runBlocking { preferencesManager.onboardingCompleted.first() }
-
         maybeRequestReview()
 
         val deepLinkRoute = intent?.getStringExtra(NotificationWorker.EXTRA_NAV_ROUTE)
@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
 
             NityaPoojaApp(
                 deepLinkRoute = deepLinkRoute,
+                onRequestExactAlarmPermission = { requestExactAlarmPermission() },
                 onLinkSpotify = {
                     Log.d("MainActivity", "onLinkSpotify tapped, installed=${spotifyManager.isSpotifyInstalled()}")
                     if (spotifyManager.isSpotifyInstalled()) {
@@ -91,6 +92,24 @@ class MainActivity : ComponentActivity() {
                 spotifyInstalled = spotifyManager.isSpotifyInstalled(),
                 bannerAd = { BannerAd() },
             )
+        }
+    }
+
+    /**
+     * On Android 12+, SCHEDULE_EXACT_ALARM defaults to denied for new installs targeting API 33+.
+     * It cannot be requested via requestPermissions() — must send the user to system settings.
+     * AlarmPermissionReceiver will reschedule everything once they grant it.
+     */
+    private fun requestExactAlarmPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val am = getSystemService(AlarmManager::class.java)
+            if (!am.canScheduleExactAlarms()) {
+                startActivity(
+                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                        data = Uri.fromParts("package", packageName, null)
+                    }
+                )
+            }
         }
     }
 

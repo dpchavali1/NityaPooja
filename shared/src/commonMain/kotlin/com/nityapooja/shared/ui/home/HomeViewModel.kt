@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
@@ -58,13 +59,20 @@ class HomeViewModel(
     val recentHistory: StateFlow<List<ReadingHistoryEntity>> = repository.getRecentHistory(5)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val morningNotification: StateFlow<Boolean> = preferencesManager.morningNotification
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
     data class UpcomingFestival(
         val festival: FestivalEntity,
         val daysUntil: Int,
         val displayDate: String,
     )
 
-    val upcomingFestivals: StateFlow<List<UpcomingFestival>> = repository.getAllFestivals()
+    // Single shared subscription — avoids two separate DB queries for the same data
+    private val allFestivals = repository.getAllFestivals()
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
+
+    val upcomingFestivals: StateFlow<List<UpcomingFestival>> = allFestivals
         .map { festivals ->
             festivals.mapNotNull { festival ->
                 val dateInfo = festival.getUpcomingDateInfo()
@@ -78,7 +86,7 @@ class HomeViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /** Festival that falls on today's date — null if no festival today */
-    val todayFestival: StateFlow<FestivalEntity?> = repository.getAllFestivals()
+    val todayFestival: StateFlow<FestivalEntity?> = allFestivals
         .map { festivals ->
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
             festivals.firstOrNull { it.dateThisYear == today || it.dateNextYear == today }

@@ -10,6 +10,7 @@ import com.nityapooja.shared.data.grahanam.GrahanamRepository
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.di.androidPlatformModule
 import com.nityapooja.shared.di.sharedModule
+import androidx.work.WorkManager
 import com.nityapooja.app.widget.PanchangamWidgetUpdateWorker
 import com.nityapooja.shared.platform.NotificationScheduler
 import kotlinx.coroutines.CoroutineScope
@@ -33,6 +34,7 @@ class NityaPoojaApp : Application() {
             modules(sharedModule, androidPlatformModule, androidAppModule)
         }
         createNotificationChannels()
+        cancelLegacyWorkManagerNotifications()
         scheduleNotificationsFromPreferences()
         PanchangamWidgetUpdateWorker.schedule(this)
         MobileAds.setRequestConfiguration(
@@ -42,6 +44,17 @@ class NityaPoojaApp : Application() {
                 .build()
         )
         MobileAds.initialize(this)
+    }
+
+    /** One-time migration: cancel old WorkManager notification jobs that used setInitialDelay. */
+    private fun cancelLegacyWorkManagerNotifications() {
+        val wm = WorkManager.getInstance(this)
+        listOf(
+            "morning_reminder", "evening_reminder", "panchang_reminder", "quiz_reminder",
+            "vrata_reminder", "sacred_month_reminder",
+        ).forEach { wm.cancelUniqueWork(it) }
+        wm.cancelAllWorkByTag("grahanam")
+        wm.cancelAllWorkByTag("festival_greeting")
     }
 
     private fun scheduleNotificationsFromPreferences() {
@@ -67,6 +80,20 @@ class NityaPoojaApp : Application() {
             if (prefs.grahanamNotification.first()) {
                 val grahanamList = GrahanamRepository.getUpcomingGrahanam(Clock.System.now())
                 scheduler.scheduleGrahanamNotifications(grahanamList, timezone)
+            }
+            if (prefs.vrataNotification.first()) {
+                scheduler.scheduleVrataReminder("Vratam", "వ్రతం", 6, 0, timezone)
+            }
+            if (prefs.sacredMonthNotification.first()) {
+                scheduler.scheduleSacredMonthReminder("పవిత్ర మాసం", 5, 30, timezone)
+            }
+            if (prefs.shlokaNotification.first()) {
+                scheduler.scheduleShlokaReminder(7, 0, timezone)
+            }
+            if (prefs.rahuKalamAlerts.first()) {
+                val lat = prefs.locationLat.first()
+                val lng = prefs.locationLng.first()
+                scheduler.scheduleRahuKalamAlerts(lat, lng, timezone)
             }
         }
     }

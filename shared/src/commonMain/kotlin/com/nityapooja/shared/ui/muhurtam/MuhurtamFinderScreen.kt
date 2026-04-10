@@ -22,6 +22,7 @@ import com.nityapooja.shared.data.muhurtam.MuhurtamRules.MuhurtamScore
 import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
+import com.nityapooja.shared.ui.components.InfoBottomSheet
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.theme.AuspiciousGreen
 import com.nityapooja.shared.ui.theme.DeepVermillion
@@ -52,6 +53,7 @@ fun MuhurtamFinderScreen(
     val fontScale = fontSize / 16f
     var showNakshatraDropdown by remember { mutableStateOf(false) }
     var showAddFamilyDialog by remember { mutableStateOf(false) }
+    var showInfoSheet by remember { mutableStateOf(false) }
 
     val allNakshatras = listOf(
         "అశ్విని", "భరణి", "కృత్తిక", "రోహిణి", "మృగశిర",
@@ -81,6 +83,9 @@ fun MuhurtamFinderScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showInfoSheet = true }) {
+                        Icon(Icons.Default.Info, contentDescription = "Info", tint = TempleGold)
+                    }
                     FontSizeControls(
                         fontSize = fontSize,
                         onDecrease = fontSizeViewModel::decrease,
@@ -228,6 +233,22 @@ fun MuhurtamFinderScreen(
                 }
             }
         }
+    }
+
+    if (showInfoSheet) {
+        InfoBottomSheet(
+            titleTelugu = "ముహూర్తం అంటే ఏమిటి?",
+            titleEnglish = "What is Muhurtam?",
+            bodyTelugu = "ముహూర్తం అంటే శుభ సమయం. పెళ్ళి, గృహప్రవేశం, నామకరణం వంటి ముఖ్యమైన కార్యక్రమాలకు తిథి, నక్షత్రం, యోగం మరియు వారాన్ని బట్టి శుభ సమయాన్ని నిర్ణయిస్తారు. ఈ సాధనం రాబోయే రోజులలో మీకు అనుకూలమైన తేదీలను స్కోర్ చేస్తుంది.",
+            bodyEnglish = "Muhurtam is an auspicious window of time for an important life event — wedding, housewarming, naming ceremony, or business launch. This tool scores upcoming dates by checking whether the Tithi, Nakshatra, Yoga, and weekday are traditionally favorable for your chosen event type.",
+            whyItMatters = "100 పాయింట్లు = అన్ని కారకాలు అనుకూలం. 50 కంటే తక్కువ = నివారించాలి. తిథి, నక్షత్రం, యోగం, వారం — నాలుగు కారకాలపై స్కోర్ ఆధారపడి ఉంటుంది. · 100 pts = all factors auspicious. Below 50 = avoid. Score based on Tithi, Nakshatra, Yoga, and weekday for the chosen event type.",
+            tips = listOf(
+                "మీ జన్మ నక్షత్రం ఎంచుకుంటే వ్యక్తిగతీకరించిన స్కోర్ పొందవచ్చు · Select your birth Nakshatra for a personalized score",
+                "గ్రీన్ స్కోర్ = అత్యంత అనుకూలం, రెడ్ = నివారించండి · Green = highly auspicious, Red = avoid",
+                "పంచాంగ పండితుని సలహా కూడా తీసుకోండి ముఖ్యమైన కార్యక్రమాలకు · Also consult a Panchangam expert for major events",
+            ),
+            onDismiss = { showInfoSheet = false },
+        )
     }
 
     // Add Family Member Dialog
@@ -437,25 +458,45 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName
         if (scoredDate.result.reasons.isNotEmpty()) {
             Spacer(Modifier.height(8.dp))
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
 
-            scoredDate.result.reasons.forEach { reason ->
-                Row(
-                    modifier = Modifier.padding(vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        if (reason.isPositive) Icons.Default.CheckCircle else Icons.Default.Cancel,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                        tint = if (reason.isPositive) AuspiciousGreen else DeepVermillion,
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        reason.textTelugu,
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = (14 * fontScale).sp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+            var showReasons by remember { mutableStateOf(false) }
+            TextButton(
+                onClick = { showReasons = !showReasons },
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+            ) {
+                Icon(
+                    if (showReasons) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    null,
+                    modifier = Modifier.size(16.dp),
+                    tint = TempleGold.copy(alpha = 0.7f),
+                )
+                Text(
+                    if (showReasons) "మూసివేయి · Hide" else "ఎందుకు? · Why this score?",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TempleGold.copy(alpha = 0.7f),
+                )
+            }
+            if (showReasons) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    scoredDate.result.reasons.forEach { reason ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            Icon(
+                                if (reason.isPositive) Icons.Default.CheckCircle else Icons.Default.Cancel,
+                                null,
+                                modifier = Modifier.size(14.dp).padding(top = 2.dp),
+                                tint = if (reason.isPositive) AuspiciousGreen else DeepVermillion,
+                            )
+                            Text(
+                                "${reason.textTelugu} · ${reason.textEnglish}",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontScale).sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             }
 

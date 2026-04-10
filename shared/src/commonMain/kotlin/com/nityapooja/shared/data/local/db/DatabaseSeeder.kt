@@ -27,7 +27,7 @@ class DatabaseSeeder(
 
     companion object {
         // Bump this whenever content changes to force re-seed on existing installs
-        const val CONTENT_VERSION = 11
+        const val CONTENT_VERSION = 12
 
         // Audio hosted via GitHub releases — upload MP3s to this release tag
         private const val GH_AUDIO = "https://raw.githubusercontent.com/dpchavali1/NityaPoojaAudio/main/"
@@ -49,10 +49,8 @@ class DatabaseSeeder(
         seedSuprabhatam()
         seedAshtotra()
         seedTemples()
-        val existingFestival = festivalDao.getFestivalById(1).first()
-        if (existingFestival == null || existingFestival.significance == null) {
-            festivalDao.clearAll()
-        }
+        // Always clear+reseed festivals on any version bump to ensure date corrections propagate.
+        festivalDao.clearAll()
         seedFestivals()
         seedShlokas()
         seedChalisas()
@@ -850,7 +848,7 @@ class DatabaseSeeder(
             FestivalEntity(27, "Dhanur Masam", "ధనుర్ మాసం",
                 description = "The month-long Dhanur Masam observance involves waking before sunrise for Tiruppavai/Suprabhatam recitation at Vishnu temples.",
                 descriptionTelugu = "ధనుర్ మాసంలో సూర్యోదయానికి ముందు లేచి విష్ణు ఆలయాలలో తిరుప్పావై/సుప్రభాతం పఠిస్తారు.",
-                dateThisYear = "2025-12-16", dateNextYear = "2026-12-16",
+                dateThisYear = "2026-12-16", dateNextYear = "2027-12-16",
                 category = "monthly", durationDays = 30),
         ))
     }

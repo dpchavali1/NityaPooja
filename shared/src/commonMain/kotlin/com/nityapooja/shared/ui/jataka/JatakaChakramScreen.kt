@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import com.nityapooja.shared.ui.components.BirthDetails
 import com.nityapooja.shared.ui.components.BirthDetailsInput
+import com.nityapooja.shared.ui.components.InfoBottomSheet
 import com.nityapooja.shared.ui.theme.*
 import com.nityapooja.shared.platform.shareText
 
@@ -35,6 +37,7 @@ fun JatakaChakramScreen(
     val uiState by viewModel.uiState.collectAsState()
     var birthDetails by remember { mutableStateOf(BirthDetails()) }
     var showProfilePicker by remember { mutableStateOf(false) }
+    var showInfoSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -51,6 +54,9 @@ fun JatakaChakramScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showInfoSheet = true }) {
+                        Icon(Icons.Default.Info, contentDescription = "Info", tint = TempleGold)
+                    }
                     IconButton(onClick = { showProfilePicker = true }) {
                         Icon(Icons.Default.People, "Saved Profiles", tint = TempleGold)
                     }
@@ -214,6 +220,22 @@ fun JatakaChakramScreen(
                 )
             },
             onNavigateToSavedProfiles = onNavigateToSavedProfiles,
+        )
+    }
+
+    if (showInfoSheet) {
+        InfoBottomSheet(
+            titleTelugu = "జాతక చక్రం అంటే ఏమిటి?",
+            titleEnglish = "What is a Birth Chart?",
+            bodyTelugu = "జాతక చక్రం జన్మ సమయంలో గ్రహాల స్థానాన్ని చూపే పటం. దక్షిణ భారత శైలిలో 12 భవనాలుగా చూపబడుతుంది. లగ్నం (ఉదయ రాశి) మరియు జన్మ రాశి (చంద్ర రాశి) మీ జ్యోతిష్య ప్రొఫైల్‌కు ఆధారం.",
+            bodyEnglish = "A Jataka Chakram (birth chart) maps planetary positions at the exact moment of birth. Displayed in South Indian style as a 12-house grid, it shows your Lagna (ascendant — the rising sign at birth), Janma Rashi (Moon sign), and all 9 planets in their respective houses.",
+            whyItMatters = "లగ్నం — వ్యక్తిత్వం మరియు శారీరక లక్షణాలు. జన్మ రాశి — మనస్తత్వం మరియు భావోద్వేగాలు. జ్యోతిష్యంలో ఇవి రెండూ ముఖ్యమైనవి. · Lagna reveals personality and physical traits. Janma Rashi reveals mental and emotional nature. Both are foundational in Vedic astrology readings.",
+            tips = listOf(
+                "మీ పుట్టిన తేదీ, సమయం, స్థానం ఖచ్చితంగా ఇవ్వడం ఆవశ్యకం · Accurate birth date, time, and place give the most precise chart",
+                "లగ్నం మారడానికి 2 గంటలు పడుతుంది — సమయం ముఖ్యం · The Lagna changes every 2 hours, so birth time accuracy matters",
+                "కుటుంబ ప్రొఫైల్స్ సేవ్ చేయవచ్చు · Save family profiles for easy reference",
+            ),
+            onDismiss = { showInfoSheet = false },
         )
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 import com.nityapooja.shared.ui.components.BirthDetails
 import com.nityapooja.shared.ui.components.BirthDetailsInput
+import com.nityapooja.shared.ui.components.InfoBottomSheet
 import com.nityapooja.shared.ui.theme.*
 import com.nityapooja.shared.utils.AshtaKootaCalculator
 import com.nityapooja.shared.platform.shareText
@@ -35,6 +37,7 @@ fun GunaMilanScreen(
     val uiState by viewModel.uiState.collectAsState()
     var brideDetails by remember { mutableStateOf(BirthDetails(name = "")) }
     var groomDetails by remember { mutableStateOf(BirthDetails(name = "")) }
+    var showInfoSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -51,6 +54,9 @@ fun GunaMilanScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showInfoSheet = true }) {
+                        Icon(Icons.Default.Info, contentDescription = "Info", tint = TempleGold)
+                    }
                     val result = uiState.milanResult
                     val bride = uiState.brideResult
                     val groom = uiState.groomResult
@@ -213,6 +219,22 @@ fun GunaMilanScreen(
                 }
             }
         }
+    }
+
+    if (showInfoSheet) {
+        InfoBottomSheet(
+            titleTelugu = "గుణ మిలనం అంటే ఏమిటి?",
+            titleEnglish = "What is Guna Milan?",
+            bodyTelugu = "గుణ మిలనం వివాహ అనుకూలత లెక్కింపు. వరుడు మరియు వధువు జన్మ నక్షత్రాల ఆధారంగా అష్ట కూటం (8 విభాగాలు) లో మొత్తం 36 గుణాలు పరిశీలిస్తారు. 18 కంటే ఎక్కువ సాధారణ అనుకూలత, 24 కంటే ఎక్కువ మంచిది, 32 కంటే ఎక్కువ అత్యుత్తమం.",
+            bodyEnglish = "Guna Milan is Vedic compatibility matching for marriage. Based on the bride and groom's birth Nakshatras, 8 dimensions (Ashta Koota) are evaluated for a total of 36 points. Above 18 = acceptable; above 24 = good; above 32 = excellent.",
+            whyItMatters = "అష్ట కూటం: వర్ణ (1), వశ్య (2), తార (3), యోని (4), గ్రహ మైత్రి (5), గణ (6), భకూట (7), నాడి (8) — ప్రతి కూటం వేర్వేరు జీవిత అంశాలను కొలుస్తుంది. · The 8 Kootas measure: personality (Varna), control (Vashya), health (Tara), intimacy (Yoni), mental compatibility (Graha Maitri), nature (Gana), family welfare (Bhakoot), and vitality (Nadi).",
+            tips = listOf(
+                "36లో 18 కంటే తక్కువ స్కోర్ వివాహానికి అనుకూలం కాదు · Score below 18/36 is not recommended for marriage",
+                "నాడి దోషం (0 స్కోర్) ముఖ్యమైన దోషం — పరిష్కారాలు అవసరం · Nadi dosha (0 score) is significant — remedies may be needed",
+                "గుణ మిలనం ఒక అంశం మాత్రమే — జాతక మిలాపం కూడా చూడండి · Guna Milan is one factor — also check full birth chart compatibility",
+            ),
+            onDismiss = { showInfoSheet = false },
+        )
     }
 }
 

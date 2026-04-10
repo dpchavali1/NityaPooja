@@ -98,7 +98,10 @@ class JatakaChakramViewModel : ViewModel() {
         }
 
         // Janma Nakshatra = Moon's nakshatra (index 1 = Moon)
-        val moonPos = positions[1]
+        val moonPos = positions.getOrNull(1) ?: run {
+            _uiState.value = JatakaUiState()
+            return
+        }
 
         val result = JatakaResult(
             positions = positions,

@@ -35,6 +35,7 @@ actual class SankalpamTtsPlayer(
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var audioPlayer: AVAudioPlayer? = null
 
+    @OptIn(ExperimentalForeignApi::class)
     actual fun speak(text: String) {
         scope.launch {
             val docDir = NSSearchPathForDirectoriesInDomains(
@@ -42,7 +43,7 @@ actual class SankalpamTtsPlayer(
             ).firstOrNull() as? String ?: return@launch
 
             val ttsCacheDir = "$docDir/sankalpam_tts"
-            val filePath = "$ttsCacheDir/${text.hashCode()}.mp3"
+            val filePath = "$ttsCacheDir/v4_${text.hashCode()}.mp3"
 
             NSFileManager.defaultManager.createDirectoryAtPath(
                 ttsCacheDir, withIntermediateDirectories = true, attributes = null, error = null
@@ -52,7 +53,9 @@ actual class SankalpamTtsPlayer(
                 _isLoading.value = true
                 try {
                     val bytes = withContext(Dispatchers.Default) { ttsApi.synthesize(text) }
-                    bytes.toNSData().writeToFile(filePath, atomically = true)
+                    NSFileManager.defaultManager.createFileAtPath(
+                        filePath, contents = bytes.toNSData(), attributes = null
+                    )
                 } catch (e: Exception) {
                     _isLoading.value = false
                     return@launch
@@ -84,7 +87,7 @@ actual class SankalpamTtsPlayer(
         scope.cancel()
     }
 
-    @OptIn(ExperimentalForeignApi::class)
+    @OptIn(ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
     private fun ByteArray.toNSData(): NSData = usePinned { pinned ->
         NSData.create(bytes = pinned.addressOf(0), length = size.toULong())
     }

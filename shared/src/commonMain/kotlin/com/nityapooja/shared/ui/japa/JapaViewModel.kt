@@ -8,11 +8,15 @@ import com.nityapooja.shared.data.local.entity.MantraEntity
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.data.repository.DevotionalRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -44,6 +48,23 @@ class JapaViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 3)
 
     private val _sessionStartTime = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
+
+    // 1Hz elapsed-seconds ticker; reads _sessionStartTime directly since it's in the same class
+    val sessionElapsedSeconds: StateFlow<Long> = flow {
+        while (true) {
+            val elapsed = (Clock.System.now().toEpochMilliseconds() - _sessionStartTime.value) / 1000L
+            emit(elapsed)
+            delay(1000L)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+
+    // Timestamp of the last increment in epoch ms; 0 means no pending undo window
+    private val _lastTapMs = MutableStateFlow(0L)
+    val lastTapMs: StateFlow<Long> = _lastTapMs.asStateFlow()
+
+    // Incremented each time a mala completes — used as LaunchedEffect key in UI
+    private val _malaCompleteEvent = MutableStateFlow(0)
+    val malaCompleteEvent: StateFlow<Int> = _malaCompleteEvent.asStateFlow()
 
     val totalMalas: StateFlow<Int> = japaSessionDao.getTotalMalas()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -89,6 +110,26 @@ class JapaViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), List(7) { false })
 
     val activeDaysCount: StateFlow<Int> = japaSessionDao.getActiveDaysCount()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    init {
+        // Auto-select the first mantra when the list loads (if nothing already selected)
+        viewModelScope.launch {
+            val list = mantras.first { it.isNotEmpty() }
+            if (_selectedMantra.value == null) _selectedMantra.value = list.first()
+        }
+    }
+
+    // Lifetime malas for the currently selected mantra
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val selectedMantraLifetimeMalas: StateFlow<Int> = _selectedMantra
+        .flatMapLatest { mantra ->
+            if (mantra != null) {
+                japaSessionDao.getTotalMalasByMantra(mantra.title)
+            } else {
+                flowOf(0)
+            }
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private fun calculateStreak(dates: List<String>): Int {
@@ -146,9 +187,33 @@ class JapaViewModel(
 
     fun increment() {
         _count.value++
+        _lastTapMs.value = Clock.System.now().toEpochMilliseconds()
         if (_count.value % 108 == 0) {
             _malas.value++
+            _malaCompleteEvent.value++
         }
+    }
+
+    /**
+     * Undo the last increment only within the 2000ms undo window.
+     * Also rolls back a mala if the last tap completed one.
+     */
+    fun undo() {
+        val tapMs = _lastTapMs.value
+        if (tapMs == 0L) return
+        val elapsed = Clock.System.now().toEpochMilliseconds() - tapMs
+        if (elapsed > 2000L) return
+        val currentCount = _count.value
+        if (currentCount <= 0) {
+            _lastTapMs.value = 0L
+            return
+        }
+        // If the tap that is being undone completed a mala (count % 108 == 0), undo the mala too
+        if (currentCount % 108 == 0 && _malas.value > 0) {
+            _malas.value--
+        }
+        _count.value--
+        _lastTapMs.value = 0L
     }
 
     fun saveAndReset() {
@@ -176,6 +241,7 @@ class JapaViewModel(
 
         _count.value = 0
         _malas.value = 0
+        _lastTapMs.value = 0L
         _sessionStartTime.value = Clock.System.now().toEpochMilliseconds()
     }
 }

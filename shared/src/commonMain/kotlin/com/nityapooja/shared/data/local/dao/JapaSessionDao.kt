@@ -27,6 +27,9 @@ interface JapaSessionDao {
     @Query("SELECT DISTINCT date FROM japa_sessions ORDER BY date DESC")
     fun getAllSessionDates(): Flow<List<String>>
 
+    @Query("SELECT COALESCE(SUM(malasCompleted), 0) FROM japa_sessions WHERE mantraName = :mantraName")
+    fun getTotalMalasByMantra(mantraName: String): Flow<Int>
+
     @Query("DELETE FROM japa_sessions")
     suspend fun clearAll()
 }

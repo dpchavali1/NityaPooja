@@ -166,11 +166,51 @@ fun SankalpamCard(
         contentPadding = 16.dp,
         accentColor = TempleGold,
     ) {
-        Text(
-            "సంకల్పం · SANKALPAM",
-            style = NityaPoojaTextStyles.GoldLabel,
-            color = TempleGold,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                "సంకల్పం · SANKALPAM",
+                style = NityaPoojaTextStyles.GoldLabel,
+                color = TempleGold,
+                modifier = Modifier.weight(1f),
+            )
+            FilledTonalButton(
+                onClick = {
+                    if (isSpeaking) {
+                        ttsPlayer.stop()
+                    } else if (!isLoading) {
+                        ttsPlayer.speak(buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType))
+                    }
+                },
+                enabled = !isLoading,
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(14.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                } else {
+                    Icon(
+                        if (isSpeaking) Icons.Default.Stop else Icons.Default.RecordVoiceOver,
+                        contentDescription = if (isSpeaking) "Stop" else "Listen",
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    when {
+                        isLoading -> "లోడ్ అవుతోంది..."
+                        isSpeaking -> "ఆపండి"
+                        else -> "వినండి"
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
+        }
         Spacer(Modifier.height(12.dp))
 
         Text(
@@ -194,42 +234,6 @@ fun SankalpamCard(
             ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-
-        Spacer(Modifier.height(12.dp))
-        FilledTonalButton(
-            onClick = {
-                if (isSpeaking) {
-                    ttsPlayer.stop()
-                } else if (!isLoading) {
-                    ttsPlayer.speak(buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType))
-                }
-            },
-            enabled = !isLoading,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-            } else {
-                Icon(
-                    if (isSpeaking) Icons.Default.Stop else Icons.Default.RecordVoiceOver,
-                    contentDescription = if (isSpeaking) "Stop" else "Listen",
-                    modifier = Modifier.size(18.dp),
-                )
-            }
-            Spacer(Modifier.width(6.dp))
-            Text(
-                when {
-                    isLoading -> "లోడ్ అవుతోంది · Generating..."
-                    isSpeaking -> "ఆపండి · Stop"
-                    else -> "వినండి · Listen"
-                },
-                style = MaterialTheme.typography.labelMedium,
-            )
-        }
 
         if (missingInfo && onNavigateToSettings != null) {
             Spacer(Modifier.height(12.dp))

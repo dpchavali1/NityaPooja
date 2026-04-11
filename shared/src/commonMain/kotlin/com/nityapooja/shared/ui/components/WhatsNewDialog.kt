@@ -16,7 +16,7 @@ import com.nityapooja.shared.ui.theme.AuspiciousGreen
 import com.nityapooja.shared.ui.theme.TempleGold
 
 // Bump this when you want to show the dialog again after a new release
-const val WHATS_NEW_VERSION = 2
+const val WHATS_NEW_VERSION = 3
 
 @Composable
 fun WhatsNewDialog(onDismiss: () -> Unit) {
@@ -34,52 +34,36 @@ fun WhatsNewDialog(onDismiss: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 WhatsNewItem(
-                    icon = Icons.Default.EventAvailable,
-                    titleTelugu = "శుభ ముహూర్తాలు",
-                    titleEnglish = "Muhurtam Finder",
-                    descriptionTelugu = "గృహ ప్రవేశం, వివాహం, ఉపనయనం వంటి శుభ కార్యాలకు ఉత్తమ ముహూర్తాలు చూడండి. తార బలం, చంద్ర బలం ఆధారంగా వ్యక్తిగత ఫలితాలు.",
-                    descriptionEnglish = "Find best dates for housewarming, wedding, and more. Personalized with Tara Balam & Chandrabalam.",
-                    howToUse = "More → తెలుగు సంస్కృతి → శుభ ముహూర్తాలు",
+                    icon = Icons.Default.RecordVoiceOver,
+                    titleTelugu = "సంకల్పం వాయిస్",
+                    titleEnglish = "Sankalpam Priest Voice",
+                    descriptionTelugu = "గూగుల్ AI వాయిస్ ద్వారా సంకల్పం పఠనం. మొదటిసారి తయారు చేసిన తర్వాత పరికరంలో సేవ్ అవుతుంది — ఇంటర్నెట్ అవసరం లేదు.",
+                    descriptionEnglish = "Hear your personalized Sankalpam read aloud in a natural Telugu priest voice powered by Google AI. Generated once and saved offline.",
+                    howToUse = "Home → Sankalpam card → వినండి button",
                 )
                 WhatsNewItem(
-                    icon = Icons.Default.Brightness5,
-                    titleTelugu = "వ్రతాలు",
-                    titleEnglish = "Vratas & Observances",
-                    descriptionTelugu = "ఏకాదశి, ప్రదోషం, చతుర్థి వంటి 14 వ్రతాలు. రాబోయే వ్రతాల తేదీలు, ఉపవాస నియమాలు, ప్రత్యేక ఆహారం.",
-                    descriptionEnglish = "14 vratas with upcoming dates, fasting rules, and special foods. Mark favorites for quick access.",
-                    howToUse = "More → తెలుగు సంస్కృతి → వ్రతాలు",
+                    icon = Icons.Default.NightsStay,
+                    titleTelugu = "గ్రహణం నోటిఫికేషన్లు",
+                    titleEnglish = "Eclipse Alerts",
+                    descriptionTelugu = "2025–2028 సూర్య, చంద్ర గ్రహణాల ముందు రోజు ఉదయం 8 గంటలకు మరియు స్పర్శ 1 గంట ముందు అలర్ట్ వస్తుంది.",
+                    descriptionEnglish = "Get notified the morning before and 1 hour before every solar & lunar eclipse through 2028. Includes Sparsha, Madhyamam, and Moksham times.",
+                    howToUse = "Settings → గ్రహణం నోటిఫికేషన్ toggle",
                 )
                 WhatsNewItem(
-                    icon = Icons.Default.CalendarMonth,
-                    titleTelugu = "పవిత్ర మాసాలు",
-                    titleEnglish = "Sacred Months",
-                    descriptionTelugu = "కార్తీక, శ్రావణ, మార్గశిర, చైత్ర మాసాల దైనందిన ఆచరణలు, ప్రత్యేక దినాలు, తేదీలు.",
-                    descriptionEnglish = "Daily practices and special days for Karthika, Shravana, Margashira, and Chaitra months with dates.",
-                    howToUse = "More → తెలుగు సంస్కృతి → పవిత్ర మాసాలు",
+                    icon = Icons.Default.AutoStories,
+                    titleTelugu = "పురాణాల క్విజ్",
+                    titleEnglish = "Purana Quiz",
+                    descriptionTelugu = "12 పురాణాలపై 300+ ప్రశ్నలు తెలుగు మరియు ఆంగ్లంలో. జ్ఞానాన్ని పరీక్షించుకోండి.",
+                    descriptionEnglish = "300+ bilingual questions across 12 Puranas — Vishnu, Shiva, Bhagavata, Garuda and more. Test your knowledge!",
+                    howToUse = "More → పురాణాల క్విజ్",
                 )
                 WhatsNewItem(
-                    icon = Icons.Default.Celebration,
-                    titleTelugu = "27 పండుగలు + శుభాకాంక్షలు",
-                    titleEnglish = "27 Festivals + Wishes",
-                    descriptionTelugu = "బతుకమ్మ, బోనాలు, కార్తీక పౌర్ణమి వంటి 17 కొత్త పండుగలు. ప్రతి పండుగకు వ్యక్తిగత శుభాకాంక్షలు + నోటిఫికేషన్.",
-                    descriptionEnglish = "17 new Telugu festivals with personalized greetings and morning push notifications.",
-                    howToUse = "Home → Festivals section, or More → పండుగలు",
-                )
-                WhatsNewItem(
-                    icon = Icons.Default.TempleHindu,
-                    titleTelugu = "25 దేవాలయాలు",
-                    titleEnglish = "25 AP/TS Temples",
-                    descriptionTelugu = "పంచారామాలు, శక్తి పీఠాలు, చిల్కూర్ బాలాజీ, మంత్రాలయం వంటి 17 కొత్త దేవాలయాలు.",
-                    descriptionEnglish = "Pancha Aramas, Shakti Peethalu, Chilkur Balaji, Mantralayam and more.",
-                    howToUse = "Quick Access → దేవాలయాలు",
-                )
-                WhatsNewItem(
-                    icon = Icons.Default.People,
-                    titleTelugu = "కుటుంబ ప్రొఫైల్స్",
-                    titleEnglish = "Family Profiles for Muhurtam",
-                    descriptionTelugu = "కుటుంబ సభ్యుల నక్షత్రం, రాశి సేవ్ చేసి ముహూర్తం త్వరగా చెక్ చేయండి.",
-                    descriptionEnglish = "Save family members' nakshatra & rashi for quick muhurtam switching.",
-                    howToUse = "Muhurtam Finder → '+ కుటుంబం' button",
+                    icon = Icons.Default.Widgets,
+                    titleTelugu = "పంచాంగం విడ్జెట్",
+                    titleEnglish = "Panchangam Home Widget",
+                    descriptionTelugu = "నేటి తిథి, నక్షత్రం, వారం, యోగం, కరణం నేరుగా హోమ్ స్క్రీన్‌లో చూడండి. అర్ధరాత్రి స్వయంగా అప్‌డేట్ అవుతుంది.",
+                    descriptionEnglish = "Today's Tithi, Nakshatra, Vara, Yoga, and Karana at a glance on your home screen. Auto-updates at midnight.",
+                    howToUse = "Long-press home screen → Widgets → NityaPooja",
                 )
             }
         },

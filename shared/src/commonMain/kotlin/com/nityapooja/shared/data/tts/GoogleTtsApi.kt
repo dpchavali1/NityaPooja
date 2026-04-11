@@ -21,13 +21,13 @@ class GoogleTtsApi(
 ) {
     @Serializable
     private data class TtsRequest(
-        val input: TextInput,
+        val input: SsmlInput,
         val voice: VoiceSelectionParams,
         val audioConfig: AudioConfig,
     )
 
     @Serializable
-    private data class TextInput(val text: String)
+    private data class SsmlInput(val ssml: String)
 
     @Serializable
     private data class VoiceSelectionParams(
@@ -37,14 +37,22 @@ class GoogleTtsApi(
     )
 
     @Serializable
-    private data class AudioConfig(
-        val audioEncoding: String,
-        val speakingRate: Double,
-        val pitch: Double,
-    )
+    private data class AudioConfig(val audioEncoding: String)
 
     @Serializable
     private data class TtsResponse(val audioContent: String)
+
+    // Wrap plain text in SSML: slower rate, lower pitch, and a short pause after each line
+    // to mimic the measured cadence of a Sanskrit/Telugu priest recitation.
+    private fun toSsml(text: String): String {
+        val escaped = text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        // Replace newlines with a 400 ms pause so each verse line gets a breath
+        val withPauses = escaped.replace("\n", """<break time="400ms"/>""" + "\n")
+        return """<speak><prosody rate="85%" pitch="-2st">$withPauses</prosody></speak>"""
+    }
 
     @OptIn(ExperimentalEncodingApi::class)
     suspend fun synthesize(text: String): ByteArray {
@@ -53,17 +61,13 @@ class GoogleTtsApi(
             contentType(ContentType.Application.Json)
             setBody(
                 TtsRequest(
-                    input = TextInput(text),
+                    input = SsmlInput(toSsml(text)),
                     voice = VoiceSelectionParams(
                         languageCode = "te-IN",
                         ssmlGender = "MALE",
                         name = "te-IN-Standard-B",
                     ),
-                    audioConfig = AudioConfig(
-                        audioEncoding = "MP3",
-                        speakingRate = 1.0,
-                        pitch = -1.0,
-                    ),
+                    audioConfig = AudioConfig(audioEncoding = "MP3"),
                 )
             )
         }

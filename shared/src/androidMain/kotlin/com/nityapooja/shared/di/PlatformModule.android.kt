@@ -15,5 +15,5 @@ val androidPlatformModule = module {
     single { PlatformAudioPlayer(androidContext()) }
     single { PlatformSoundEffect(androidContext()) }
     single { PlatformHaptics(androidContext()) }
-    single { SankalpamTtsPlayer(androidContext()) }
+    single { SankalpamTtsPlayer(androidContext(), get()) }
 }

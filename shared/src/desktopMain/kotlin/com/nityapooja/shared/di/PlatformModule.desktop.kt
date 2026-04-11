@@ -3,6 +3,7 @@ package com.nityapooja.shared.di
 import com.nityapooja.shared.data.local.db.getDatabaseBuilder
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.data.spotify.SpotifyCredentials
+import com.nityapooja.shared.data.tts.GoogleTtsCredentials
 import com.nityapooja.shared.platform.PlatformAudioPlayer
 import com.nityapooja.shared.platform.PlatformHaptics
 import com.nityapooja.shared.platform.PlatformSoundEffect
@@ -25,5 +26,6 @@ val desktopPlatformModule = module {
     ) }
     single<SpotifyPlaybackBridge> { PreviewSpotifyPlaybackBridge(get(), get()) }
     single<NotificationScheduler> { NoOpNotificationScheduler() }
+    single { GoogleTtsCredentials(apiKey = System.getenv("GOOGLE_TTS_API_KEY") ?: "") }
     single { SankalpamTtsPlayer() }
 }

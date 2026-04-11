@@ -158,6 +158,7 @@ fun SankalpamCard(
     val missingInfo = gotra.isBlank() || userNakshatra.isBlank()
     val ttsPlayer: SankalpamTtsPlayer = koinInject()
     val isSpeaking by ttsPlayer.isSpeaking.collectAsState()
+    val isLoading by ttsPlayer.isLoading.collectAsState()
 
     GlassmorphicCard(
         modifier = modifier,
@@ -199,20 +200,33 @@ fun SankalpamCard(
             onClick = {
                 if (isSpeaking) {
                     ttsPlayer.stop()
-                } else {
+                } else if (!isLoading) {
                     ttsPlayer.speak(buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType))
                 }
             },
+            enabled = !isLoading,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         ) {
-            Icon(
-                if (isSpeaking) Icons.Default.Stop else Icons.Default.RecordVoiceOver,
-                contentDescription = if (isSpeaking) "Stop" else "Listen",
-                modifier = Modifier.size(18.dp),
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+            } else {
+                Icon(
+                    if (isSpeaking) Icons.Default.Stop else Icons.Default.RecordVoiceOver,
+                    contentDescription = if (isSpeaking) "Stop" else "Listen",
+                    modifier = Modifier.size(18.dp),
+                )
+            }
             Spacer(Modifier.width(6.dp))
             Text(
-                if (isSpeaking) "ఆపండి · Stop" else "వినండి · Listen",
+                when {
+                    isLoading -> "లోడ్ అవుతోంది · Generating..."
+                    isSpeaking -> "ఆపండి · Stop"
+                    else -> "వినండి · Listen"
+                },
                 style = MaterialTheme.typography.labelMedium,
             )
         }

@@ -7,6 +7,7 @@ import com.nityapooja.shared.data.local.db.NityaPoojaDatabase
 import com.nityapooja.shared.data.repository.DevotionalRepository
 import com.nityapooja.shared.data.spotify.SpotifyApi
 import com.nityapooja.shared.data.spotify.SpotifyCredentials
+import com.nityapooja.shared.data.tts.GoogleTtsApi
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
@@ -101,6 +102,9 @@ val sharedModule = module {
 
     // Spotify API (Ktor-based) — credentials provided by platform modules
     single { SpotifyApi(get(), get()) }
+
+    // Google TTS API — credentials provided by platform modules
+    single { GoogleTtsApi(get(), get()) }
 
     // ViewModels
     viewModelOf(::AartiViewModel)

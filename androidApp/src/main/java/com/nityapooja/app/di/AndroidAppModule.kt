@@ -5,6 +5,7 @@ import com.nityapooja.app.data.spotify.AndroidSpotifyPlaybackBridge
 import com.nityapooja.app.data.spotify.SpotifyManager
 import com.nityapooja.app.worker.AndroidNotificationScheduler
 import com.nityapooja.shared.data.spotify.SpotifyCredentials
+import com.nityapooja.shared.data.tts.GoogleTtsCredentials
 import com.nityapooja.shared.platform.NotificationScheduler
 import com.nityapooja.shared.platform.SpotifyPlaybackBridge
 import org.koin.android.ext.koin.androidContext
@@ -15,6 +16,7 @@ val androidAppModule = module {
         clientId = BuildConfig.SPOTIFY_CLIENT_ID,
         clientSecret = BuildConfig.SPOTIFY_CLIENT_SECRET,
     ) }
+    single { GoogleTtsCredentials(apiKey = BuildConfig.GOOGLE_TTS_API_KEY) }
     single { SpotifyManager(androidContext(), get()) }
     single<SpotifyPlaybackBridge> { AndroidSpotifyPlaybackBridge(get(), get(), get()) }
     single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }

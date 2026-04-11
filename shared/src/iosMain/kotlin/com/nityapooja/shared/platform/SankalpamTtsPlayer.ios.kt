@@ -1,52 +1,72 @@
 package com.nityapooja.shared.platform
 
+import com.nityapooja.shared.data.tts.GoogleTtsApi
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import platform.AVFAudio.AVSpeechSynthesisVoice
-import platform.AVFAudio.AVSpeechSynthesisVoiceGenderMale
-import platform.AVFAudio.AVSpeechSynthesizer
-import platform.AVFAudio.AVSpeechUtterance
+import kotlinx.coroutines.withContext
+import platform.AVFAudio.AVAudioPlayer
+import platform.Foundation.NSData
+import platform.Foundation.NSDocumentDirectory
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSURL
+import platform.Foundation.NSUserDomainMask
+import platform.Foundation.NSSearchPathForDirectoriesInDomains
+import platform.Foundation.create
 
-actual class SankalpamTtsPlayer {
-
+actual class SankalpamTtsPlayer(
+    private val ttsApi: GoogleTtsApi,
+) {
     private val _isSpeaking = MutableStateFlow(false)
     actual val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
 
-    private val synthesizer = AVSpeechSynthesizer()
-    private val scope = CoroutineScope(Dispatchers.Main)
-    private var speakingJob: Job? = null
+    private val _isLoading = MutableStateFlow(false)
+    actual val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var audioPlayer: AVAudioPlayer? = null
 
     actual fun speak(text: String) {
-        if (synthesizer.speaking) {
-            synthesizer.stopSpeakingAtBoundary(platform.AVFAudio.AVSpeechBoundaryImmediate)
-        }
-        val utterance = AVSpeechUtterance(string = text)
-        // Prefer an offline male Telugu voice; fall back to any te-IN voice
-        @Suppress("UNCHECKED_CAST")
-        val allVoices = AVSpeechSynthesisVoice.speechVoices() as List<AVSpeechSynthesisVoice>
-        val selectedVoice = allVoices.firstOrNull {
-            it.language == "te-IN" && it.gender == AVSpeechSynthesisVoiceGenderMale
-        } ?: AVSpeechSynthesisVoice.voiceWithLanguage("te-IN")
-        selectedVoice?.let { utterance.voice = it }
-        // Male Indian priest: slow deliberate pace, deep pitch (iOS rate 0..1, default ~0.5)
-        utterance.rate = 0.35f
-        utterance.pitchMultiplier = 0.75f
-        utterance.volume = 1.0f
+        scope.launch {
+            val docDir = NSSearchPathForDirectoriesInDomains(
+                NSDocumentDirectory, NSUserDomainMask, true
+            ).firstOrNull() as? String ?: return@launch
 
-        _isSpeaking.value = true
-        synthesizer.speakUtterance(utterance)
+            val ttsCacheDir = "$docDir/sankalpam_tts"
+            val filePath = "$ttsCacheDir/${text.hashCode()}.mp3"
 
-        // Poll synthesizer.speaking to automatically reset isSpeaking when done
-        speakingJob?.cancel()
-        speakingJob = scope.launch {
-            while (synthesizer.speaking) {
+            NSFileManager.defaultManager.createDirectoryAtPath(
+                ttsCacheDir, withIntermediateDirectories = true, attributes = null, error = null
+            )
+
+            if (!NSFileManager.defaultManager.fileExistsAtPath(filePath)) {
+                _isLoading.value = true
+                try {
+                    val bytes = withContext(Dispatchers.Default) { ttsApi.synthesize(text) }
+                    bytes.toNSData().writeToFile(filePath, atomically = true)
+                } catch (e: Exception) {
+                    _isLoading.value = false
+                    return@launch
+                }
+                _isLoading.value = false
+            }
+
+            val url = NSURL.fileURLWithPath(filePath)
+            audioPlayer?.stop()
+            audioPlayer = AVAudioPlayer(contentsOfURL = url, error = null)
+            audioPlayer?.play()
+            _isSpeaking.value = true
+
+            while (audioPlayer?.playing == true) {
                 delay(300)
             }
             _isSpeaking.value = false
@@ -54,15 +74,18 @@ actual class SankalpamTtsPlayer {
     }
 
     actual fun stop() {
-        speakingJob?.cancel()
-        synthesizer.stopSpeakingAtBoundary(platform.AVFAudio.AVSpeechBoundaryImmediate)
+        audioPlayer?.stop()
+        audioPlayer = null
         _isSpeaking.value = false
     }
 
     actual fun release() {
-        speakingJob?.cancel()
+        stop()
         scope.cancel()
-        synthesizer.stopSpeakingAtBoundary(platform.AVFAudio.AVSpeechBoundaryImmediate)
-        _isSpeaking.value = false
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    private fun ByteArray.toNSData(): NSData = usePinned { pinned ->
+        NSData.create(bytes = pinned.addressOf(0), length = size.toULong())
     }
 }

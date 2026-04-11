@@ -322,129 +322,6 @@ fun HomeScreen(
                 }
             }
 
-            // 3b. Inauspicious Periods — Rahu Kalam / Yamagandam / Gulika Kalam
-            item {
-                val anyActive = panchangamData.rahuKaal.isActive ||
-                    panchangamData.yamagandam.isActive ||
-                    panchangamData.gulikaKalam.isActive
-                Surface(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    color = if (anyActive)
-                        DeepVermillion.copy(alpha = 0.08f)
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                    onClick = onNavigateToPanchangam,
-                ) {
-                    Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                "నిషిద్ధ కాలాలు · AVOID TIMES",
-                                style = NityaPoojaTextStyles.GoldLabel,
-                                color = if (anyActive) DeepVermillion else TempleGold,
-                            )
-                            if (anyActive) {
-                                Surface(shape = MaterialTheme.shapes.small, color = DeepVermillion.copy(alpha = 0.15f)) {
-                                    Text(
-                                        "ఇప్పుడు చురుకు · Active Now",
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = DeepVermillion,
-                                    )
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            listOf(
-                                Triple("రాహు కాలం", panchangamData.rahuKaal.startTime + "–" + panchangamData.rahuKaal.endTime, panchangamData.rahuKaal.isActive),
-                                Triple("యమగండం", panchangamData.yamagandam.startTime + "–" + panchangamData.yamagandam.endTime, panchangamData.yamagandam.isActive),
-                                Triple("గులిక కాలం", panchangamData.gulikaKalam.startTime + "–" + panchangamData.gulikaKalam.endTime, panchangamData.gulikaKalam.isActive),
-                            ).forEach { (label, time, active) ->
-                                Surface(
-                                    modifier = Modifier.weight(1f),
-                                    shape = MaterialTheme.shapes.small,
-                                    color = if (active) DeepVermillion.copy(alpha = 0.12f)
-                                            else MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(6.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        Text(label, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, color = if (active) DeepVermillion else MaterialTheme.colorScheme.onSurface, maxLines = 1)
-                                        Spacer(Modifier.height(2.dp))
-                                        Text(time, style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 3c. Nakshatra TaraBalam — only when user has set birth nakshatra
-            if (birthNakshatraIndex >= 0) {
-                item {
-                    val taraBalam = remember(birthNakshatraIndex, panchangamData.nakshatra.index) {
-                        MuhurtamRules.calculateTaraBalam(birthNakshatraIndex, panchangamData.nakshatra.index)
-                    }
-                    val isGood = taraBalam.isGood
-                    val accentColor = if (isGood) AuspiciousGreen else DeepVermillion
-                    GlassmorphicCard(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        accentColor = accentColor,
-                        onClick = onNavigateToMuhurtam,
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "తార బలం · TARA BALAM",
-                                    style = NityaPoojaTextStyles.GoldLabel,
-                                    color = accentColor,
-                                )
-                                Spacer(Modifier.height(6.dp))
-                                Text(
-                                    "${taraBalam.nameTelugu} (${taraBalam.nameEnglish})",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = accentColor,
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    "నేడు: ${panchangamData.nakshatra.nameTelugu}  ·  జన్మ: ${JyotishConstants.NAKSHATRA_NAMES_TELUGU[birthNakshatraIndex]}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            Surface(
-                                shape = MaterialTheme.shapes.small,
-                                color = accentColor.copy(alpha = 0.12f),
-                            ) {
-                                Text(
-                                    if (isGood) "శుభం ✓" else "జాగ్రత్త",
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = accentColor,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
             // 4. Quick Access Row
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -901,15 +778,16 @@ private fun TodayGuidanceCard(
     val isAmritYoga = yogaName.contains("amrit")
     val isAvoidYoga = yogaName in setOf("vyatipata", "vaidhriti", "vaidhrti")
 
-    val (guidance, color) = when {
+    val guidanceAndColor = when {
         isEkadashi -> "ఈరోజు ఏకాదశి — విష్ణు పూజకు, ఉపవాసానికి శ్రేష్ఠమైన రోజు · Ekadashi: Ideal for Vishnu worship and fasting" to AuspiciousGreen
         isPurnima -> "ఈరోజు పూర్ణిమ — సత్యనారాయణ వ్రతానికి అత్యుత్తమ రోజు · Full Moon: Excellent for Satyanarayana Vrat" to TempleGold
         isAmavasya -> "ఈరోజు అమావాస్య — పితృ తర్పణానికి ప్రత్యేక రోజు · New Moon: Sacred for ancestral remembrance" to TempleGold
         isChaturthi -> "ఈరోజు చతుర్థి — గణపతి పూజకు శ్రేష్ఠమైన రోజు · Chaturthi: Sacred for Ganesha worship" to AuspiciousGreen
         isSiddhiYoga || isAmritYoga -> "ఈరోజు ${panchangam.yoga.nameTelugu} — కొత్త పనులు ప్రారంభించడానికి అత్యుత్తమ రోజు · ${panchangam.yoga.nameEnglish} Yoga: Excellent for new beginnings" to AuspiciousGreen
         isAvoidNakshatra || isAvoidYoga -> "ఈరోజు జాగ్రత్తగా ఉండండి — ముఖ్యమైన కార్యాలు వాయిదా వేయండి · Exercise caution today — postpone major activities if possible" to SacredTurmeric
-        else -> "ఈరోజు సాధారణ దినం — పంచాంగం చూసి శుభ సమయాన్ని ఎంచుకోండి · Regular day — check Panchangam for auspicious timings" to MaterialTheme.colorScheme.onSurfaceVariant
-    }
+        else -> null
+    } ?: return
+    val (guidance, color) = guidanceAndColor
 
     Surface(
         modifier = modifier.fillMaxWidth(),

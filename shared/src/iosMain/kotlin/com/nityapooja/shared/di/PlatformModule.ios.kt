@@ -3,6 +3,7 @@ package com.nityapooja.shared.di
 import com.nityapooja.shared.data.local.db.getDatabaseBuilder
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.data.spotify.SpotifyCredentials
+import com.nityapooja.shared.data.tts.GoogleTtsCredentials
 import com.nityapooja.shared.platform.PlatformAudioPlayer
 import com.nityapooja.shared.platform.PlatformHaptics
 import com.nityapooja.shared.platform.PlatformSoundEffect
@@ -26,5 +27,8 @@ val iosPlatformModule = module {
     ) }
     single<SpotifyPlaybackBridge> { PreviewSpotifyPlaybackBridge(get(), get()) }
     single<NotificationScheduler> { IosNotificationScheduler() }
-    single { SankalpamTtsPlayer() }
+    single { GoogleTtsCredentials(
+        apiKey = NSBundle.mainBundle.objectForInfoDictionaryKey("GOOGLE_TTS_API_KEY") as? String ?: ""
+    ) }
+    single { SankalpamTtsPlayer(get()) }
 }

@@ -34,6 +34,7 @@ android {
         buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"${localProperties.getProperty("SPOTIFY_CLIENT_ID", "")}\"")
         buildConfigField("String", "SPOTIFY_CLIENT_SECRET", "\"${localProperties.getProperty("SPOTIFY_CLIENT_SECRET", "")}\"")
         buildConfigField("String", "SPOTIFY_REDIRECT_URI", "\"nityapooja://spotify-callback\"")
+        buildConfigField("String", "GOOGLE_TTS_API_KEY", "\"${localProperties.getProperty("GOOGLE_TTS_API_KEY", "")}\"")
         manifestPlaceholders["redirectSchemeName"] = "nityapooja"
         manifestPlaceholders["redirectHostName"] = "spotify-callback"
 

@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 expect class SankalpamTtsPlayer {
     val isSpeaking: StateFlow<Boolean>
+    val isLoading: StateFlow<Boolean>
     fun speak(text: String)
     fun stop()
     fun release()

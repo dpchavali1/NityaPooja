@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.asStateFlow
 actual class SankalpamTtsPlayer {
     private val _isSpeaking = MutableStateFlow(false)
     actual val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
-    actual fun speak(text: String) { /* no-op on desktop */ }
+    private val _isLoading = MutableStateFlow(false)
+    actual val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    actual fun speak(text: String) {}
     actual fun stop() { _isSpeaking.value = false }
     actual fun release() { _isSpeaking.value = false }
 }

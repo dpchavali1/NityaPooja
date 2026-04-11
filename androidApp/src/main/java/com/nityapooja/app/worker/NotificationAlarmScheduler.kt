@@ -33,8 +33,6 @@ object NotificationAlarmScheduler {
         val pi = buildPendingIntent(context, workName, intent)
         val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
-            // Permission not yet granted — use inexact fallback; AlarmPermissionReceiver will
-            // reschedule with exact precision once the user grants it in Settings.
             am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMs, pi)
             return
         }
@@ -46,7 +44,12 @@ object NotificationAlarmScheduler {
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        am.setAlarmClock(AlarmManager.AlarmClockInfo(triggerAtMs, showIntent), pi)
+        try {
+            am.setAlarmClock(AlarmManager.AlarmClockInfo(triggerAtMs, showIntent), pi)
+        } catch (e: SecurityException) {
+            // Permission revoked between check and call (OEM battery-saver or user toggle)
+            am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMs, pi)
+        }
     }
 
     /**
@@ -56,9 +59,13 @@ object NotificationAlarmScheduler {
     fun scheduleAt(context: Context, workName: String, triggerAtMs: Long, intent: Intent) {
         val pi = buildPendingIntent(context, workName, intent)
         val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && am.canScheduleExactAlarms()) {
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMs, pi)
-        } else {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && am.canScheduleExactAlarms()) {
+                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMs, pi)
+            } else {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMs, pi)
+            }
+        } catch (e: SecurityException) {
             am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMs, pi)
         }
     }

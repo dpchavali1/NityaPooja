@@ -102,10 +102,16 @@ class NotificationWorker(
                     TYPE_MORNING -> {
                         val text = shloka.textSanskrit.take(120)
                         val meaning = shloka.meaningTelugu?.take(80) ?: ""
-                        "$text\n$meaning"
+                        if (meaning.isNotEmpty()) "$text\n$meaning" else text
                     }
                     TYPE_EVENING -> {
                         shloka.meaningEnglish?.take(120) ?: shloka.textSanskrit.take(120)
+                    }
+                    TYPE_SHLOKA -> {
+                        val text = shloka.textSanskrit.take(120)
+                        val meaning = shloka.meaningTelugu?.take(80)
+                            ?: shloka.meaningEnglish?.take(80) ?: ""
+                        if (meaning.isNotEmpty()) "$text\n$meaning" else text
                     }
                     else -> fallback
                 }
@@ -132,14 +138,17 @@ class NotificationWorker(
 
     private fun showNotification(body: String, notificationId: Int, type: String) {
         val navRoute = when (type) {
+            TYPE_MORNING, TYPE_EVENING, TYPE_SHLOKA -> "home"
             TYPE_QUIZ -> "purana_quiz"
             TYPE_GRAHANAM_BEFORE, TYPE_GRAHANAM_ON -> "panchangam"
-            TYPE_FESTIVAL -> "home"
-            else -> null
+            TYPE_FESTIVAL -> "festival_list"
+            TYPE_RAHU_KALAM, TYPE_YAMAGANDAM, TYPE_GULIKA -> "panchangam"
+            TYPE_PLANET_TRANSIT -> "planet_transits"
+            else -> "home"
         }
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            navRoute?.let { putExtra(EXTRA_NAV_ROUTE, it) }
+            putExtra(EXTRA_NAV_ROUTE, navRoute)
         }
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
@@ -149,13 +158,18 @@ class NotificationWorker(
         )
 
         val title = when (type) {
-            TYPE_MORNING -> "NityaPooja - Morning Blessing"
-            TYPE_EVENING -> "NityaPooja - Evening Aarti"
-            TYPE_QUIZ -> "NityaPooja - Puranas Quiz 📖"
-            TYPE_FESTIVAL -> "NityaPooja - పండుగ శుభాకాంక్షలు 🙏"
-            TYPE_GRAHANAM_BEFORE -> "రేపు గ్రహణం / Eclipse Tomorrow"
-            TYPE_GRAHANAM_ON -> "గ్రహణ కాలం / Grahanam Today"
-            else -> "NityaPooja"
+            TYPE_MORNING -> "🌅 శుభోదయం · Morning Blessing"
+            TYPE_EVENING -> "🪔 సాయం సంధ్య · Evening Aarti"
+            TYPE_SHLOKA -> "📿 రోజువారీ శ్లోకం · Daily Shloka"
+            TYPE_QUIZ -> "📖 పురాణాల క్విజ్ · Puranas Quiz"
+            TYPE_FESTIVAL -> "🙏 పండుగ శుభాకాంక్షలు · Festival Wishes"
+            TYPE_GRAHANAM_BEFORE -> "🌑 రేపు గ్రహణం · Eclipse Tomorrow"
+            TYPE_GRAHANAM_ON -> "🌑 గ్రహణ కాలం · Grahanam Today"
+            TYPE_RAHU_KALAM -> "⚠️ రాహు కాలం · Rahu Kalam Alert"
+            TYPE_YAMAGANDAM -> "⚠️ యమగండం · Yamagandam Alert"
+            TYPE_GULIKA -> "⚠️ గులిక · Gulika Alert"
+            TYPE_PLANET_TRANSIT -> "🪐 గ్రహ గమనం · Planet Transit"
+            else -> "🙏 NityaPooja"
         }
 
         val channelId = when (type) {

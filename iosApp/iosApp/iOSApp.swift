@@ -38,8 +38,8 @@ struct iOSApp: App {
         let launchCount = defaults.integer(forKey: "app_launch_count") + 1
         defaults.set(launchCount, forKey: "app_launch_count")
 
-        // Show review prompt on 5th launch, then every 30 launches
-        if launchCount == 5 || (launchCount > 5 && launchCount % 30 == 0) {
+        // Fallback for users who never use Japa; engagement-driven prompts fire via KMP
+        if launchCount == 10 || (launchCount > 10 && launchCount % 50 == 0) {
             if let scene = UIApplication.shared.connectedScenes
                 .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
                 SKStoreReviewController.requestReview(in: scene)

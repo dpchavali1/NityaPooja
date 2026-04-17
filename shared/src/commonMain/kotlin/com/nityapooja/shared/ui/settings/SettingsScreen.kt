@@ -30,6 +30,7 @@ import com.nityapooja.shared.ui.components.searchPlaces
 import com.nityapooja.shared.ui.theme.SpotifyGreen
 import com.nityapooja.shared.ui.theme.TempleGold
 import com.nityapooja.shared.ui.theme.NityaPoojaTextStyles
+import com.nityapooja.shared.platform.shareText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +40,7 @@ fun SettingsScreen(
     onLinkSpotify: (() -> Unit)? = null,
     onUnlinkSpotify: (() -> Unit)? = null,
     onRequestExactAlarmPermission: (() -> Unit)? = null,
+    onRequestReview: (() -> Unit)? = null,
     spotifyLinked: Boolean = false,
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
@@ -693,6 +695,37 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        // Share App
+                        OutlinedButton(
+                            onClick = {
+                                shareText(
+                                    "🙏 I use NityaPooja for daily Panchangam, Japa, Sankalpam & more!\n\nDownload it free:\nhttps://play.google.com/store/apps/details?id=com.nityapooja.app",
+                                    "Check out NityaPooja",
+                                )
+                            },
+                            modifier = Modifier.weight(1f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.5f)),
+                        ) {
+                            Icon(Icons.Default.Share, null, modifier = Modifier.size(16.dp), tint = TempleGold)
+                            Spacer(Modifier.width(6.dp))
+                            Text("Share App", color = TempleGold, style = MaterialTheme.typography.labelMedium)
+                        }
+                        // Rate App
+                        OutlinedButton(
+                            onClick = { onRequestReview?.invoke() },
+                            modifier = Modifier.weight(1f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.5f)),
+                        ) {
+                            Icon(Icons.Default.Star, null, modifier = Modifier.size(16.dp), tint = TempleGold)
+                            Spacer(Modifier.width(6.dp))
+                            Text("Rate App", color = TempleGold, style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
                     Spacer(Modifier.height(8.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                     Spacer(Modifier.height(8.dp))

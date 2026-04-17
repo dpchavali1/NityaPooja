@@ -465,6 +465,7 @@ fun NityaPoojaNavHost(
                     onLinkSpotify = onLinkSpotify,
                     onUnlinkSpotify = onUnlinkSpotify,
                     onRequestExactAlarmPermission = onRequestExactAlarmPermission,
+                    onRequestReview = onRequestReview,
                     spotifyLinked = spotifyLinked,
                     spotifyConnecting = spotifyConnecting,
                     spotifyInstalled = spotifyInstalled,

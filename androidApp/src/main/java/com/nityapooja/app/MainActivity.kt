@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         requestNotificationPermission()
 
-        maybeRequestReview()
+        maybeRequestReviewOnLaunch()
 
         val deepLinkRoute = intent?.getStringExtra(NotificationWorker.EXTRA_NAV_ROUTE)
 
@@ -74,6 +74,7 @@ class MainActivity : ComponentActivity() {
             NityaPoojaApp(
                 deepLinkRoute = deepLinkRoute,
                 onRequestExactAlarmPermission = { requestExactAlarmPermission() },
+                onRequestReview = { requestReview() },
                 onLinkSpotify = {
                     Log.d("MainActivity", "onLinkSpotify tapped, installed=${spotifyManager.isSpotifyInstalled()}")
                     if (spotifyManager.isSpotifyInstalled()) {
@@ -123,17 +124,25 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun maybeRequestReview() {
+    /** Called from Japa screen after hitting mala milestones (3, 9, 27, 108…). */
+    private fun requestReview() {
+        val reviewManager = ReviewManagerFactory.create(this)
+        reviewManager.requestReviewFlow().addOnSuccessListener { reviewInfo ->
+            reviewManager.launchReviewFlow(this, reviewInfo)
+        }
+    }
+
+    /**
+     * Fallback review prompt for users who never use Japa counter.
+     * Fires on 10th launch, then every 50 — well below Google's quota.
+     */
+    private fun maybeRequestReviewOnLaunch() {
         val prefs = getSharedPreferences("app_review", Context.MODE_PRIVATE)
         val launchCount = prefs.getInt("launch_count", 0) + 1
         prefs.edit().putInt("launch_count", launchCount).apply()
 
-        // Show review prompt on 5th launch, then every 30 launches
-        if (launchCount == 5 || (launchCount > 5 && launchCount % 30 == 0)) {
-            val reviewManager = ReviewManagerFactory.create(this)
-            reviewManager.requestReviewFlow().addOnSuccessListener { reviewInfo ->
-                reviewManager.launchReviewFlow(this, reviewInfo)
-            }
+        if (launchCount == 10 || (launchCount > 10 && launchCount % 50 == 0)) {
+            requestReview()
         }
     }
 }

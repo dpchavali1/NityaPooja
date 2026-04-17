@@ -26,6 +26,15 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 
+data class ShareAchievementData(
+    val malas: Int,
+    val mantraName: String,
+    val mantraNameTelugu: String,
+    val streak: Int,
+)
+
+private val REVIEW_MALA_MILESTONES = setOf(3, 9, 27, 108, 216, 324, 1008)
+
 class JapaViewModel(
     private val repository: DevotionalRepository,
     private val japaSessionDao: JapaSessionDao,
@@ -65,6 +74,17 @@ class JapaViewModel(
     // Incremented each time a mala completes — used as LaunchedEffect key in UI
     private val _malaCompleteEvent = MutableStateFlow(0)
     val malaCompleteEvent: StateFlow<Int> = _malaCompleteEvent.asStateFlow()
+
+    // Share achievement data emitted after each mala completion
+    private val _shareAchievement = MutableStateFlow<ShareAchievementData?>(null)
+    val shareAchievement: StateFlow<ShareAchievementData?> = _shareAchievement.asStateFlow()
+
+    // Review nudge emitted after hitting total-mala milestones (3, 9, 27, 108…)
+    private val _nudgeReview = MutableStateFlow(false)
+    val nudgeReview: StateFlow<Boolean> = _nudgeReview.asStateFlow()
+
+    fun dismissShareAchievement() { _shareAchievement.value = null }
+    fun dismissReviewNudge() { _nudgeReview.value = false }
 
     val totalMalas: StateFlow<Int> = japaSessionDao.getTotalMalas()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -191,6 +211,13 @@ class JapaViewModel(
         if (_count.value % 108 == 0) {
             _malas.value++
             _malaCompleteEvent.value++
+            // Emit share achievement after brief haptic delay
+            _shareAchievement.value = ShareAchievementData(
+                malas = _malas.value,
+                mantraName = _selectedMantra.value?.title ?: "Om",
+                mantraNameTelugu = _selectedMantra.value?.titleTelugu ?: "ఓం",
+                streak = currentStreak.value,
+            )
         }
     }
 
@@ -225,6 +252,8 @@ class JapaViewModel(
         // Always compute the current date at save time — never rely on the stale VM-init value.
         val date = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
         _todayDate.value = date
+        val sessionMalas = _malas.value
+        val prevTotalMalas = totalMalas.value
 
         viewModelScope.launch {
             japaSessionDao.insertSession(
@@ -232,11 +261,16 @@ class JapaViewModel(
                     mantraName = mantra?.title ?: "Om",
                     mantraNameTelugu = mantra?.titleTelugu ?: "ఓం",
                     count = currentCount,
-                    malasCompleted = _malas.value,
+                    malasCompleted = sessionMalas,
                     date = date,
                     durationSeconds = duration,
                 )
             )
+            // Nudge review at meaningful Hindu mala milestones
+            val newTotal = prevTotalMalas + sessionMalas
+            if (newTotal in REVIEW_MALA_MILESTONES) {
+                _nudgeReview.value = true
+            }
         }
 
         _count.value = 0

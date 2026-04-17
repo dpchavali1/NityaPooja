@@ -103,6 +103,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import com.nityapooja.shared.platform.KeepScreenOn
 import com.nityapooja.shared.platform.PlatformHaptics
+import com.nityapooja.shared.platform.shareText
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.theme.AuspiciousGreen
@@ -115,6 +116,7 @@ import com.nityapooja.shared.ui.theme.TempleGold
 @Composable
 fun JapaCounterScreen(
     onBack: () -> Unit = {},
+    onRequestReview: () -> Unit = {},
     viewModel: JapaViewModel = koinViewModel(),
 ) {
     val count by viewModel.count.collectAsState()
@@ -132,6 +134,8 @@ fun JapaCounterScreen(
     val lastTapMs by viewModel.lastTapMs.collectAsState()
     val malaCompleteEvent by viewModel.malaCompleteEvent.collectAsState()
     val selectedMantraLifetimeMalas by viewModel.selectedMantraLifetimeMalas.collectAsState()
+    val shareAchievement by viewModel.shareAchievement.collectAsState()
+    val nudgeReview by viewModel.nudgeReview.collectAsState()
 
     val haptics = koinInject<PlatformHaptics>()
     KeepScreenOn()
@@ -166,6 +170,15 @@ fun JapaCounterScreen(
             glowActive = true
             delay(1200L)
             glowActive = false
+        }
+    }
+
+    // Review nudge: fire Play/App Store review at milestone mala counts
+    LaunchedEffect(nudgeReview) {
+        if (nudgeReview) {
+            delay(2000L) // let mala celebration finish first
+            onRequestReview()
+            viewModel.dismissReviewNudge()
         }
     }
 
@@ -282,6 +295,72 @@ fun JapaCounterScreen(
                 TextButton(onClick = { showSaveDialog = false }) { Text("Cancel") }
             },
         )
+    }
+
+    // ── Mala achievement share sheet ─────────────────────────────────────────
+
+    shareAchievement?.let { data ->
+        ModalBottomSheet(
+            onDismissRequest = viewModel::dismissShareAchievement,
+            containerColor = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text("🎉", fontSize = 48.sp, modifier = Modifier.padding(bottom = 8.dp))
+                Text(
+                    "మాల పూర్తయింది!",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = TempleGold,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "${data.malas} మాల · ${data.mantraNameTelugu}",
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center,
+                )
+                if (data.streak > 1) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "🔥 ${data.streak} రోజుల స్ట్రీక్!",
+                        fontSize = 14.sp,
+                        color = DeepVermillion,
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    TextButton(
+                        onClick = viewModel::dismissShareAchievement,
+                        modifier = Modifier.weight(1f),
+                    ) { Text("Skip") }
+                    FilledTonalButton(
+                        onClick = {
+                            val malasText = if (data.malas == 1) "1 mala" else "${data.malas} malas"
+                            val streakLine = if (data.streak > 1) "\n🔥 ${data.streak}-day streak!" else ""
+                            shareText(
+                                "🙏 Completed $malasText of ${data.mantraNameTelugu} (${data.mantraName}) today!$streakLine\n\nJoin me on NityaPooja 📿\nhttps://play.google.com/store/apps/details?id=com.nityapooja.app",
+                                "My Japa Achievement",
+                            )
+                            viewModel.dismissShareAchievement()
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = androidx.compose.material3.ButtonDefaults.filledTonalButtonColors(
+                            containerColor = TempleGold.copy(alpha = 0.15f),
+                            contentColor = TempleGold,
+                        ),
+                    ) {
+                        Text("Share Achievement")
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+        }
     }
 
     // ── Mantra selector bottom sheet ─────────────────────────────────────────

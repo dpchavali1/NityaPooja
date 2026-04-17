@@ -79,6 +79,7 @@ fun NityaPoojaNavHost(
     onLinkSpotify: (() -> Unit)? = null,
     onUnlinkSpotify: (() -> Unit)? = null,
     onRequestExactAlarmPermission: (() -> Unit)? = null,
+    onRequestReview: (() -> Unit)? = null,
     spotifyLinked: Boolean = false,
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
@@ -452,7 +453,10 @@ fun NityaPoojaNavHost(
             }
 
             composable(Screen.JapaCounter.route) {
-                JapaCounterScreen(onBack = { navController.popBackStack() })
+                JapaCounterScreen(
+                    onBack = { navController.popBackStack() },
+                    onRequestReview = onRequestReview ?: {},
+                )
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(

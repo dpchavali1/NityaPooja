@@ -39,14 +39,15 @@ actual class SankalpamTtsPlayer(
     private var audioPlayer: AVAudioPlayer? = null
 
     @OptIn(ExperimentalForeignApi::class)
-    actual fun speak(text: String) {
+    actual fun speak(text: String, cacheKey: String) {
         scope.launch {
             val docDir = NSSearchPathForDirectoriesInDomains(
                 NSDocumentDirectory, NSUserDomainMask, true
             ).firstOrNull() as? String ?: return@launch
 
             val ttsCacheDir = "$docDir/sankalpam_tts"
-            val filePath = "$ttsCacheDir/v4_${text.hashCode()}.mp3"
+            val safeKey = cacheKey.replace(Regex("[^A-Za-z0-9_\\-]"), "_")
+            val filePath = "$ttsCacheDir/v5_$safeKey.mp3"
 
             NSFileManager.defaultManager.createDirectoryAtPath(
                 ttsCacheDir, withIntermediateDirectories = true, attributes = null, error = null

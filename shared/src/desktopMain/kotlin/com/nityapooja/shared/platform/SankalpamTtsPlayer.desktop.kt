@@ -9,7 +9,7 @@ actual class SankalpamTtsPlayer {
     actual val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
     private val _isLoading = MutableStateFlow(false)
     actual val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    actual fun speak(text: String) {}
+    actual fun speak(text: String, cacheKey: String) {}
     actual fun stop() { _isSpeaking.value = false }
     actual fun release() { _isSpeaking.value = false }
 }

@@ -15,6 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nityapooja.shared.platform.SankalpamTtsPlayer
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import org.koin.compose.koinInject
 import com.nityapooja.shared.ui.panchangam.PanchangamData
 import com.nityapooja.shared.utils.JyotishConstants
@@ -181,7 +184,12 @@ fun SankalpamCard(
                     if (isSpeaking) {
                         ttsPlayer.stop()
                     } else if (!isLoading) {
-                        ttsPlayer.speak(buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType))
+                        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                        val cacheKey = "${today}_${userName.ifBlank { "anon" }}_${gotra.ifBlank { "ng" }}_${userNakshatra.ifBlank { "nn" }}_${city}_${pujaType ?: "default"}"
+                        ttsPlayer.speak(
+                            buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType),
+                            cacheKey,
+                        )
                     }
                 },
                 enabled = !isLoading,

@@ -30,10 +30,11 @@ actual class SankalpamTtsPlayer(
 
     private val cacheDir = File(context.filesDir, "sankalpam_tts").also { it.mkdirs() }
 
-    actual fun speak(text: String) {
-        Log.d("SankalpamTTS", "speak() called, text length=${text.length}")
+    actual fun speak(text: String, cacheKey: String) {
+        Log.d("SankalpamTTS", "speak() called, cacheKey=$cacheKey")
         scope.launch {
-            val cacheFile = File(cacheDir, "v4_${text.hashCode()}.mp3")
+            val safeKey = cacheKey.replace(Regex("[^A-Za-z0-9_\\-]"), "_")
+            val cacheFile = File(cacheDir, "v5_$safeKey.mp3")
             Log.d("SankalpamTTS", "cacheFile=${cacheFile.absolutePath}, exists=${cacheFile.exists()}")
 
             if (!cacheFile.exists()) {

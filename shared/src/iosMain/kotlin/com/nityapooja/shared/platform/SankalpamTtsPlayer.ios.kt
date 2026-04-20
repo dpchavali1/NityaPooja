@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import platform.AVFAudio.AVAudioPlayer
+import platform.AVFAudio.AVAudioSession
+import platform.AVFAudio.AVAudioSessionCategoryPlayback
+import platform.AVFAudio.setActive
 import platform.Foundation.NSData
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
@@ -63,16 +66,29 @@ actual class SankalpamTtsPlayer(
                 _isLoading.value = false
             }
 
+            // Activate audio session so playback works even in silent mode
+            val session = AVAudioSession.sharedInstance()
+            session.setCategory(AVAudioSessionCategoryPlayback, null)
+            session.setActive(true, null)
+
             val url = NSURL.fileURLWithPath(filePath)
             audioPlayer?.stop()
-            audioPlayer = AVAudioPlayer(contentsOfURL = url, error = null)
-            audioPlayer?.play()
+            val player = AVAudioPlayer(contentsOfURL = url, error = null) ?: run {
+                _isSpeaking.value = false
+                return@launch
+            }
+            audioPlayer = player
+            player.prepareToPlay()
+            player.play()
             _isSpeaking.value = true
 
-            while (audioPlayer?.playing == true) {
+            // Give AVAudioPlayer a moment to start before polling
+            delay(200)
+            while (player.playing) {
                 delay(300)
             }
             _isSpeaking.value = false
+            session.setActive(false, null)
         }
     }
 

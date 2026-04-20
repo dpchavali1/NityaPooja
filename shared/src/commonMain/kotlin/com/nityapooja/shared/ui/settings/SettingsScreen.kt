@@ -31,6 +31,7 @@ import com.nityapooja.shared.ui.theme.SpotifyGreen
 import com.nityapooja.shared.ui.theme.TempleGold
 import com.nityapooja.shared.ui.theme.NityaPoojaTextStyles
 import com.nityapooja.shared.platform.shareText
+import com.nityapooja.shared.platform.openUrl  // from PlatformUrlOpener
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -715,9 +716,11 @@ fun SettingsScreen(
                             Spacer(Modifier.width(6.dp))
                             Text("Share App", color = TempleGold, style = MaterialTheme.typography.labelMedium)
                         }
-                        // Rate App
+                        // Rate App — open store directly (reliable on all builds)
                         OutlinedButton(
-                            onClick = { onRequestReview?.invoke() },
+                            onClick = {
+                                openUrl("https://play.google.com/store/apps/details?id=com.nityapooja.app")
+                            },
                             modifier = Modifier.weight(1f),
                             border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.5f)),
                         ) {

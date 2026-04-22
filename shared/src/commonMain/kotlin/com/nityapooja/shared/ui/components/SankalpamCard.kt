@@ -179,13 +179,15 @@ fun SankalpamCard(
                 color = TempleGold,
                 modifier = Modifier.weight(1f),
             )
-            FilledTonalButton(
+            if (ttsPlayer.isSupported) FilledTonalButton(
                 onClick = {
                     if (isSpeaking) {
                         ttsPlayer.stop()
                     } else if (!isLoading) {
                         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-                        val cacheKey = "${today}_${userName.ifBlank { "anon" }}_${gotra.ifBlank { "ng" }}_${userNakshatra.ifBlank { "nn" }}_${city}_${pujaType ?: "default"}"
+                        // Include tithi and nakshatra indices so the cache is invalidated
+                        // if either changes intraday (e.g. tithi transition at 3 PM)
+                        val cacheKey = "${today}_${userName.ifBlank { "anon" }}_${gotra.ifBlank { "ng" }}_${userNakshatra.ifBlank { "nn" }}_${city}_${pujaType ?: "default"}_t${panchangamData.tithi.index}_n${panchangamData.nakshatra.index}"
                         ttsPlayer.speak(
                             buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType),
                             cacheKey,

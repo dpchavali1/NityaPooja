@@ -24,6 +24,7 @@ actual class SankalpamTtsPlayer(
 
     private val _isLoading = MutableStateFlow(false)
     actual val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    actual val isSupported: Boolean = true
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var mediaPlayer: MediaPlayer? = null

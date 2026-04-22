@@ -735,7 +735,14 @@ private fun inferTimezoneIdFromCoords(lat: Double, lng: Double, countryCode: Str
         "jp" -> "Asia/Tokyo"
         "cn", "hk" -> "Asia/Shanghai"
         "th" -> "Asia/Bangkok"
-        "au" -> if (lng < 130.0) "Australia/Perth" else "Australia/Sydney"
+        "au" -> when {
+            lng < 129.0 -> "Australia/Perth"
+            lng < 132.0 -> "Australia/Darwin"   // NT (+9:30, no DST)
+            lng < 141.0 -> "Australia/Adelaide"  // SA (+9:30 with DST)
+            lat > -29.0 -> "Australia/Brisbane"  // QLD coast (+10, no DST)
+            lat < -39.0 -> "Australia/Hobart"    // TAS (+10 with DST)
+            else        -> "Australia/Sydney"    // NSW/VIC/ACT
+        }
         "nz" -> "Pacific/Auckland"
         "my" -> "Asia/Kuala_Lumpur"
         "id" -> "Asia/Jakarta"
@@ -749,7 +756,14 @@ private fun inferTimezoneIdFromCoords(lat: Double, lng: Double, countryCode: Str
         "ke" -> "Africa/Nairobi"
         "ng" -> "Africa/Lagos"
         "eg" -> "Africa/Cairo"
-        "ca" -> if (lng < -100.0) "America/Vancouver" else "America/Toronto"
+        "ca" -> when {
+            lng < -114.0 -> "America/Vancouver"  // BC
+            lng < -110.0 -> "America/Edmonton"   // Alberta
+            lng < -101.0 -> "America/Regina"     // Saskatchewan (UTC-6, no DST)
+            lng < -89.0  -> "America/Winnipeg"   // Manitoba
+            lng < -74.0  -> "America/Toronto"    // Ontario / Quebec
+            else         -> "America/Halifax"    // Atlantic provinces
+        }
         "br" -> "America/Sao_Paulo"
         "mx" -> "America/Mexico_City"
         else -> {
@@ -796,7 +810,9 @@ fun getTimezoneOffsetFromCoords(lat: Double, lng: Double): Double {
         lat in 18.0..54.0 && lng in 98.0..135.0 -> 8.0     // China
         lat in 30.0..46.0 && lng in 125.0..146.0 -> 9.0    // Japan/Korea
         lat in -10.0..24.0 && lng in 95.0..120.0 -> 7.0    // SE Asia
-        lat in -44.0..-10.0 && lng in 113.0..154.0 -> 10.0 // Australia
+        lat in -44.0..-10.0 && lng in 113.0..129.0 -> 8.0    // WA (Perth)
+        lat in -44.0..-10.0 && lng in 129.0..141.0 -> 9.5   // NT / SA
+        lat in -44.0..-10.0 && lng in 141.0..154.0 -> 10.0  // QLD / NSW / VIC
         lat in 12.0..42.0 && lng in 34.0..60.0 -> 4.0      // Middle East
         lat in 23.0..37.0 && lng in 60.0..78.0 -> 5.0      // Pakistan
         lat in 20.0..27.0 && lng in 88.0..93.0 -> 6.0      // Bangladesh

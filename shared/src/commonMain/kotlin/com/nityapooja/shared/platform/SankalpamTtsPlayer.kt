@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.StateFlow
 expect class SankalpamTtsPlayer {
     val isSpeaking: StateFlow<Boolean>
     val isLoading: StateFlow<Boolean>
-    /** [cacheKey] is a stable daily key — does NOT include intraday-volatile fields like karana/yoga */
+    val isSupported: Boolean
+    /** [cacheKey] must change whenever the spoken text changes (includes tithi/nakshatra index) */
     fun speak(text: String, cacheKey: String)
     fun stop()
     fun release()

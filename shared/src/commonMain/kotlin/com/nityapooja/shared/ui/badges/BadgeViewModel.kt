@@ -111,7 +111,7 @@ class BadgeViewModel(
         val sorted = dates
             .mapNotNull { runCatching { LocalDate.parse(it) }.getOrNull() }
             .map { it.toEpochDays() }
-            .toSortedSet() // ascending, deduped
+            .sorted().distinct() // ascending, deduped
 
         if (sorted.size < requiredDays) return false
 

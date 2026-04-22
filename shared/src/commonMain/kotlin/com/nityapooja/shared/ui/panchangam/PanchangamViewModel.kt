@@ -497,20 +497,23 @@ class PanchangamViewModel(
             val currentMinuteOfDay = hour * 60 + minute
             val sunriseMinuteOfDay = sunriseHour * 60 + sunriseMinute
             if (currentMinuteOfDay < sunriseMinuteOfDay) {
-                // Before sunrise — use previous day for panchangam calculations
+                // Before sunrise — Hindu day hasn't started yet; use previous civil day
                 val previousDay = calculationInstant.minus(1, DateTimeUnit.DAY, tz)
                 calculationLocalDateTime = previousDay.toLocalDateTime(tz)
                 year = calculationLocalDateTime.year
                 month = calculationLocalDateTime.monthNumber
                 day = calculationLocalDateTime.dayOfMonth
                 utcOffsetHours = previousDay.offsetIn(tz).totalSeconds / 3600.0
-                // Recalculate sunrise for previous day
                 val prevSunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
                 val prevSunriseMin = (((prevSunTimes.sunriseDecimal % 24.0 + 24.0) % 24.0) * 60.0).roundToInt()
                 hour = (prevSunriseMin / 60) % 24
                 minute = prevSunriseMin % 60
+            } else {
+                // After sunrise — anchor to today's sunrise so masa/tithi/vaara/rahu-kalam
+                // all reflect the same Hindu day anchor as the selected-date path
+                hour = sunriseHour
+                minute = sunriseMinute
             }
-            // If after sunrise, keep current time as-is for live tithi/nakshatra tracking
         } else {
             // For selected dates, anchor to sunrise
             calculationInstant = LocalDateTime(year, month, day, sunriseHour, sunriseMinute).toInstant(tz)

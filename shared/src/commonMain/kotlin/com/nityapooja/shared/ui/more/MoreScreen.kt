@@ -11,16 +11,22 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nityapooja.shared.ui.components.FontSizeControls
+import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.QuickAccessCircle
+import com.nityapooja.shared.ui.components.ScaledContent
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.theme.TempleGold
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +60,11 @@ fun MoreScreen(
     onNavigateToBadges: () -> Unit = {},
     onNavigateToFeatures: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
+    fontSizeViewModel: FontSizeViewModel = koinViewModel(),
 ) {
+    val fontSize by fontSizeViewModel.fontSize.collectAsState()
+    val fontScale = fontSize / 16f
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,9 +74,17 @@ fun MoreScreen(
                         Text("More", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 },
+                actions = {
+                    FontSizeControls(
+                        fontSize = fontSize,
+                        onDecrease = fontSizeViewModel::decrease,
+                        onIncrease = fontSizeViewModel::increase,
+                    )
+                },
             )
         }
     ) { padding ->
+        ScaledContent(fontScale) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize().padding(padding),
@@ -238,6 +256,7 @@ fun MoreScreen(
                 Spacer(Modifier.height(80.dp))
             }
         }
+        } // ScaledContent
     }
 }
 

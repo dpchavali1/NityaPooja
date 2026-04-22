@@ -71,7 +71,7 @@ fun FeaturesScreen(
                     color = TempleGold.copy(alpha = 0.12f),
                 ) {
                     Text(
-                        "🙏 NityaPooja · Version 2.1.1 · 30+ Features",
+                        "🙏 NityaPooja · Version 2.1 · 35+ Features",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
@@ -87,8 +87,8 @@ fun FeaturesScreen(
                     icon = Icons.Default.SelfImprovement,
                     titleTelugu = "జపం (మాల కౌంటర్)",
                     titleEnglish = "Japa Counter",
-                    descTelugu = "మాల సంఖ్య లెక్కించండి — హాప్టిక్ ఫీడ్‌బ్యాక్‌తో, సెషన్ చరిత్ర సహా. 1 నుండి 1000+ మాలల వరకు సాధన చేయండి.",
-                    descEnglish = "Count malas with haptic feedback and full session history. Practice from 1 to 1000+ malas.",
+                    descTelugu = "మాల సంఖ్య లెక్కించండి — హాప్టిక్ ఫీడ్‌బ్యాక్‌తో, సెషన్ చరిత్ర సహా. 1 నుండి 1000+ మాలల వరకు సాధన చేయండి. వరుస రోజుల స్ట్రీక్ ప్రగతి కూడా ట్రాక్ చేస్తుంది.",
+                    descEnglish = "Count malas with haptic feedback and full session history. Tracks consecutive-day streaks toward milestone badges.",
                     howToUse = "More → జపం → start counting",
                 )
             }
@@ -107,8 +107,8 @@ fun FeaturesScreen(
                     icon = Icons.Default.EmojiEvents,
                     titleTelugu = "ఆధ్యాత్మిక పురస్కారాలు",
                     titleEnglish = "Spiritual Badges",
-                    descTelugu = "హిందూ చిహ్నాలతో 8 పురస్కారాలు: త్రిపతాక (3 రోజులు), సప్తర్షి (7 రోజులు), సహస్ర దీపం (1000 మాలలు), వైకుంఠ ద్వారం (30 వరుస రోజులు) మరియు మరిన్ని.",
-                    descEnglish = "8 badges with Hindu symbols — Tripataka (3 days), Saptarishi (7 days), Sahasra Deepam (1000 malas), Vaikunta Dwaram (30 consecutive days) and more.",
+                    descTelugu = "హిందూ చిహ్నాలతో 15+ పురస్కారాలు: త్రిపతాక (3 రోజులు), సప్తర్షి (7 రోజులు), సహస్ర దీపం (1000 మాలలు), వైకుంఠ ద్వారం (30 రోజులు). స్ట్రీక్ మైల్‌స్టోన్లు: త్రిమూర్తి వ్రతం (21 రోజులు), మండల సేవ (40 రోజులు), శత దీపం (108 రోజులు) — ప్రతి పురస్కారంపై సంబరం యానిమేషన్.",
+                    descEnglish = "15+ badges with Hindu symbols. Streak milestones: Trimurti Vrat (21 days), Mandala Seva (40 days), Shata Deepam (108 days) — each badge earned triggers a celebration animation.",
                     howToUse = "More → పురస్కారాలు",
                 )
             }
@@ -172,6 +172,16 @@ fun FeaturesScreen(
             }
             item {
                 FeatureCard(
+                    icon = Icons.Default.Share,
+                    titleTelugu = "అందమైన షేర్ కార్డ్",
+                    titleEnglish = "Graphic Share Cards",
+                    descTelugu = "పంచాంగం మరియు ముహూర్తాన్ని అందమైన చిత్ర కార్డ్‌గా షేర్ చేయండి — WhatsApp, Instagram కి నేరుగా.",
+                    descEnglish = "Share Panchangam and Muhurtam as beautiful image cards directly to WhatsApp, Instagram, and more.",
+                    howToUse = "Panchangam → Share → Preview → షేర్ చేయండి",
+                )
+            }
+            item {
+                FeatureCard(
                     icon = Icons.Default.WatchLater,
                     titleTelugu = "చోఘడియా",
                     titleEnglish = "Choghadiya",
@@ -198,8 +208,8 @@ fun FeaturesScreen(
                     icon = Icons.Default.Stars,
                     titleTelugu = "రాశిఫలం",
                     titleEnglish = "Rashifal",
-                    descTelugu = "12 రాశుల నేటి, వారపు రాశిఫలం — ప్రేమ, ఆరోగ్యం, ఆర్థికం, వ్యాపారం విభాగాలలో.",
-                    descEnglish = "Daily and weekly horoscopes for all 12 zodiac signs — love, health, finance, career.",
+                    descTelugu = "12 రాశులకు నిజమైన వైదిక గోచార ఫలం — చంద్రుని సిద్ధాంత స్థానం ఆధారంగా. జన్మ రాశికి చంద్రుడు ఏ స్థానంలో ఉన్నాడో లెక్కించి, చంద్రాష్టమ హెచ్చరిక (8వ స్థానం) సహా చూపిస్తాం. ప్రతి ~2.5 రోజులకు మారుతుంది.",
+                    descEnglish = "Authentic Vedic Moon gochara predictions for all 12 rashis. Calculates actual Moon transit house from your janma rashi — Chandrashtama (8th house) shown as red warning. Updates every ~2.5 days as Moon changes sign.",
                     howToUse = "More → రాశిఫలం",
                 )
             }

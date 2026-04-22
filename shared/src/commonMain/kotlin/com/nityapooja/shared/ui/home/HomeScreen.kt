@@ -213,12 +213,6 @@ fun HomeScreen(
                 }
             }
 
-            // Deity Focus Week Card
-            item {
-                DeityFocusWeekCard(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-            }
 
             // 1. HERO: Deity of the Day (God first!)
             item {
@@ -812,10 +806,8 @@ private fun TodayGuidanceCard(
     val isPurnima = tithiName.contains("purnima") || tithiName.contains("poornima")
     val isAmavasya = tithiName.contains("amavasya")
     val isChaturthi = tithiName.contains("chaturthi")
-    val isAvoidNakshatra = nakshatraName in setOf("ardra", "ashlesha", "jyeshtha", "moola", "mula")
     val isSiddhiYoga = yogaName.contains("siddhi")
     val isAmritYoga = yogaName.contains("amrit")
-    val isAvoidYoga = yogaName in setOf("vyatipata", "vaidhriti", "vaidhrti")
 
     val guidanceAndColor = when {
         isEkadashi -> "ఈరోజు ఏకాదశి — విష్ణు పూజకు, ఉపవాసానికి శ్రేష్ఠమైన రోజు · Ekadashi: Ideal for Vishnu worship and fasting" to AuspiciousGreen
@@ -823,7 +815,6 @@ private fun TodayGuidanceCard(
         isAmavasya -> "ఈరోజు అమావాస్య — పితృ తర్పణానికి ప్రత్యేక రోజు · New Moon: Sacred for ancestral remembrance" to TempleGold
         isChaturthi -> "ఈరోజు చతుర్థి — గణపతి పూజకు శ్రేష్ఠమైన రోజు · Chaturthi: Sacred for Ganesha worship" to AuspiciousGreen
         isSiddhiYoga || isAmritYoga -> "ఈరోజు ${panchangam.yoga.nameTelugu} — కొత్త పనులు ప్రారంభించడానికి అత్యుత్తమ రోజు · ${panchangam.yoga.nameEnglish} Yoga: Excellent for new beginnings" to AuspiciousGreen
-        isAvoidNakshatra || isAvoidYoga -> "ఈరోజు జాగ్రత్తగా ఉండండి — ముఖ్యమైన కార్యాలు వాయిదా వేయండి · Exercise caution today — postpone major activities if possible" to SacredTurmeric
         else -> null
     } ?: return
     val (guidance, color) = guidanceAndColor

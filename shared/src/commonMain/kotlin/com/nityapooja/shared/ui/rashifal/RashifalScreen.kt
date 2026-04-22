@@ -20,6 +20,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 import com.nityapooja.shared.data.local.entity.RashiEntity
 import com.nityapooja.shared.ui.components.EmptyState
 import com.nityapooja.shared.ui.components.FontSizeViewModel
@@ -42,11 +45,10 @@ fun RashifalScreen(
 
     // Show prediction dialog when a rashi is selected
     selectedRashi?.let { rashi ->
-        val (predictionTelugu, predictionEnglish) = viewModel.getTodayPrediction(rashi)
+        val prediction = viewModel.computeGochaRa(rashi)
         RashiPredictionDialog(
             rashi = rashi,
-            predictionTelugu = predictionTelugu,
-            predictionEnglish = predictionEnglish,
+            prediction = prediction,
             fontScale = fontScale,
             onDismiss = { viewModel.clearSelection() },
         )
@@ -168,19 +170,13 @@ private fun RashiGridItem(
 @Composable
 private fun RashiPredictionDialog(
     rashi: RashiEntity,
-    predictionTelugu: String?,
-    predictionEnglish: String?,
+    prediction: RashifalPrediction,
     fontScale: Float = 1f,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = {
-            Text(
-                rashi.symbol,
-                fontSize = 40.sp,
-            )
-        },
+        icon = { Text(rashi.symbol, fontSize = 40.sp) },
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
@@ -199,60 +195,86 @@ private fun RashiPredictionDialog(
         },
         text = {
             Column {
-                if (!predictionTelugu.isNullOrBlank()) {
-                    Text(
-                        predictionTelugu,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = (18 * fontScale).sp,
-                            lineHeight = (28 * fontScale).sp,
-                        ),
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(Modifier.height(12.dp))
-                }
-                if (!predictionEnglish.isNullOrBlank()) {
-                    Text(
-                        predictionEnglish,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = (14 * fontScale).sp,
-                            lineHeight = (22 * fontScale).sp,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (predictionTelugu.isNullOrBlank() && predictionEnglish.isNullOrBlank()) {
-                    Text(
-                        "Today's prediction is not available.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Spacer(Modifier.height(8.dp))
+                // Transit context pill — shows where Moon + Sun are today
+                val pillColor = if (prediction.isChandrashtama)
+                    Color(0xFFB71C1C).copy(alpha = 0.12f)
+                else
+                    TempleGold.copy(alpha = 0.10f)
+                val pillTextColor = if (prediction.isChandrashtama) Color(0xFFB71C1C) else TempleGold
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(pillColor, RoundedCornerShape(8.dp))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text(
-                        "చంద్ర/జన్మ రాశి ఆధారంగా",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        rashi.rulingPlanetTelugu,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Column {
+                        Text(
+                            "🌙 ${prediction.moonRashiNameTelugu} (${prediction.moonHouse}వ స్థానం)",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = pillTextColor,
+                        )
+                        Text(
+                            "Moon in ${prediction.moonRashiNameEnglish} · house ${prediction.moonHouse}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = pillTextColor.copy(alpha = 0.8f),
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            "☀️ ${prediction.sunRashiNameTelugu}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            "Sun · ${prediction.sunRashiNameEnglish}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        )
+                    }
                 }
+
+                Spacer(Modifier.height(12.dp))
+
+                // Telugu prediction
+                Text(
+                    prediction.textTelugu,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = (16 * fontScale).sp,
+                        lineHeight = (26 * fontScale).sp,
+                    ),
+                    fontWeight = FontWeight.Medium,
+                    color = if (prediction.isChandrashtama) Color(0xFFB71C1C)
+                            else MaterialTheme.colorScheme.primary,
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                // English prediction
+                Text(
+                    prediction.textEnglish,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = (13 * fontScale).sp,
+                        lineHeight = (20 * fontScale).sp,
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                Spacer(Modifier.height(10.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Spacer(Modifier.height(6.dp))
+
+                Text(
+                    "గోచార ఫలం · చంద్ర గోచారం ఆధారంగా",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TempleGold.copy(alpha = 0.7f),
+                )
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
+            TextButton(onClick = onDismiss) { Text("సరే · Close") }
         },
     )
 }

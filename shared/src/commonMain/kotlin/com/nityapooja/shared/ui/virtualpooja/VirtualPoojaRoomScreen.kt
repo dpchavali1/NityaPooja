@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
@@ -29,10 +28,9 @@ import com.nityapooja.shared.data.local.entity.DeityEntity
 import com.nityapooja.shared.platform.PlatformHaptics
 import com.nityapooja.shared.platform.PlatformSoundEffect
 import com.nityapooja.shared.ui.audio.AudioPlayerViewModel
-import com.nityapooja.shared.ui.components.getDeityDrawable
+import com.nityapooja.shared.ui.components.SmartDeityImageBox
 import com.nityapooja.shared.ui.components.resolveDeityColor
 import com.nityapooja.shared.ui.theme.*
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -192,8 +190,6 @@ private fun DeityChip(
         label = "chipBorderWidth_${deity.id}",
     )
 
-    val drawableRes = deity.imageResName?.let { getDeityDrawable(it) }
-
     Column(
         modifier = Modifier
             .width(64.dp)
@@ -207,23 +203,13 @@ private fun DeityChip(
                 .border(borderWidth, borderColor, CircleShape),
             color = deityColor.copy(alpha = 0.2f),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                if (drawableRes != null) {
-                    androidx.compose.foundation.Image(
-                        painter = painterResource(drawableRes),
-                        contentDescription = deity.name,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                    )
-                } else {
-                    Text(
-                        deity.nameTelugu.take(1),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = deityColor,
-                    )
-                }
-            }
+            SmartDeityImageBox(
+                deityId = deity.id,
+                nameTelugu = deity.nameTelugu,
+                nameEnglish = deity.name,
+                deityColor = deityColor,
+                imageResName = deity.imageResName,
+            )
         }
 
         Spacer(Modifier.height(4.dp))

@@ -70,6 +70,9 @@ import com.nityapooja.shared.ui.muhurtam.MuhurtamFinderScreen
 import com.nityapooja.shared.ui.vrata.VrataListScreen
 import com.nityapooja.shared.ui.vrata.VrataDetailScreen
 import com.nityapooja.shared.ui.sacredmonth.SacredMonthScreen
+import com.nityapooja.shared.ui.family.FamilyDaysScreen
+import com.nityapooja.shared.ui.badges.BadgesScreen
+import com.nityapooja.shared.ui.more.FeaturesScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,6 +83,8 @@ fun NityaPoojaNavHost(
     onUnlinkSpotify: (() -> Unit)? = null,
     onRequestExactAlarmPermission: (() -> Unit)? = null,
     onRequestReview: (() -> Unit)? = null,
+    showFeedbackNudge: Boolean = false,
+    onDismissFeedbackNudge: () -> Unit = {},
     spotifyLinked: Boolean = false,
     spotifyConnecting: Boolean = false,
     spotifyInstalled: Boolean = false,
@@ -232,6 +237,9 @@ fun NityaPoojaNavHost(
                         }
                     },
                     bannerAd = bannerAd,
+                    showFeedbackNudge = showFeedbackNudge,
+                    onDismissFeedbackNudge = onDismissFeedbackNudge,
+                    onRequestReview = onRequestReview,
                 )
             }
             composable(Screen.AartiList.route) {
@@ -275,6 +283,9 @@ fun NityaPoojaNavHost(
                     onNavigateToSacredMonth = { navController.navigate(Screen.SacredMonth.route) },
                     onNavigateToChoghadiya = { navController.navigate(Screen.Choghadiya.route) },
                     onNavigateToPlanetTransits = { navController.navigate(Screen.PlanetTransits.route) },
+                    onNavigateToFamilyDays = { navController.navigate(Screen.FamilyDays.route) },
+                    onNavigateToBadges = { navController.navigate(Screen.Badges.route) },
+                    onNavigateToFeatures = { navController.navigate(Screen.AppFeatures.route) },
                     bannerAd = bannerAd,
                 )
             }
@@ -462,6 +473,7 @@ fun NityaPoojaNavHost(
                 SettingsScreen(
                     onBack = { navController.popBackStack() },
                     onNavigateToPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) },
+                    onNavigateToFeatures = { navController.navigate(Screen.AppFeatures.route) },
                     onLinkSpotify = onLinkSpotify,
                     onUnlinkSpotify = onUnlinkSpotify,
                     onRequestExactAlarmPermission = onRequestExactAlarmPermission,
@@ -618,12 +630,34 @@ fun NityaPoojaNavHost(
             composable(Screen.Choghadiya.route) {
                 com.nityapooja.shared.ui.choghadiya.ChoghadiyaScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 
             composable(Screen.PlanetTransits.route) {
                 com.nityapooja.shared.ui.transits.PlanetTransitsScreen(
                     onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
+                )
+            }
+
+            composable(Screen.FamilyDays.route) {
+                FamilyDaysScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            composable(Screen.Badges.route) {
+                BadgesScreen(
+                    onBack = { navController.popBackStack() },
+                )
+            }
+
+            // App Features Discovery
+            composable(Screen.AppFeatures.route) {
+                FeaturesScreen(
+                    onBack = { navController.popBackStack() },
+                    bannerAd = bannerAd,
                 )
             }
 

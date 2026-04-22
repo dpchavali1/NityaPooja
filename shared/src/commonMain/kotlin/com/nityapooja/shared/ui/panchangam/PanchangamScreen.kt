@@ -97,12 +97,6 @@ fun PanchangamScreen(
                     IconButton(onClick = { showPanchangamInfo = true }) {
                         Icon(Icons.Default.Info, "What is Panchangam?", tint = TempleGold)
                     }
-                    IconButton(onClick = {
-                        val shareTextContent = buildPanchangamShareText(panchangam, locationInfo.city)
-                        shareText(shareTextContent)
-                    }) {
-                        Icon(Icons.Default.Share, "Share", tint = TempleGold)
-                    }
                     FontSizeControls(
                         fontSize = fontSize,
                         onDecrease = fontSizeViewModel::decrease,
@@ -264,6 +258,27 @@ fun PanchangamScreen(
                         textAlign = TextAlign.Center,
                     )
                 }
+            }
+
+            // ═══════════════════════════════════════════
+            // Share card
+            // ═══════════════════════════════════════════
+            OutlinedButton(
+                onClick = {
+                    val shareTextContent = buildPanchangamShareText(panchangam, locationInfo.city)
+                    shareText(shareTextContent)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.5f)),
+                shape = RoundedCornerShape(14.dp),
+            ) {
+                Icon(Icons.Default.Share, null, modifier = Modifier.size(16.dp), tint = TempleGold)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "నేటి పంచాంగం షేర్ · Share Today's Panchangam",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TempleGold,
+                )
             }
 
             // ═══════════════════════════════════════════

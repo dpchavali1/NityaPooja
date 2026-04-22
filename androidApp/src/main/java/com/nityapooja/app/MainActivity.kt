@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
     private val spotifyManager: SpotifyManager by inject()
 
     private var isReady by mutableStateOf(false)
+    private var showFeedbackNudge by mutableStateOf(false)
 
     private val spotifyAuthLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
@@ -56,6 +58,8 @@ class MainActivity : ComponentActivity() {
         splash.setKeepOnScreenCondition { !isReady }
         enableEdgeToEdge()
         requestNotificationPermission()
+        requestBatteryOptimizationExemption()
+        showFeedbackNudge = shouldShowFeedbackNudge()
 
         maybeRequestReviewOnLaunch()
 
@@ -75,6 +79,12 @@ class MainActivity : ComponentActivity() {
                 deepLinkRoute = deepLinkRoute,
                 onRequestExactAlarmPermission = { requestExactAlarmPermission() },
                 onRequestReview = { requestReview() },
+                showFeedbackNudge = showFeedbackNudge,
+                onDismissFeedbackNudge = {
+                    showFeedbackNudge = false
+                    getSharedPreferences("feedback_nudge", Context.MODE_PRIVATE)
+                        .edit().putBoolean("dismissed", true).apply()
+                },
                 onLinkSpotify = {
                     Log.d("MainActivity", "onLinkSpotify tapped, installed=${spotifyManager.isSpotifyInstalled()}")
                     if (spotifyManager.isSpotifyInstalled()) {
@@ -94,6 +104,47 @@ class MainActivity : ComponentActivity() {
                 bannerAd = { BannerAd() },
             )
         }
+    }
+
+    /**
+     * Returns true if the feedback nudge card should appear on the Home screen.
+     *
+     * Shows on launch 5 and again at launch 25 — two lifetime opportunities.
+     * Permanently dismissed once the user rates or taps X (stored in "feedback_nudge" prefs).
+     */
+    private fun shouldShowFeedbackNudge(): Boolean {
+        val prefs = getSharedPreferences("feedback_nudge", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("dismissed", false)) return false
+
+        val reviewPrefs = getSharedPreferences("app_review", Context.MODE_PRIVATE)
+        val launchCount = reviewPrefs.getInt("launch_count", 0)
+        return launchCount == 5 || launchCount == 25
+    }
+
+    /**
+     * Requests battery optimization exemption on first launch.
+     *
+     * Without this, Samsung One UI (and other OEM battery managers) place freshly-installed
+     * apps in background-restricted mode, which suppresses AlarmManager alarms even when
+     * setAndAllowWhileIdle is used. The prod app avoids this because it has been used long
+     * enough to earn a better App Standby Bucket and users have often manually set it to
+     * "Unrestricted." This call ensures the same behaviour from the first install.
+     *
+     * Only asks once — flag stored in "battery_opt" SharedPreferences.
+     */
+    private fun requestBatteryOptimizationExemption() {
+        val pm = getSystemService(PowerManager::class.java)
+        if (pm.isIgnoringBatteryOptimizations(packageName)) return
+
+        val prefs = getSharedPreferences("battery_opt", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("asked", false)) return
+        prefs.edit().putBoolean("asked", true).apply()
+
+        startActivity(
+            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.fromParts("package", packageName, null)
+            }
+        )
     }
 
     /**

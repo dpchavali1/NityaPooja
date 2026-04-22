@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nityapooja.shared.data.local.entity.PuranaQuizEntity
+import com.nityapooja.shared.ui.badges.BadgeUnlockEffect
+import com.nityapooja.shared.ui.badges.BadgeViewModel
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.theme.TempleGold
 import com.nityapooja.shared.platform.shareText
@@ -31,12 +34,19 @@ fun PuranaQuizScreen(
     onBack: () -> Unit,
     viewModel: PuranaQuizViewModel = koinViewModel(),
     bannerAd: (@Composable () -> Unit)? = null,
+    badgeViewModel: BadgeViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     val fontSizeViewModel: FontSizeViewModel = koinViewModel()
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
     val fontScale = fontSize / 16f
+
+    LaunchedEffect(uiState.allAnswered) {
+        if (uiState.allAnswered && uiState.questions.isNotEmpty()) {
+            badgeViewModel.onQuizScore(uiState.score, uiState.questions.size)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -104,6 +114,8 @@ fun PuranaQuizScreen(
             }
         }
     }
+
+    BadgeUnlockEffect(badgeViewModel)
 }
 
 @Composable

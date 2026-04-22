@@ -500,13 +500,20 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName
                 }
             }
 
-            Spacer(Modifier.height(4.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = { shareText(buildMuhurtamShareText(scoredDate, eventName, forNakshatra)) }) {
-                    Icon(Icons.Default.Share, "Share", Modifier.size(16.dp), tint = TempleGold)
-                    Spacer(Modifier.width(4.dp))
-                    Text("Share", style = MaterialTheme.typography.labelSmall, color = TempleGold)
-                }
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = { shareText(buildMuhurtamShareText(scoredDate, eventName, forNakshatra)) },
+                modifier = Modifier.fillMaxWidth(),
+                border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.6f)),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+            ) {
+                Icon(Icons.Default.Share, null, modifier = Modifier.size(16.dp), tint = TempleGold)
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    "ముహూర్తం షేర్ చేయండి · Share Muhurtam",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = TempleGold,
+                )
             }
         }
     }

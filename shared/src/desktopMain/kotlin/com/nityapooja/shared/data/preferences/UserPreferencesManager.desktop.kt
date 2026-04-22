@@ -126,4 +126,15 @@ actual class UserPreferencesManager {
 
     actual suspend fun getSeenInfoScreens(): String = prefs.get("seen_info_screens", "")
     actual suspend fun setSeenInfoScreens(screens: String) { prefs.put("seen_info_screens", screens) }
+
+    actual suspend fun setCustomDeityImagePath(deityId: Int, path: String) {
+        prefs.put("custom_deity_img_$deityId", path)
+    }
+
+    actual suspend fun getCustomDeityImagePath(deityId: Int): String? =
+        prefs.get("custom_deity_img_$deityId", null)
+
+    actual suspend fun clearCustomDeityImagePath(deityId: Int) {
+        prefs.remove("custom_deity_img_$deityId")
+    }
 }

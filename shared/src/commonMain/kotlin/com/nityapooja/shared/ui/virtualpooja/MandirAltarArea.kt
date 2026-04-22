@@ -16,12 +16,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import com.nityapooja.shared.data.local.entity.DeityEntity
-import com.nityapooja.shared.ui.components.getDeityDrawable
+import com.nityapooja.shared.ui.components.SmartDeityImageBox
 import com.nityapooja.shared.ui.components.resolveDeityColor
-import org.jetbrains.compose.resources.painterResource
 
 /**
  * Central altar/mandir area displaying the deity image
@@ -104,27 +102,20 @@ fun MandirAltarArea(
 @Composable
 private fun DeityDisplay(deity: DeityEntity) {
     val deityColor = resolveDeityColor(deity.colorTheme)
-    val drawableRes = deity.imageResName?.let { getDeityDrawable(it) }
     Box(
         modifier = Modifier
             .size(200.dp)
             .clip(RoundedCornerShape(16.dp)),
         contentAlignment = Alignment.Center,
     ) {
-        if (drawableRes != null) {
-            Image(
-                painter = painterResource(drawableRes),
-                contentDescription = deity.name,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit,
-            )
-        } else {
-            androidx.compose.material3.Text(
-                text = deity.nameTelugu.take(2),
-                style = MaterialTheme.typography.displayLarge,
-                color = deityColor,
-            )
-        }
+        SmartDeityImageBox(
+            deityId = deity.id,
+            nameTelugu = deity.nameTelugu,
+            nameEnglish = deity.name,
+            deityColor = deityColor,
+            imageResName = deity.imageResName,
+            contentScale = ContentScale.Fit,
+        )
     }
 }
 

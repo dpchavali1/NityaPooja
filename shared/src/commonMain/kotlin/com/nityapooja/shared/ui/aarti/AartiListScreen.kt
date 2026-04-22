@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import com.nityapooja.shared.data.local.entity.AartiEntity
 import com.nityapooja.shared.data.local.entity.DeityEntity
-import com.nityapooja.shared.ui.components.DeityAvatar
+import com.nityapooja.shared.ui.components.SmartDeityImage
 import com.nityapooja.shared.ui.components.EmptyState
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.resolveDeityColor
@@ -115,7 +115,8 @@ private fun AartiTile(
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            DeityAvatar(
+            SmartDeityImage(
+                deityId = deity?.id ?: 0,
                 nameTelugu = deity?.nameTelugu ?: "",
                 nameEnglish = deity?.name ?: "",
                 deityColor = deityColor,

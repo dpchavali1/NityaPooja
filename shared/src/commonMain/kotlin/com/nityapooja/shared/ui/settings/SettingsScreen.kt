@@ -38,6 +38,7 @@ import com.nityapooja.shared.platform.openUrl  // from PlatformUrlOpener
 fun SettingsScreen(
     onBack: () -> Unit = {},
     onNavigateToPrivacyPolicy: () -> Unit = {},
+    onNavigateToFeatures: () -> Unit = {},
     onLinkSpotify: (() -> Unit)? = null,
     onUnlinkSpotify: (() -> Unit)? = null,
     onRequestExactAlarmPermission: (() -> Unit)? = null,
@@ -339,206 +340,29 @@ fun SettingsScreen(
                 }
             }
 
-            // Notifications
-            SectionHeader(titleTelugu = "\u0C28\u0C4B\u0C1F\u0C3F\u0C2B\u0C3F\u0C15\u0C47\u0C37\u0C28\u0C4D\u0C32\u0C41", titleEnglish = "Notifications")
-            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("\u0C09\u0C26\u0C2F\u0C02 \u0C38\u0C41\u0C2A\u0C4D\u0C30\u0C2D\u0C3E\u0C24\u0C02", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Morning \u00B7 5:30 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = morningNotification,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setMorningNotification(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-                Spacer(Modifier.height(12.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("\u0C38\u0C3E\u0C2F\u0C02\u0C15\u0C3E\u0C32\u0C02 \u0C39\u0C3E\u0C30\u0C24\u0C3F", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Evening \u00B7 6:30 PM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = eveningNotification,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setEveningNotification(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-                Spacer(Modifier.height(12.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("\u0C2A\u0C02\u0C1A\u0C3E\u0C02\u0C17 \u0C17\u0C41\u0C30\u0C4D\u0C24\u0C3F\u0C02\u0C2A\u0C41\u0C32\u0C41", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Panchang \u00B7 Ekadashi, Purnima, Amavasya", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = panchangNotifications,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setPanchangNotifications(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-                Spacer(Modifier.height(12.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("\u0C2A\u0C41\u0C30\u0C3E\u0C23\u0C3E\u0C32 \u0C15\u0C4D\u0C35\u0C3F\u0C1C\u0C4D", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        val timeLabel = "${if (quizNotificationHour >= 12) quizNotificationHour - 12 else quizNotificationHour}:${quizNotificationMinute.toString().padStart(2, '0')} ${if (quizNotificationHour >= 12) "PM" else "AM"}"
-                        Text("Puranas Quiz \u00B7 $timeLabel", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = quizNotification,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setQuizNotification(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-                if (quizNotification) {
-                    Spacer(Modifier.height(12.dp))
-                    Text("\u0C38\u0C2E\u0C2F\u0C02 / Time", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(6.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf(18 to "6 PM", 19 to "7 PM", 20 to "8 PM", 21 to "9 PM").forEach { (h, label) ->
-                            FilterChip(
-                                selected = quizNotificationHour == h,
-                                onClick = { viewModel.setQuizNotificationTime(h, quizNotificationMinute) },
-                                label = { Text(label, style = MaterialTheme.typography.labelSmall) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = TempleGold.copy(alpha = 0.15f),
-                                    selectedLabelColor = TempleGold,
-                                ),
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf(0 to ":00", 30 to ":30").forEach { (m, label) ->
-                            FilterChip(
-                                selected = quizNotificationMinute == m,
-                                onClick = { viewModel.setQuizNotificationTime(quizNotificationHour, m) },
-                                label = { Text(label, style = MaterialTheme.typography.labelSmall) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = TempleGold.copy(alpha = 0.15f),
-                                    selectedLabelColor = TempleGold,
-                                ),
-                            )
-                        }
-                    }
-                }
-                Spacer(Modifier.height(12.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("\u0C17\u0C4D\u0C30\u0C39\u0C23\u0C02 \u0C28\u0C4B\u0C1F\u0C3F\u0C2B\u0C3F\u0C15\u0C47\u0C37\u0C28\u0C4D", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Grahanam \u00B7 Day before & day of", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = grahanamNotification,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setGrahanamNotification(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-            }
-
-            // Vrata Reminders
-            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("వ్రత రిమైండర్లు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Vrata Reminders · Daily 6:00 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = vrataNotification,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setVrataNotification(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-            }
-
-            // Sacred Month Reminders
-            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("పవిత్ర మాస రిమైండర్లు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Sacred Month · Daily 5:30 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = sacredMonthNotification,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setSacredMonthNotification(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-            }
-
-            // Daily Shloka Reminder
-            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text("రోజువారీ శ్లోకం", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Daily Shloka · 7:00 AM", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = shlokaNotification,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setShlokaNotification(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-            }
-
-            // Rahu Kalam / Yamagandam / Gulika Kalam alerts
-            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("రాహు కాల హెచ్చరికలు", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text("Rahu Kalam / Yamagandam / Gulika · 10 min advance alert", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(
-                        checked = rahuKalamAlerts,
-                        onCheckedChange = { requestPermissionOnEnable(it); viewModel.setRahuKalamAlerts(it) },
-                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
-                    )
-                }
-            }
+            NotificationsSection(
+                morningNotification = morningNotification,
+                onMorningNotificationChange = { requestPermissionOnEnable(it); viewModel.setMorningNotification(it) },
+                eveningNotification = eveningNotification,
+                onEveningNotificationChange = { requestPermissionOnEnable(it); viewModel.setEveningNotification(it) },
+                shlokaNotification = shlokaNotification,
+                onShlokaNotificationChange = { requestPermissionOnEnable(it); viewModel.setShlokaNotification(it) },
+                panchangNotifications = panchangNotifications,
+                onPanchangNotificationsChange = { requestPermissionOnEnable(it); viewModel.setPanchangNotifications(it) },
+                quizNotification = quizNotification,
+                onQuizNotificationChange = { requestPermissionOnEnable(it); viewModel.setQuizNotification(it) },
+                quizNotificationHour = quizNotificationHour,
+                quizNotificationMinute = quizNotificationMinute,
+                onQuizTimeChange = { h, m -> viewModel.setQuizNotificationTime(h, m) },
+                vrataNotification = vrataNotification,
+                onVrataNotificationChange = { requestPermissionOnEnable(it); viewModel.setVrataNotification(it) },
+                sacredMonthNotification = sacredMonthNotification,
+                onSacredMonthNotificationChange = { requestPermissionOnEnable(it); viewModel.setSacredMonthNotification(it) },
+                grahanamNotification = grahanamNotification,
+                onGrahanamNotificationChange = { requestPermissionOnEnable(it); viewModel.setGrahanamNotification(it) },
+                rahuKalamAlerts = rahuKalamAlerts,
+                onRahuKalamAlertsChange = { requestPermissionOnEnable(it); viewModel.setRahuKalamAlerts(it) },
+            )
 
             // Music / Spotify (Android only)
             if (onLinkSpotify != null) {
@@ -681,7 +505,7 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Version 2.1.0",
+                        "Version 2.1.1",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -697,6 +521,28 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(16.dp))
+                    // Explore Features
+                    Button(
+                        onClick = onNavigateToFeatures,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = TempleGold.copy(alpha = 0.15f), contentColor = TempleGold),
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("యాప్ విశేషాలు · Explore Features", style = MaterialTheme.typography.labelMedium)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    // Website
+                    OutlinedButton(
+                        onClick = { openUrl("https://nityapooja.app") },
+                        modifier = Modifier.fillMaxWidth(),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.5f)),
+                    ) {
+                        Icon(Icons.Default.Language, null, modifier = Modifier.size(16.dp), tint = TempleGold)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Visit nityapooja.app", color = TempleGold, style = MaterialTheme.typography.labelMedium)
+                    }
+                    Spacer(Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -705,7 +551,7 @@ fun SettingsScreen(
                         OutlinedButton(
                             onClick = {
                                 shareText(
-                                    "🙏 I use NityaPooja for daily Panchangam, Japa, Sankalpam & more!\n\nDownload it free:\nhttps://play.google.com/store/apps/details?id=com.nityapooja.app",
+                                    "🙏 I use NityaPooja for daily Panchangam, Japa, Sankalpam & more!\n\nDownload free: https://nityapooja.app",
                                     "Check out NityaPooja",
                                 )
                             },
@@ -729,52 +575,6 @@ fun SettingsScreen(
                             Text("Rate App", color = TempleGold, style = MaterialTheme.typography.labelMedium)
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        "🆕 v1.5.0 · Festival greetings, Panchangam sunrise fix, Spotify fix",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "⭐ v1.4.2 · Notification deep links, quiz share, rate app",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "⭐ v1.4.1 · Moon Phase significance fix",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "⭐ v1.4.0 · Moon Phases, Japa fix, deep links, dark mode",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "✨ v1.3.1 · Grahanam alerts, worldwide city search, nav fix",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "✨ v1.3.0 · Panchangam widget, Puranas Quiz, larger fonts",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "nityapooja.contact@gmail.com",

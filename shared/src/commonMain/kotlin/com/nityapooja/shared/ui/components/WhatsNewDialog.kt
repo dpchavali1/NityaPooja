@@ -16,7 +16,7 @@ import com.nityapooja.shared.ui.theme.AuspiciousGreen
 import com.nityapooja.shared.ui.theme.TempleGold
 
 // Bump this when you want to show the dialog again after a new release
-const val WHATS_NEW_VERSION = 3
+const val WHATS_NEW_VERSION = 4
 
 @Composable
 fun WhatsNewDialog(onDismiss: () -> Unit) {
@@ -25,7 +25,7 @@ fun WhatsNewDialog(onDismiss: () -> Unit) {
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 Text("NityaPooja", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = TempleGold)
-                Text("కొత్త ఫీచర్లు · What's New", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("కొత్త ఫీచర్లు · What's New in v2.1.1", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         text = {
@@ -34,36 +34,60 @@ fun WhatsNewDialog(onDismiss: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 WhatsNewItem(
-                    icon = Icons.Default.RecordVoiceOver,
-                    titleTelugu = "సంకల్పం వాయిస్",
-                    titleEnglish = "Sankalpam Priest Voice",
-                    descriptionTelugu = "గూగుల్ AI వాయిస్ ద్వారా సంకల్పం పఠనం. మొదటిసారి తయారు చేసిన తర్వాత పరికరంలో సేవ్ అవుతుంది — ఇంటర్నెట్ అవసరం లేదు.",
-                    descriptionEnglish = "Hear your personalized Sankalpam read aloud in a natural Telugu priest voice powered by Google AI. Generated once and saved offline.",
-                    howToUse = "Home → Sankalpam card → వినండి button",
+                    icon = Icons.Default.Celebration,
+                    titleTelugu = "కుటుంబ పర్వదినాలు",
+                    titleEnglish = "Family Important Days",
+                    descriptionTelugu = "పుట్టినరోజులు, వివాహ వార్షికోత్సవాలు, తిథి రోజులు నమోదు చేయండి. తిథి రోజు తేదీ ప్రతి సంవత్సరం మారుతుంది — అది స్వయంగా లెక్కిస్తుంది. ముందు రోజు & ఆ రోజు రిమైండర్ వస్తుంది.",
+                    descriptionEnglish = "Add birthdays, anniversaries, and tithi (shraddha) days. Tithi dates shift each year — the app calculates the next 3 years automatically. Get reminded the day before and on the day.",
+                    howToUse = "More → కుటుంబ పర్వదినాలు → + Add",
                 )
                 WhatsNewItem(
-                    icon = Icons.Default.NightsStay,
-                    titleTelugu = "గ్రహణం నోటిఫికేషన్లు",
-                    titleEnglish = "Eclipse Alerts",
-                    descriptionTelugu = "2025–2028 సూర్య, చంద్ర గ్రహణాల ముందు రోజు ఉదయం 8 గంటలకు మరియు స్పర్శ 1 గంట ముందు అలర్ట్ వస్తుంది.",
-                    descriptionEnglish = "Get notified the morning before and 1 hour before every solar & lunar eclipse through 2028. Includes Sparsha, Madhyamam, and Moksham times.",
-                    howToUse = "Settings → గ్రహణం నోటిఫికేషన్ toggle",
+                    icon = Icons.Default.EmojiEvents,
+                    titleTelugu = "ఆధ్యాత్మిక పురస్కారాలు",
+                    titleEnglish = "Spiritual Badges",
+                    descriptionTelugu = "జప సాధనకు హిందూ చిహ్నాలతో పురస్కారాలు: త్రిపతాక (3 రోజులు), సప్తర్షి (7 రోజులు), సహస్ర దీపం (1000 మాలలు), వైకుంఠ ద్వారం (30 రోజులు వరుసగా) మరియు మరిన్ని.",
+                    descriptionEnglish = "Earn badges for your japa practice — Tripataka (3 days), Saptarishi (7 days), Sahasra Deepam (1000 malas), Vaikunta Dwaram (30 consecutive days) and more.",
+                    howToUse = "More → పురస్కారాలు",
                 )
                 WhatsNewItem(
-                    icon = Icons.Default.AutoStories,
-                    titleTelugu = "పురాణాల క్విజ్",
-                    titleEnglish = "Purana Quiz",
-                    descriptionTelugu = "12 పురాణాలపై 300+ ప్రశ్నలు తెలుగు మరియు ఆంగ్లంలో. జ్ఞానాన్ని పరీక్షించుకోండి.",
-                    descriptionEnglish = "300+ bilingual questions across 12 Puranas — Vishnu, Shiva, Bhagavata, Garuda and more. Test your knowledge!",
-                    howToUse = "More → పురాణాల క్విజ్",
+                    icon = Icons.Default.Lock,
+                    titleTelugu = "జప లాక్ మోడ్",
+                    titleEnglish = "Japa Lock Mode",
+                    descriptionTelugu = "జపం చేస్తున్నప్పుడు స్క్రీన్ లాక్ చేయండి — పూర్తి స్క్రీన్, కౌంటర్ మాత్రమే కనిపిస్తుంది. పైకి స్వైప్ చేసి బయటకు వెళ్ళండి.",
+                    descriptionEnglish = "Lock the screen during japa for full focus — full screen counter only, no distractions. Swipe up to exit.",
+                    howToUse = "Japa Counter → 🔒 Lock button",
                 )
                 WhatsNewItem(
-                    icon = Icons.Default.Widgets,
-                    titleTelugu = "పంచాంగం విడ్జెట్",
-                    titleEnglish = "Panchangam Home Widget",
-                    descriptionTelugu = "నేటి తిథి, నక్షత్రం, వారం, యోగం, కరణం నేరుగా హోమ్ స్క్రీన్‌లో చూడండి. అర్ధరాత్రి స్వయంగా అప్‌డేట్ అవుతుంది.",
-                    descriptionEnglish = "Today's Tithi, Nakshatra, Vara, Yoga, and Karana at a glance on your home screen. Auto-updates at midnight.",
-                    howToUse = "Long-press home screen → Widgets → NityaPooja",
+                    icon = Icons.Default.AddPhotoAlternate,
+                    titleTelugu = "దేవత ఫోటో మార్చండి",
+                    titleEnglish = "Custom Deity Photos",
+                    descriptionTelugu = "మీ స్వంత దేవత ఫోటో పెట్టుకోండి — మీ ఇంటి దేవత, మీకు ఇష్టమైన ఆలయం ఫోటో. మీ పరికరంలో మాత్రమే సేవ్ అవుతుంది.",
+                    descriptionEnglish = "Set your own deity photos — your kula devata, your favourite temple idol. Stored only on your device, never uploaded.",
+                    howToUse = "Any Deity screen → 📷 నా ఫోటో సెట్ చేయండి",
+                )
+                WhatsNewItem(
+                    icon = Icons.Default.Person,
+                    titleTelugu = "వ్యక్తిగత మార్గదర్శనం",
+                    titleEnglish = "Personalized Daily Briefing",
+                    descriptionTelugu = "మీ నక్షత్రం ఆధారంగా నేటి ఆధ్యాత్మిక మార్గదర్శనం హోమ్ స్క్రీన్‌లో వస్తుంది. Profile లో నక్షత్రం నమోదు చేయండి.",
+                    descriptionEnglish = "Daily spiritual guidance based on your nakshatra appears on your home screen. Set your nakshatra in Profile to activate.",
+                    howToUse = "Profile → Nakshatra → then check Home screen",
+                )
+                WhatsNewItem(
+                    icon = Icons.Default.Star,
+                    titleTelugu = "ఈ వారం దేవత",
+                    titleEnglish = "Deity of the Week",
+                    descriptionTelugu = "ప్రతి వారం ఒక దేవతపై దృష్టి పెట్టండి — ఆ దేవతకు సంబంధించిన మంత్రాలు, భక్తి చిట్కాలు హోమ్ స్క్రీన్‌లో కనిపిస్తాయి.",
+                    descriptionEnglish = "Each week focuses on a different deity — mantras, tips, and auspicious days shown on your home screen.",
+                    howToUse = "Home screen → ఈ వారం దేవత card",
+                )
+                WhatsNewItem(
+                    icon = Icons.Default.Language,
+                    titleTelugu = "వెబ్‌సైట్ అందుబాటులో",
+                    titleEnglish = "Website: nityapooja.app",
+                    descriptionTelugu = "నిత్య పూజ వెబ్‌సైట్ ఇప్పుడు అందుబాటులో ఉంది — పంచాంగం, ఫీచర్లు, సహాయం.",
+                    descriptionEnglish = "NityaPooja now has a full website with live Panchangam, features, and support.",
+                    howToUse = "Settings → About → Visit nityapooja.app",
                 )
             }
         },

@@ -1,0 +1,87 @@
+package com.nityapooja.shared.data.local.entity
+
+enum class BadgeType(
+    val emoji: String,
+    val nameTel: String,
+    val nameEn: String,
+    val descriptionTel: String,
+    val descriptionEn: String,
+) {
+    PRATHAMAM(
+        emoji = "🙏",
+        nameTel = "ప్రారంభం",
+        nameEn = "First Step",
+        descriptionTel = "మొదటి మాల పూర్తి చేశారు",
+        descriptionEn = "Completed your first mala",
+    ),
+    TRIPATAKA(
+        emoji = "🔱",
+        nameTel = "త్రిపతాక",
+        nameEn = "Three Days",
+        descriptionTel = "వరుసగా 3 రోజులు జపం",
+        descriptionEn = "3 consecutive days of japa",
+    ),
+    SAPTARISHI(
+        emoji = "⭐",
+        nameTel = "సప్తర్షి",
+        nameEn = "Seven Sages",
+        descriptionTel = "7 రోజులు జపం పూర్తి",
+        descriptionEn = "Japa on 7 different days",
+    ),
+    EKADASHI_WARRIOR(
+        emoji = "🌙",
+        nameTel = "ఏకాదశి యోధుడు",
+        nameEn = "Ekadashi Warrior",
+        descriptionTel = "11 రోజులు జపం పూర్తి",
+        descriptionEn = "Japa on 11 days",
+    ),
+    SHATABHISHA(
+        emoji = "💫",
+        nameTel = "శతభిష",
+        nameEn = "Shatabhisha",
+        descriptionTel = "100 మాలలు పూర్తి చేశారు",
+        descriptionEn = "Completed 100 malas",
+    ),
+    SAHASRA_DEEPAM(
+        emoji = "🪔",
+        nameTel = "సహస్ర దీపం",
+        nameEn = "Thousand Lamps",
+        descriptionTel = "1000 మాలలు - అద్భుతం!",
+        descriptionEn = "1000 malas — magnificent!",
+    ),
+    VAIKUNTA_DWARAM(
+        emoji = "🏛️",
+        nameTel = "వైకుంఠ ద్వారం",
+        nameEn = "Vaikuntha Dwaram",
+        descriptionTel = "వరుసగా 30 రోజులు జపం",
+        descriptionEn = "30 consecutive days of japa",
+    ),
+    TRIMURTI_VRAT(
+        emoji = "🕉️",
+        nameTel = "త్రిమూర్తి వ్రతం",
+        nameEn = "21-Day Vow",
+        descriptionTel = "వరుసగా 21 రోజులు జపం పూర్తి",
+        descriptionEn = "21 consecutive days of japa",
+    ),
+    MANDALA_SEVA(
+        emoji = "🌺",
+        nameTel = "మండల సేవ",
+        nameEn = "Mandala Seva",
+        descriptionTel = "వరుసగా 40 రోజులు జపం — మండలం!",
+        descriptionEn = "40 consecutive days — a sacred mandala cycle!",
+    ),
+    SHATA_DEEPAM_STREAK(
+        emoji = "🪔",
+        nameTel = "శత దీపం స్ట్రీక్",
+        nameEn = "108-Day Flame",
+        descriptionTel = "వరుసగా 108 రోజులు జపం — పరమ భక్తి!",
+        descriptionEn = "108 consecutive days — supreme devotion!",
+    ),
+    PURANA_SCHOLAR(
+        emoji = "📖",
+        nameTel = "పురాణ పండితుడు",
+        nameEn = "Purana Scholar",
+        descriptionTel = "పురాణ క్విజ్ లో 70%+ స్కోర్",
+        descriptionEn = "Scored 70%+ on Purana Quiz",
+    ),
+}

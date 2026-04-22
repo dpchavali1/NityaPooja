@@ -65,4 +65,8 @@ expect class UserPreferencesManager {
     suspend fun setWhatsNewVersion(version: Int)
     suspend fun getSeenInfoScreens(): String
     suspend fun setSeenInfoScreens(screens: String)
+
+    suspend fun setCustomDeityImagePath(deityId: Int, path: String)
+    suspend fun getCustomDeityImagePath(deityId: Int): String?
+    suspend fun clearCustomDeityImagePath(deityId: Int)
 }

@@ -468,6 +468,26 @@ private fun FestivalListItem(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+
+                Spacer(Modifier.height(6.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        "వివరాలు · Details",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TempleGold.copy(alpha = 0.8f),
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Icon(
+                        Icons.Default.ChevronRight,
+                        contentDescription = "View details",
+                        modifier = Modifier.size(16.dp),
+                        tint = TempleGold.copy(alpha = 0.8f),
+                    )
+                }
             }
         }
     }

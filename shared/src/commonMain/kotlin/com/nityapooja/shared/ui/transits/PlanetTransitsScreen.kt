@@ -33,6 +33,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun PlanetTransitsScreen(
     onBack: () -> Unit = {},
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val transits = remember {
         PlanetTransitCalculator.getUpcomingTransits(lookaheadDays = 730)
@@ -147,6 +148,8 @@ fun PlanetTransitsScreen(
                         )
                     }
                 }
+
+                item { bannerAd?.invoke() }
             }
         }
     }

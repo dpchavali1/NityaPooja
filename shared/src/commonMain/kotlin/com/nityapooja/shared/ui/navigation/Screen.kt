@@ -93,6 +93,9 @@ sealed class Screen(val route: String) {
     data object SacredMonth : Screen("sacred_month")
     data object Choghadiya : Screen("choghadiya")
     data object PlanetTransits : Screen("planet_transits")
+    data object FamilyDays : Screen("family_days")
+    data object Badges : Screen("badges")
+    data object AppFeatures : Screen("app_features")
 }
 
 data class BottomNavItem(

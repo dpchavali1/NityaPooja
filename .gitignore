@@ -66,3 +66,11 @@ iosApp/Secrets.xcconfig
 
 # CocoaPods
 iosApp/Pods/
+
+# Xcode user state
+*.xcuserstate
+
+# Claude / AI tooling
+.claude/
+.agents/
+skills-lock.json

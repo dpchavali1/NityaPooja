@@ -41,6 +41,7 @@ fun ChoghadiyaScreen(
     onBack: () -> Unit,
     viewModel: PanchangamViewModel = koinViewModel(),
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val locationInfo by viewModel.locationInfo.collectAsState()
     val panchangam = remember(locationInfo) {
@@ -214,6 +215,7 @@ fun ChoghadiyaScreen(
             }
 
             item { Spacer(Modifier.height(24.dp)) }
+            item { bannerAd?.invoke() }
         }
     }
 

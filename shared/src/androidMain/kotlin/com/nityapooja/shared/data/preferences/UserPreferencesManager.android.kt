@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_preferences")
@@ -175,5 +176,19 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setSeenInfoScreens(screens: String) {
         context.getSharedPreferences("nityapooja_prefs", Context.MODE_PRIVATE)
             .edit().putString("seen_info_screens", screens).apply()
+    }
+
+    actual suspend fun setCustomDeityImagePath(deityId: Int, path: String) {
+        context.dataStore.edit { it[stringPreferencesKey("custom_deity_img_$deityId")] = path }
+    }
+
+    actual suspend fun getCustomDeityImagePath(deityId: Int): String? {
+        return context.dataStore.data.map { prefs ->
+            prefs[stringPreferencesKey("custom_deity_img_$deityId")]
+        }.first()
+    }
+
+    actual suspend fun clearCustomDeityImagePath(deityId: Int) {
+        context.dataStore.edit { it.remove(stringPreferencesKey("custom_deity_img_$deityId")) }
     }
 }

@@ -57,6 +57,9 @@ fun HomeScreen(
     onNavigateToBookmark: (String, Int) -> Unit = { _, _ -> },
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
     bannerAd: (@Composable () -> Unit)? = null,
+    showFeedbackNudge: Boolean = false,
+    onDismissFeedbackNudge: () -> Unit = {},
+    onRequestReview: (() -> Unit)? = null,
 ) {
     androidx.compose.runtime.LaunchedEffect(Unit) { viewModel.refreshToday() }
 
@@ -170,6 +173,20 @@ fun HomeScreen(
                 )
             }
 
+            // Personalized Daily Briefing — shown only when nakshatra is set
+            if (userNakshatra.isNotBlank()) {
+                item {
+                    val todayDow = remember {
+                        Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek.ordinal
+                    }
+                    PersonalizedBriefingCard(
+                        userNakshatra = userNakshatra,
+                        dayOfWeek = todayDow,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                }
+            }
+
             // Notification discovery prompt — shown once until dismissed
             if (!morningNotificationEnabled && !notificationCardDismissed) {
                 item {
@@ -180,6 +197,27 @@ fun HomeScreen(
                         fontScale = fontScale,
                     )
                 }
+            }
+
+            // Feedback nudge — shown after a few sessions to users who never visit Settings
+            if (showFeedbackNudge) {
+                item {
+                    FeedbackNudgeCard(
+                        onRate = {
+                            onRequestReview?.invoke()
+                            onDismissFeedbackNudge()
+                        },
+                        onDismiss = onDismissFeedbackNudge,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                }
+            }
+
+            // Deity Focus Week Card
+            item {
+                DeityFocusWeekCard(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
             }
 
             // 1. HERO: Deity of the Day (God first!)
@@ -219,7 +257,7 @@ fun HomeScreen(
                                 }
                             }
                             Spacer(Modifier.width(12.dp))
-                            DeityAvatar(nameTelugu = deity.nameTelugu, nameEnglish = deity.name, deityColor = deityColor, size = 96.dp, showLabel = false, imageResName = deity.imageResName)
+                            SmartDeityImage(deityId = deity.id, nameTelugu = deity.nameTelugu, nameEnglish = deity.name, deityColor = deityColor, size = 96.dp, showLabel = false, imageResName = deity.imageResName)
                         }
                     }
                 }
@@ -441,7 +479,8 @@ fun HomeScreen(
                         contentPadding = PaddingValues(end = 16.dp),
                     ) {
                         items(deities, key = { it.id }) { deity ->
-                            DeityAvatar(
+                            SmartDeityImage(
+                                deityId = deity.id,
                                 nameTelugu = deity.nameTelugu,
                                 nameEnglish = deity.name,
                                 deityColor = resolveDeityColor(deity.colorTheme),
@@ -872,6 +911,63 @@ private fun NotificationSetupCard(
             }
             IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
                 Icon(Icons.Default.Close, "Dismiss", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeedbackNudgeCard(
+    onRate: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    com.nityapooja.shared.ui.components.GlassmorphicCard(
+        modifier = modifier,
+        accentColor = TempleGold,
+        cornerRadius = 14.dp,
+        contentPadding = 14.dp,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("🙏", style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    "నచ్చిందా? / Enjoying NityaPooja?",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TempleGold,
+                )
+                Text(
+                    "మీ అభిప్రాయం మాకు చాలా విలువైనది · Your feedback helps us improve",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(6.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(
+                        onClick = onRate,
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+                    ) {
+                        Text(
+                            "⭐ రేటింగ్ ఇవ్వండి · Rate App",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = TempleGold,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+            }
+            IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Dismiss",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp),
+                )
             }
         }
     }

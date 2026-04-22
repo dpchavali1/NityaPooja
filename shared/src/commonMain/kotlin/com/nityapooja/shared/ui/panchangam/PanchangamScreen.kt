@@ -45,6 +45,7 @@ import androidx.compose.foundation.clickable
 import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
+import com.nityapooja.shared.ui.components.PanchangamSharePreviewSheet
 import com.nityapooja.shared.ui.components.PlaceSearchField
 import com.nityapooja.shared.ui.components.SectionHeader
 import com.nityapooja.shared.ui.theme.*
@@ -68,6 +69,7 @@ fun PanchangamScreen(
     var showTithiInfo by remember { mutableStateOf(false) }
     var showNakshatraInfo by remember { mutableStateOf(false) }
     var showYogaInfo by remember { mutableStateOf(false) }
+    var showSharePreview by remember { mutableStateOf(false) }
 
     val panchangam = remember(locationInfo, selectedDate) {
         viewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone, selectedDate)
@@ -264,10 +266,7 @@ fun PanchangamScreen(
             // Share card
             // ═══════════════════════════════════════════
             OutlinedButton(
-                onClick = {
-                    val shareTextContent = buildPanchangamShareText(panchangam, locationInfo.city)
-                    shareText(shareTextContent)
-                },
+                onClick = { showSharePreview = true },
                 modifier = Modifier.fillMaxWidth(),
                 border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.5f)),
                 shape = RoundedCornerShape(14.dp),
@@ -675,6 +674,14 @@ fun PanchangamScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+
+    if (showSharePreview) {
+        PanchangamSharePreviewSheet(
+            panchangam = panchangam,
+            locationInfo = locationInfo,
+            onDismiss = { showSharePreview = false },
+        )
     }
 }
 

@@ -23,6 +23,7 @@ import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GlassmorphicCard
 import com.nityapooja.shared.ui.components.InfoBottomSheet
+import com.nityapooja.shared.ui.components.MuhurtamSharePreviewSheet
 import com.nityapooja.shared.ui.panchangam.PanchangamViewModel
 import com.nityapooja.shared.ui.theme.AuspiciousGreen
 import com.nityapooja.shared.ui.theme.DeepVermillion
@@ -346,6 +347,7 @@ fun MuhurtamFinderScreen(
 
 @Composable
 private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName: String, forNakshatra: String) {
+    var showSharePreview by remember { mutableStateOf(false) }
     val scoreColor = when (scoredDate.result.score) {
         MuhurtamScore.EXCELLENT -> AuspiciousGreen
         MuhurtamScore.GOOD -> TempleGold
@@ -502,7 +504,7 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName
 
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
-                onClick = { shareText(buildMuhurtamShareText(scoredDate, eventName, forNakshatra)) },
+                onClick = { showSharePreview = true },
                 modifier = Modifier.fillMaxWidth(),
                 border = androidx.compose.foundation.BorderStroke(1.dp, TempleGold.copy(alpha = 0.6f)),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
@@ -516,6 +518,15 @@ private fun MuhurtamDateCard(scoredDate: ScoredDate, fontScale: Float, eventName
                 )
             }
         }
+    }
+
+    if (showSharePreview) {
+        MuhurtamSharePreviewSheet(
+            scoredDate = scoredDate,
+            eventName = eventName,
+            forNakshatra = forNakshatra,
+            onDismiss = { showSharePreview = false },
+        )
     }
 }
 

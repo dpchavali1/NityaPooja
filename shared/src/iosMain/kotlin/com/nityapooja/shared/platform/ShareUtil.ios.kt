@@ -1,5 +1,6 @@
 package com.nityapooja.shared.platform
 
+import androidx.compose.ui.graphics.ImageBitmap
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIWindow
@@ -17,3 +18,5 @@ actual fun shareText(text: String, title: String) {
     }
     topVC?.presentViewController(activityVC, animated = true, completion = null)
 }
+
+actual fun shareImage(bitmap: ImageBitmap, title: String) { /* iOS not yet implemented */ }

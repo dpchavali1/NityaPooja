@@ -71,7 +71,7 @@ fun FeaturesScreen(
                     color = TempleGold.copy(alpha = 0.12f),
                 ) {
                     Text(
-                        "🙏 NityaPooja · Version 2.1 · 35+ Features",
+                        "🙏 NityaPooja · Version 2.2 · 35+ Features",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,

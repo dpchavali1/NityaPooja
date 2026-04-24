@@ -480,6 +480,11 @@ class PanchangamViewModel(
         var hour = calculationLocalDateTime.hour
         var minute = calculationLocalDateTime.minute
 
+        // Preserve the real wall-clock time so isActive checks on muhurta slots always
+        // reflect what the user's clock says, not the sunrise anchor used for masa/tithi.
+        val realHour = hour
+        val realMinute = minute
+
         // Save civil date before sunrise adjustment (for display purposes)
         val civilYear = year
         val civilMonth = month
@@ -490,8 +495,8 @@ class PanchangamViewModel(
         // If before sunrise, use previous civil day's sunrise as the anchor.
         val approxSunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
         val sunriseMinutes = (((approxSunTimes.sunriseDecimal % 24.0 + 24.0) % 24.0) * 60.0).roundToInt()
-        val sunriseHour = (sunriseMinutes / 60) % 24
-        val sunriseMinute = sunriseMinutes % 60
+        var sunriseHour = (sunriseMinutes / 60) % 24
+        var sunriseMinute = sunriseMinutes % 60
 
         if (isToday) {
             val currentMinuteOfDay = hour * 60 + minute
@@ -508,6 +513,10 @@ class PanchangamViewModel(
                 val prevSunriseMin = (((prevSunTimes.sunriseDecimal % 24.0 + 24.0) % 24.0) * 60.0).roundToInt()
                 hour = (prevSunriseMin / 60) % 24
                 minute = prevSunriseMin % 60
+                // Keep sunriseHour/Minute consistent with the reference date so sunriseJd
+                // is built from the same day used for year/month/day below.
+                sunriseHour = hour
+                sunriseMinute = minute
             } else {
                 // After sunrise — anchor to today's sunrise so masa/tithi/vaara/rahu-kalam
                 // all reflect the same Hindu day anchor as the selected-date path
@@ -568,7 +577,8 @@ class PanchangamViewModel(
         val sunTimes = calculateSunTimes(lat, lng, year, month, day, utcOffsetHours)
 
         // ── Day of week (in user's timezone) ──
-        val currentDecimal = hour + minute / 60.0
+        // Use real wall-clock time for active-slot detection; hour/minute were shifted to sunrise.
+        val currentDecimal = realHour + realMinute / 60.0
 
         // ── Muhurta calculations ──
         // For non-today dates, isActive is always false (currentDecimal set to -1)

@@ -10,17 +10,24 @@ import com.nityapooja.shared.data.local.entity.ShlokaEntity
 import com.nityapooja.shared.data.preferences.UserPreferencesManager
 import com.nityapooja.shared.data.repository.DevotionalRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 import kotlinx.datetime.toLocalDateTime
 
@@ -32,13 +39,30 @@ class HomeViewModel(
     val deities: StateFlow<List<DeityEntity>> = repository.getAllDeities()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val _today: StateFlow<LocalDate> = preferencesManager.locationTimezone
-        .map { tzId ->
-            val tz = try { TimeZone.of(tzId) } catch (_: Exception) { TimeZone.currentSystemDefault() }
-            Clock.System.todayIn(tz)
+    // Incremented once per calendar day so _today re-evaluates at midnight even when
+    // the saved timezone hasn't changed (e.g. long-running session spanning midnight).
+    private val _dayTick = MutableStateFlow(0)
+
+    init {
+        viewModelScope.launch {
+            while (true) {
+                val now = Clock.System.now()
+                val tzId = preferencesManager.locationTimezone.first()
+                val tz = try { TimeZone.of(tzId) } catch (_: Exception) { TimeZone.currentSystemDefault() }
+                val midnightInstant = Clock.System.todayIn(tz).plus(DatePeriod(days = 1)).atStartOfDayIn(tz)
+                delay((midnightInstant - now).inWholeMilliseconds.coerceAtLeast(60_000L))
+                _dayTick.value++
+            }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Clock.System.todayIn(TimeZone.currentSystemDefault()))
+    }
+
+    private val _today: StateFlow<LocalDate> = combine(
+        preferencesManager.locationTimezone,
+        _dayTick,
+    ) { tzId, _ ->
+        val tz = try { TimeZone.of(tzId) } catch (_: Exception) { TimeZone.currentSystemDefault() }
+        Clock.System.todayIn(tz)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Clock.System.todayIn(TimeZone.currentSystemDefault()))
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val todayShloka: StateFlow<ShlokaEntity?> = _today

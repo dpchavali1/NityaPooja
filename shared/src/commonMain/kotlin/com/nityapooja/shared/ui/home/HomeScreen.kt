@@ -82,12 +82,6 @@ fun HomeScreen(
 
     val panchangamViewModel: PanchangamViewModel = koinViewModel()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
-    val todayKey = Clock.System.todayIn(
-        try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.currentSystemDefault() }
-    ).toString()
-    val panchangamData = remember(locationInfo, todayKey) {
-        panchangamViewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
-    }
 
     var now by remember { mutableStateOf(Clock.System.now()) }
     LaunchedEffect(Unit) {
@@ -98,6 +92,13 @@ fun HomeScreen(
     }
     val userTz = remember(locationInfo.timezone) {
         try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.of("Asia/Kolkata") }
+    }
+    // Keyed to `now` so the date string updates the next minute-tick past midnight.
+    val todayKey = remember(now, locationInfo.timezone) {
+        now.toLocalDateTime(userTz).date.toString()
+    }
+    val panchangamData = remember(locationInfo, todayKey) {
+        panchangamViewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
     }
     val nextGrahanam = remember(now) { GrahanamRepository.getNextGrahanam(now) }
     val daysUntilGrahanam = remember(nextGrahanam, now, userTz) {
@@ -300,7 +301,7 @@ fun HomeScreen(
             if (userNakshatra.isNotBlank()) {
                 item {
                     val todayDow = remember(todayKey) {
-                        Clock.System.todayIn(userTz).dayOfWeek.ordinal
+                        now.toLocalDateTime(userTz).dayOfWeek.ordinal
                     }
                     PersonalizedBriefingCard(
                         userNakshatra = userNakshatra,

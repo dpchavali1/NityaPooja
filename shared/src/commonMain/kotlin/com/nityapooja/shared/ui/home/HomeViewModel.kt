@@ -32,7 +32,13 @@ class HomeViewModel(
     val deities: StateFlow<List<DeityEntity>> = repository.getAllDeities()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _today = MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()))
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _today: StateFlow<LocalDate> = preferencesManager.locationTimezone
+        .map { tzId ->
+            val tz = try { TimeZone.of(tzId) } catch (_: Exception) { TimeZone.currentSystemDefault() }
+            Clock.System.todayIn(tz)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Clock.System.todayIn(TimeZone.currentSystemDefault()))
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val todayShloka: StateFlow<ShlokaEntity?> = _today
@@ -92,10 +98,6 @@ class HomeViewModel(
             festivals.firstOrNull { it.dateThisYear == today || it.dateNextYear == today }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    fun refreshToday() {
-        _today.value = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    }
 
     private fun dayName(date: LocalDate): String {
         return when (date.dayOfWeek) {

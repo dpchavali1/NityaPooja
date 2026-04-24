@@ -187,7 +187,7 @@ fun SankalpamCard(
                         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
                         // Include tithi and nakshatra indices so the cache is invalidated
                         // if either changes intraday (e.g. tithi transition at 3 PM)
-                        val cacheKey = "${today}_${userName.ifBlank { "anon" }}_${gotra.ifBlank { "ng" }}_${userNakshatra.ifBlank { "nn" }}_${city}_${pujaType ?: "default"}_t${panchangamData.tithi.index}_n${panchangamData.nakshatra.index}"
+                        val cacheKey = "${today}_${userName.ifBlank { "anon" }}_${gotra.ifBlank { "ng" }}_${userNakshatra.ifBlank { "nn" }}_${city}_${pujaType ?: "default"}_t${panchangamData.tithi.index}_n${panchangamData.nakshatra.index}_y${panchangamData.yoga.index}_k${panchangamData.karana.firstNameEnglish}"
                         ttsPlayer.speak(
                             buildSankalpamTelugu(panchangamData, userName, gotra, userNakshatra, city, timezone, pujaType),
                             cacheKey,

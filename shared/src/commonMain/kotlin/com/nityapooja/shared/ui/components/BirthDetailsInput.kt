@@ -27,6 +27,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.math.abs
 import kotlin.math.round
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.offsetIn
 
 /**
  * Shared birth details input form used by Jataka Chakram and Guna Milan.
@@ -714,6 +717,9 @@ private fun inferTimezoneIdFromCoords(lat: Double, lng: Double, countryCode: Str
     return when (countryCode.lowercase()) {
         "in" -> "Asia/Kolkata"
         "us" -> when {
+            lat > 51.0 -> "America/Anchorage"              // Alaska mainland
+            lat < 25.0 && lng < -150.0 -> "Pacific/Honolulu" // Hawaii
+            lng < -140.0 -> "America/Anchorage"            // SE Alaska / Aleutians
             lng < -115.0 -> "America/Los_Angeles"
             lng < -100.0 -> "America/Denver"
             lng < -85.0 -> "America/Chicago"
@@ -725,7 +731,16 @@ private fun inferTimezoneIdFromCoords(lat: Double, lng: Double, countryCode: Str
         "nl" -> "Europe/Amsterdam"
         "it" -> "Europe/Rome"
         "es" -> "Europe/Madrid"
-        "ru" -> "Europe/Moscow"
+        "ru" -> when {
+            lng < 56.0  -> "Europe/Moscow"        // Moscow / Samara
+            lng < 67.0  -> "Asia/Yekaterinburg"   // +5
+            lng < 80.0  -> "Asia/Omsk"            // +6
+            lng < 97.0  -> "Asia/Krasnoyarsk"     // +7
+            lng < 114.0 -> "Asia/Irkutsk"         // +8
+            lng < 130.0 -> "Asia/Yakutsk"         // +9
+            lng < 143.0 -> "Asia/Vladivostok"     // +10
+            else        -> "Asia/Magadan"         // +11/+12
+        }
         "ae" -> "Asia/Dubai"
         "sa" -> "Asia/Riyadh"
         "qa" -> "Asia/Qatar"
@@ -764,8 +779,15 @@ private fun inferTimezoneIdFromCoords(lat: Double, lng: Double, countryCode: Str
             lng < -74.0  -> "America/Toronto"    // Ontario / Quebec
             else         -> "America/Halifax"    // Atlantic provinces
         }
-        "br" -> "America/Sao_Paulo"
-        "mx" -> "America/Mexico_City"
+        "br" -> when {
+            lng < -60.0 -> "America/Manaus"    // Amazon (-4, no DST)
+            else        -> "America/Sao_Paulo" // Brasilia (-3 with DST)
+        }
+        "mx" -> when {
+            lng < -110.0 -> "America/Tijuana"     // Baja California (-8 with DST)
+            lng < -104.0 -> "America/Hermosillo"  // Sonora (-7, no DST)
+            else         -> "America/Mexico_City"
+        }
         else -> {
             // Longitude-based fallback
             when {
@@ -786,42 +808,33 @@ private fun inferTimezoneIdFromCoords(lat: Double, lng: Double, countryCode: Str
 }
 
 /**
- * Estimates UTC timezone offset from latitude/longitude.
- * Uses heuristic timezone region detection.
+ * Returns the current UTC offset (including DST) for the given coordinates by
+ * resolving to the nearest IANA timezone via [inferTimezoneIdFromCoords] with a
+ * rough coordinate-based country code guess, then querying kotlinx.datetime for
+ * the real wall-clock offset at this instant.
  */
 fun getTimezoneOffsetFromCoords(lat: Double, lng: Double): Double {
-    // India (roughly 68-97° E) is always +5.5
-    if (lat in 6.0..37.0 && lng in 68.0..98.0) return 5.5
-
-    // Rough longitude-based offset
-    val roughOffset = lng / 15.0
-
-    // Common timezone region overrides for better accuracy
-    val knownOffset: Double? = when {
-        lat in 24.0..50.0 && lng in -130.0..-60.0 -> when {
-            lng < -115.0 -> -8.0  // Pacific
-            lng < -100.0 -> -7.0  // Mountain
-            lng < -85.0 -> -6.0   // Central
-            else -> -5.0          // Eastern
-        }
-        lat in 49.0..61.0 && lng in -11.0..2.0 -> 0.0     // UK
-        lat in 43.0..56.0 && lng in 2.0..25.0 -> 1.0       // Central Europe
-        lat in 43.0..60.0 && lng in 25.0..45.0 -> 3.0      // Eastern Europe
-        lat in 18.0..54.0 && lng in 98.0..135.0 -> 8.0     // China
-        lat in 30.0..46.0 && lng in 125.0..146.0 -> 9.0    // Japan/Korea
-        lat in -10.0..24.0 && lng in 95.0..120.0 -> 7.0    // SE Asia
-        lat in -44.0..-10.0 && lng in 113.0..129.0 -> 8.0    // WA (Perth)
-        lat in -44.0..-10.0 && lng in 129.0..141.0 -> 9.5   // NT / SA
-        lat in -44.0..-10.0 && lng in 141.0..154.0 -> 10.0  // QLD / NSW / VIC
-        lat in 12.0..42.0 && lng in 34.0..60.0 -> 4.0      // Middle East
-        lat in 23.0..37.0 && lng in 60.0..78.0 -> 5.0      // Pakistan
-        lat in 20.0..27.0 && lng in 88.0..93.0 -> 6.0      // Bangladesh
-        lat in 5.0..30.0 && lng in 79.0..89.0 -> 5.5       // Sri Lanka/Nepal
-        lat in -34.0..6.0 && lng in -74.0..-34.0 -> -3.0   // Brazil
-        lat in -35.0..-22.0 && lng in 16.0..33.0 -> 2.0    // South Africa
-        lat in -48.0..-34.0 && lng in 166.0..179.0 -> 12.0 // New Zealand
-        else -> null
+    val countryGuess = guessCountryCodeFromCoords(lat, lng)
+    val tzId = inferTimezoneIdFromCoords(lat, lng, countryGuess)
+    return try {
+        Clock.System.now().offsetIn(TimeZone.of(tzId)).totalSeconds / 3600.0
+    } catch (_: Exception) {
+        round(lng / 15.0 * 2.0) / 2.0
     }
+}
 
-    return knownOffset ?: round(roughOffset * 2.0) / 2.0
+private fun guessCountryCodeFromCoords(lat: Double, lng: Double): String = when {
+    lat in 6.0..37.0 && lng in 68.0..98.0   -> "in"
+    lat in 24.0..72.0 && lng in -168.0..-52.0 -> if (lat > 51.0 || lng < -140.0) "us" else "us"
+    lat in 41.0..84.0 && lng in -141.0..-52.0 -> "ca"
+    lat in 41.0..82.0 && lng in 18.0..191.0  -> "ru"
+    lat in -34.0..5.0 && lng in -74.0..-34.0 -> "br"
+    lat in 14.0..33.0 && lng in -118.0..-86.0 -> "mx"
+    lat in 49.0..61.0 && lng in -11.0..2.0   -> "gb"
+    lat in 35.0..70.0 && lng in 2.0..25.0    -> "de"
+    lat in 18.0..54.0 && lng in 98.0..135.0  -> "cn"
+    lat in 30.0..46.0 && lng in 125.0..146.0 -> "jp"
+    lat in -44.0..-10.0 && lng in 113.0..154.0 -> "au"
+    lat in -48.0..-34.0 && lng in 166.0..179.0 -> "nz"
+    else -> ""
 }

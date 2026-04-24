@@ -991,10 +991,20 @@ class PanchangamViewModel(
 
         // Amanta month index is one sign ahead of Sun sign at Amavasya.
         val masaIndex = (prevSign + 1) % 12
-        val isAdhikaMasa = prevSign == nextSign
+        val signDiff = (nextSign - prevSign + 12) % 12
+        val isAdhikaMasa = signDiff == 0   // no Sankranti between new moons
+        val isKshayaMasa = signDiff > 1    // two Sankrantis — a month is skipped
 
-        val englishName = if (isAdhikaMasa) "Adhika ${MASA_NAMES_ENGLISH[masaIndex]}" else MASA_NAMES_ENGLISH[masaIndex]
-        val teluguName = if (isAdhikaMasa) "అధిక ${MASA_NAMES_TELUGU[masaIndex]}" else MASA_NAMES_TELUGU[masaIndex]
+        val englishName = when {
+            isAdhikaMasa -> "Adhika ${MASA_NAMES_ENGLISH[masaIndex]}"
+            isKshayaMasa -> "Kshaya ${MASA_NAMES_ENGLISH[masaIndex]}"
+            else -> MASA_NAMES_ENGLISH[masaIndex]
+        }
+        val teluguName = when {
+            isAdhikaMasa -> "అధిక ${MASA_NAMES_TELUGU[masaIndex]}"
+            isKshayaMasa -> "క్షయ ${MASA_NAMES_TELUGU[masaIndex]}"
+            else -> MASA_NAMES_TELUGU[masaIndex]
+        }
 
         return MasaComputation(
             info = MasaInfo(

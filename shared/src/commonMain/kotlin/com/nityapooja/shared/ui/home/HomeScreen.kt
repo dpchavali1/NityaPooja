@@ -65,8 +65,6 @@ fun HomeScreen(
     onDismissFeedbackNudge: () -> Unit = {},
     onRequestReview: (() -> Unit)? = null,
 ) {
-    androidx.compose.runtime.LaunchedEffect(Unit) { viewModel.refreshToday() }
-
     val deities by viewModel.deities.collectAsState()
     val todayShloka by viewModel.todayShloka.collectAsState()
     val deityOfDay by viewModel.deityOfTheDay.collectAsState()
@@ -83,7 +81,9 @@ fun HomeScreen(
 
     val panchangamViewModel: PanchangamViewModel = koinViewModel()
     val locationInfo by panchangamViewModel.locationInfo.collectAsState()
-    val todayKey = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
+    val todayKey = Clock.System.todayIn(
+        try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.currentSystemDefault() }
+    ).toString()
     val panchangamData = remember(locationInfo, todayKey) {
         panchangamViewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
     }

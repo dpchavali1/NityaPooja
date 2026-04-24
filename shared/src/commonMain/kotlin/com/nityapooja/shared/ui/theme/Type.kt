@@ -101,8 +101,8 @@ val Typography = Typography(
     bodySmall = TextStyle(
         fontFamily = NotoSansTelugu,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 22.sp,
+        fontSize = 12.sp,
+        lineHeight = 18.sp,
     ),
     labelLarge = TextStyle(
         fontFamily = NotoSansTelugu,

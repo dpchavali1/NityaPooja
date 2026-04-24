@@ -95,13 +95,14 @@ class JapaViewModel(
     private val _todayDate = MutableStateFlow(Clock.System.todayIn(TimeZone.currentSystemDefault()).toString())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val todaySessions: StateFlow<List<JapaSessionEntity>> = _todayDate
+    private val _todaySessionsShared = _todayDate
         .flatMapLatest { date -> japaSessionDao.getSessionsByDate(date) }
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
+
+    val todaySessions: StateFlow<List<JapaSessionEntity>> = _todaySessionsShared
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val todayMalas: StateFlow<Int> = _todayDate
-        .flatMapLatest { date -> japaSessionDao.getSessionsByDate(date) }
+    val todayMalas: StateFlow<Int> = _todaySessionsShared
         .map { sessions -> sessions.sumOf { it.malasCompleted } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 

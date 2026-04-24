@@ -27,8 +27,8 @@ interface AartiDao {
     @Query("SELECT COUNT(*) FROM aartis")
     suspend fun getCount(): Int
 
-    @Query("UPDATE aartis SET archiveOrgUrl = :url WHERE title = :title")
-    suspend fun updateAudioUrlByTitle(title: String, url: String)
+    @Query("UPDATE aartis SET archiveOrgUrl = :url WHERE id = :id")
+    suspend fun updateArchiveOrgUrl(id: Int, url: String)
 
     @Query("UPDATE aartis SET isCached = :cached, cachedFilePath = :path WHERE id = :id")
     suspend fun updateCacheStatus(id: Int, cached: Boolean, path: String?)

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -88,7 +89,13 @@ fun HomeScreen(
         panchangamViewModel.calculatePanchangam(locationInfo.lat, locationInfo.lng, locationInfo.timezone)
     }
 
-    val now = remember { Clock.System.now() }
+    var now by remember { mutableStateOf(Clock.System.now()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(60_000L)
+            now = Clock.System.now()
+        }
+    }
     val userTz = remember(locationInfo.timezone) {
         try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.of("Asia/Kolkata") }
     }
@@ -107,8 +114,8 @@ fun HomeScreen(
     var notificationCardDismissed by remember { mutableStateOf(false) }
 
     val salutation = userName.ifBlank { "భక్తా" }
-    val greetingTelugu = viewModel.getGreetingTelugu()
-    val greetingEnglish = viewModel.getGreetingEnglish()
+    val greetingTelugu by viewModel.greetingTelugu.collectAsState()
+    val greetingEnglish by viewModel.greetingEnglish.collectAsState()
 
     val birthNakshatraIndex = remember(userNakshatra) {
         JyotishConstants.NAKSHATRA_NAMES_ENGLISH.indexOf(userNakshatra)
@@ -292,8 +299,8 @@ fun HomeScreen(
             // Personalized Daily Briefing — shown only when nakshatra is set
             if (userNakshatra.isNotBlank()) {
                 item {
-                    val todayDow = remember {
-                        Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek.ordinal
+                    val todayDow = remember(todayKey) {
+                        Clock.System.todayIn(userTz).dayOfWeek.ordinal
                     }
                     PersonalizedBriefingCard(
                         userNakshatra = userNakshatra,

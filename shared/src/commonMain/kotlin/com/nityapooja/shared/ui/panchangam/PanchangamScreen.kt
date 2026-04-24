@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -563,7 +564,13 @@ fun PanchangamScreen(
             // ═══════════════════════════════════════════
             // Upcoming Grahanam
             // ═══════════════════════════════════════════
-            val now = remember { Clock.System.now() }
+            var now by remember { mutableStateOf(Clock.System.now()) }
+            LaunchedEffect(Unit) {
+                while (true) {
+                    kotlinx.coroutines.delay(60_000L)
+                    now = Clock.System.now()
+                }
+            }
             val userTz = remember(locationInfo.timezone) {
                 try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.of("Asia/Kolkata") }
             }

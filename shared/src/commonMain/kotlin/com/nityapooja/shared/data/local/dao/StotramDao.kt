@@ -27,6 +27,6 @@ interface StotramDao {
     @Query("SELECT COUNT(*) FROM stotrams")
     suspend fun getCount(): Int
 
-    @Query("UPDATE stotrams SET archiveOrgUrl = :url WHERE title = :title")
-    suspend fun updateAudioUrlByTitle(title: String, url: String)
+    @Query("UPDATE stotrams SET archiveOrgUrl = :url WHERE id = :id")
+    suspend fun updateArchiveOrgUrl(id: Int, url: String)
 }

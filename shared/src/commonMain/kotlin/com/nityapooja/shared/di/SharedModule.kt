@@ -81,9 +81,10 @@ val sharedModule = module {
     single { get<NityaPoojaDatabase>().puranaQuizDao() }
     single { get<NityaPoojaDatabase>().vrataDao() }
     single { get<NityaPoojaDatabase>().familyDayDao() }
+    single { get<NityaPoojaDatabase>().badgeDao() }
 
     // Database Seeder
-    single { DatabaseSeeder(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    singleOf(::DatabaseSeeder)
 
     // Repository
     singleOf(::DevotionalRepository)
@@ -143,7 +144,5 @@ val sharedModule = module {
     viewModelOf(::SacredMonthViewModel)
     viewModelOf(::FamilyDayViewModel)
 
-    // Badges
-    single { get<NityaPoojaDatabase>().badgeDao() }
     viewModelOf(::BadgeViewModel)
 }

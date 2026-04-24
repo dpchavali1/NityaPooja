@@ -12,7 +12,7 @@ interface FestivalDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(festivals: List<FestivalEntity>)
 
-    @Query("SELECT * FROM festivals ORDER BY date")
+    @Query("SELECT * FROM festivals ORDER BY COALESCE(dateThisYear, dateNextYear) NULLS LAST")
     fun getAllFestivals(): Flow<List<FestivalEntity>>
 
     @Query("SELECT * FROM festivals WHERE id = :id")

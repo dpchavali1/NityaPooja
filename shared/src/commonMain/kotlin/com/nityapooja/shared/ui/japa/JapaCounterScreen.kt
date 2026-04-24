@@ -164,24 +164,19 @@ fun JapaCounterScreen(
     var showUndo by remember { mutableStateOf(false) }
     var glowActive by remember { mutableStateOf(false) }
 
-    // Mala complete: pause tap + banner, separate glow
+    // Mala complete: pause tap + banner + glow (merged into one LaunchedEffect)
     LaunchedEffect(malaCompleteEvent) {
         if (malaCompleteEvent > 0) {
             haptics.malaComplete()
             tapPaused = true
             malaJustCompleted = true
-            delay(1500L)
-            tapPaused = false
-            delay(800L)
-            malaJustCompleted = false
-        }
-    }
-
-    LaunchedEffect(malaCompleteEvent) {
-        if (malaCompleteEvent > 0) {
             glowActive = true
             delay(1200L)
             glowActive = false
+            delay(300L)
+            tapPaused = false
+            delay(800L)
+            malaJustCompleted = false
         }
     }
 
@@ -1080,7 +1075,7 @@ fun JapaCounterScreen(
                                 }
                             }
                             Spacer(Modifier.height(12.dp))
-                            val today = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()) }
+                            val today = remember(last7DaysActivity) { Clock.System.todayIn(TimeZone.currentSystemDefault()) }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -1439,7 +1434,8 @@ private fun StreakMilestoneCard(currentStreak: Int) {
             }
             // Progress bar
             if (nextMilestone != null) {
-                val progress = (currentStreak - prevMilestone).toFloat() / (nextMilestone - prevMilestone).toFloat()
+                val progress = if (nextMilestone == prevMilestone) 1f
+                    else (currentStreak - prevMilestone).toFloat() / (nextMilestone - prevMilestone).toFloat()
                 LinearProgressIndicator(
                     progress = { progress.coerceIn(0f, 1f) },
                     modifier = Modifier.fillMaxWidth(),

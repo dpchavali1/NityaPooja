@@ -10,6 +10,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +26,9 @@ import com.nityapooja.shared.ui.theme.TempleGold
 fun ScaledContent(fontScale: Float, content: @Composable () -> Unit) {
     val base = MaterialTheme.typography
     val scaled = base.copy(
+        displayLarge   = base.displayLarge.copy(fontSize   = (57 * fontScale).sp),
+        displayMedium  = base.displayMedium.copy(fontSize  = (45 * fontScale).sp),
+        displaySmall   = base.displaySmall.copy(fontSize   = (36 * fontScale).sp),
         bodyLarge      = base.bodyLarge.copy(fontSize      = (16 * fontScale).sp),
         bodyMedium     = base.bodyMedium.copy(fontSize     = (14 * fontScale).sp),
         bodySmall      = base.bodySmall.copy(fontSize      = (12 * fontScale).sp),
@@ -60,6 +65,7 @@ fun FontSizeControls(
         TextButton(
             onClick = onDecrease,
             enabled = fontSize > 12,
+            modifier = Modifier.semantics { contentDescription = "Decrease font size" },
         ) {
             Text(
                 "tt",
@@ -77,6 +83,7 @@ fun FontSizeControls(
         TextButton(
             onClick = onIncrease,
             enabled = fontSize < 28,
+            modifier = Modifier.semantics { contentDescription = "Increase font size" },
         ) {
             Text(
                 "TT",

@@ -17,6 +17,7 @@ import com.spotify.sdk.android.auth.AuthorizationResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,7 +66,7 @@ class SpotifyManager(
     private var accessToken: String? = null
 
     init {
-        Log.d(TAG, "init: clientId=$CLIENT_ID, redirectUri=$REDIRECT_URI")
+        Log.d(TAG, "SpotifyManager initialized")
         // Auto-reconnect App Remote on app startup if previously linked.
         // AppRemote authenticates via the Spotify app itself, not the OAuth token,
         // so we connect whenever Spotify is installed and the user previously linked.
@@ -250,13 +251,11 @@ class SpotifyManager(
     }
 
     fun disconnect() {
+        scope.cancel()
         spotifyAppRemote?.let { SpotifyAppRemote.disconnect(it) }
         spotifyAppRemote = null
         _connectionStatus.value = SpotifyConnectionStatus.DISCONNECTED
         _playerState.value = SpotifyPlayerState()
-        scope.launch {
-            preferencesManager.clearSpotifyToken()
-        }
     }
 
     fun getAccessToken(): String? = accessToken

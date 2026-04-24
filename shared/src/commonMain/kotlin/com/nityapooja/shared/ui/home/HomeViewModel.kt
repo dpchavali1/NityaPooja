@@ -94,7 +94,7 @@ class HomeViewModel(
     /** Festival that falls on today's date — null if no festival today */
     val todayFestival: StateFlow<FestivalEntity?> = allFestivals
         .map { festivals ->
-            val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).toString()
+            val today = _today.value.toString()
             festivals.firstOrNull { it.dateThisYear == today || it.dateNextYear == today }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -112,7 +112,15 @@ class HomeViewModel(
         }
     }
 
-    fun getGreetingTelugu(): String {
+    val greetingTelugu: StateFlow<String> = _today
+        .map { computeGreetingTelugu() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), computeGreetingTelugu())
+
+    val greetingEnglish: StateFlow<String> = _today
+        .map { computeGreetingEnglish() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), computeGreetingEnglish())
+
+    private fun computeGreetingTelugu(): String {
         val hour = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).hour
         return when {
             hour in 4..11 -> "శుభోదయం"
@@ -122,7 +130,7 @@ class HomeViewModel(
         }
     }
 
-    fun getGreetingEnglish(): String {
+    private fun computeGreetingEnglish(): String {
         val hour = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).hour
         return when {
             hour in 4..11 -> "Good Morning"

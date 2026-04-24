@@ -1,9 +1,13 @@
 package com.nityapooja.shared.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "puja_steps")
+@Entity(
+    tableName = "puja_steps",
+    indices = [Index(value = ["pujaType", "tier"])]
+)
 data class PujaStepEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val pujaType: String,

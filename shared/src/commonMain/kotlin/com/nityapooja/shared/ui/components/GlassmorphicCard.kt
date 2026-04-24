@@ -29,24 +29,38 @@ fun GlassmorphicCard(
     val borderColor = accentColor?.copy(alpha = 0.3f) ?: extended.glassBorder
     val surfaceColor = extended.cardSurface
 
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(cornerRadius),
-                ambientColor = accentColor?.copy(alpha = 0.1f) ?: Color.Black.copy(alpha = 0.08f),
-                spotColor = accentColor?.copy(alpha = 0.15f) ?: Color.Black.copy(alpha = 0.05f),
-            ),
-        shape = RoundedCornerShape(cornerRadius),
-        color = surfaceColor,
-        border = BorderStroke(1.dp, borderColor),
-        onClick = onClick ?: {},
-        enabled = onClick != null,
-    ) {
-        Column(
-            modifier = Modifier.padding(contentPadding),
-            content = content,
+    val shadowModifier = modifier
+        .fillMaxWidth()
+        .shadow(
+            elevation = 8.dp,
+            shape = RoundedCornerShape(cornerRadius),
+            ambientColor = accentColor?.copy(alpha = 0.1f) ?: Color.Black.copy(alpha = 0.08f),
+            spotColor = accentColor?.copy(alpha = 0.15f) ?: Color.Black.copy(alpha = 0.05f),
         )
+    if (onClick != null) {
+        Surface(
+            modifier = shadowModifier,
+            shape = RoundedCornerShape(cornerRadius),
+            color = surfaceColor,
+            border = BorderStroke(1.dp, borderColor),
+            onClick = onClick,
+        ) {
+            Column(
+                modifier = Modifier.padding(contentPadding),
+                content = content,
+            )
+        }
+    } else {
+        Surface(
+            modifier = shadowModifier,
+            shape = RoundedCornerShape(cornerRadius),
+            color = surfaceColor,
+            border = BorderStroke(1.dp, borderColor),
+        ) {
+            Column(
+                modifier = Modifier.padding(contentPadding),
+                content = content,
+            )
+        }
     }
 }

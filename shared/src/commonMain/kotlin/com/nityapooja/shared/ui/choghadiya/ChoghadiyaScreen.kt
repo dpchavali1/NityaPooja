@@ -51,7 +51,8 @@ fun ChoghadiyaScreen(
     val fontScale = fontSize / 16f
 
     val now = Clock.System.now()
-    val localNow = now.toLocalDateTime(TimeZone.currentSystemDefault())
+    val userTz = try { TimeZone.of(locationInfo.timezone) } catch (_: Exception) { TimeZone.currentSystemDefault() }
+    val localNow = now.toLocalDateTime(userTz)
     val currentDecimal = localNow.hour + localNow.minute / 60.0
 
     val dayOfWeek = MuhurtamRules.dayOfWeekIndexFromTelugu(panchangam.teluguDay)

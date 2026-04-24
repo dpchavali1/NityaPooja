@@ -237,21 +237,22 @@ class GunaMilanViewModel : ViewModel() {
     }
 
     private fun hasKujaDosha(marsRashi: Int, lagnaRashi: Int, moonRashi: Int): Boolean {
-        val doshaHouses = setOf(2, 4, 7, 8, 12)
+        val doshaHouses = setOf(1, 2, 4, 7, 8, 12)
         val fromLagna = ((marsRashi - lagnaRashi + 12) % 12) + 1
         val fromMoon = ((marsRashi - moonRashi + 12) % 12) + 1
         return fromLagna in doshaHouses || fromMoon in doshaHouses
     }
 
     companion object {
-        // 0=Shiro, 1=Kantha, 2=Nabhi, 3=Kati, 4=Pada
+        // Saptarajju: 0=Pada, 1=Uroha, 2=Shiro, 3=Kantha, 4=Udara, 5=Shroni
+        // Groups repeat every 9 nakshatras with pattern: 0,1,2,3,4,5,0,3,2
         private val RAJJU_GROUP = intArrayOf(
-            0, 1, 2, 3, 4, 3, 2, 1, 0,
-            0, 1, 2, 3, 4, 3, 2, 1, 0,
-            0, 1, 2, 3, 4, 3, 2, 1, 0
+            0, 1, 2, 3, 4, 5, 0, 3, 2,
+            0, 1, 2, 3, 4, 5, 0, 3, 2,
+            0, 1, 2, 3, 4, 5, 0, 3, 2
         )
 
-        private val RAJJU_NAMES_TELUGU = arrayOf("శిరో", "కంఠ", "నాభి", "కటి", "పాద")
-        private val RAJJU_NAMES_ENGLISH = arrayOf("Shiro", "Kantha", "Nabhi", "Kati", "Pada")
+        private val RAJJU_NAMES_TELUGU = arrayOf("పాద", "ఊరు", "శిరో", "కంఠ", "ఉదర", "శ్రోణి")
+        private val RAJJU_NAMES_ENGLISH = arrayOf("Pada", "Uroha", "Shiro", "Kantha", "Udara", "Shroni")
     }
 }

@@ -39,7 +39,7 @@ expect object NityaPoojaDatabaseConstructor : RoomDatabaseConstructor<NityaPooja
         FamilyDayEntity::class,
         BadgeEntity::class,
     ],
-    version = 14,
+    version = 15,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 8, to = 9),
@@ -48,6 +48,7 @@ expect object NityaPoojaDatabaseConstructor : RoomDatabaseConstructor<NityaPooja
         AutoMigration(from = 11, to = 12),
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15),
     ],
 )
 @ConstructedBy(NityaPoojaDatabaseConstructor::class)

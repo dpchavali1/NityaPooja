@@ -8,6 +8,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -57,6 +59,15 @@ actual class UserPreferencesManager(private val context: Context) {
         )
     }
 
+    // MutableStateFlow backing for EncryptedSharedPreferences values, initialized at construction
+    // time so they return the persisted value immediately and update when written.
+    private val _spotifyAccessToken = MutableStateFlow(
+        encryptedPrefs.getString("spotify_access_token", "") ?: ""
+    )
+    private val _spotifyTokenExpiry = MutableStateFlow(
+        encryptedPrefs.getLong("spotify_token_expiry", 0L)
+    )
+
     actual val themeMode: Flow<ThemeMode> = context.dataStore.data.map { prefs ->
         when (prefs[Keys.THEME_MODE]) {
             "light" -> ThemeMode.LIGHT
@@ -91,8 +102,8 @@ actual class UserPreferencesManager(private val context: Context) {
     actual val japaTargetMalas: Flow<Int> = context.dataStore.data.map { prefs -> prefs[Keys.JAPA_TARGET_MALAS] ?: 3 }
     actual val onboardingCompleted: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.ONBOARDING_COMPLETED] ?: false }
     actual val spotifyLinked: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SPOTIFY_LINKED] ?: false }
-    actual val spotifyAccessToken: Flow<String> = context.dataStore.data.map { encryptedPrefs.getString("spotify_access_token", "") ?: "" }
-    actual val spotifyTokenExpiry: Flow<Long> = context.dataStore.data.map { encryptedPrefs.getLong("spotify_token_expiry", 0L) }
+    actual val spotifyAccessToken: Flow<String> = _spotifyAccessToken.asStateFlow()
+    actual val spotifyTokenExpiry: Flow<Long> = _spotifyTokenExpiry.asStateFlow()
 
     actual suspend fun setThemeMode(mode: ThemeMode) {
         context.dataStore.edit { prefs ->
@@ -134,14 +145,19 @@ actual class UserPreferencesManager(private val context: Context) {
     actual suspend fun setJapaTargetMalas(target: Int) { context.dataStore.edit { it[Keys.JAPA_TARGET_MALAS] = target } }
     actual suspend fun setOnboardingCompleted(completed: Boolean) { context.dataStore.edit { it[Keys.ONBOARDING_COMPLETED] = completed } }
     actual suspend fun setSpotifyToken(token: String, expiresIn: Int) {
+        val expiry = kotlinx.datetime.Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L)
         encryptedPrefs.edit()
             .putString("spotify_access_token", token)
-            .putLong("spotify_token_expiry", kotlinx.datetime.Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L))
+            .putLong("spotify_token_expiry", expiry)
             .apply()
+        _spotifyAccessToken.value = token
+        _spotifyTokenExpiry.value = expiry
         context.dataStore.edit { it[Keys.SPOTIFY_LINKED] = true }
     }
     actual suspend fun clearSpotifyToken() {
         encryptedPrefs.edit().remove("spotify_access_token").remove("spotify_token_expiry").apply()
+        _spotifyAccessToken.value = ""
+        _spotifyTokenExpiry.value = 0L
         context.dataStore.edit { it[Keys.SPOTIFY_LINKED] = false }
     }
     actual suspend fun clearAllPreferences() {

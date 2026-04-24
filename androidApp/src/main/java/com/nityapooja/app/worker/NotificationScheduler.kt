@@ -238,6 +238,7 @@ object NotificationScheduler {
         for (festival in festivals) {
             try {
                 val parts = festival.dateString.split("-")
+                if (parts.size != 3) continue
                 val year = parts[0].toInt(); val month = parts[1].toInt(); val day = parts[2].toInt()
 
                 val at7am = Calendar.getInstance(tz).apply {

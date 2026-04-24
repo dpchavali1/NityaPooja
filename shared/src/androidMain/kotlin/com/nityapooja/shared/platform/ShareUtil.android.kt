@@ -23,7 +23,7 @@ actual fun shareImage(bitmap: ImageBitmap, title: String) {
     val context = appContext
     val androidBitmap = bitmap.asAndroidBitmap()
     val cacheDir = java.io.File(context.cacheDir, "share_images").also { it.mkdirs() }
-    val file = java.io.File(cacheDir, "nityapooja_share.png")
+    val file = java.io.File(cacheDir, "nityapooja_share_${System.currentTimeMillis()}.png")
     file.outputStream().use { out ->
         androidBitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 95, out)
     }

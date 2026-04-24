@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nityapooja.shared.data.local.entity.DeityEntity
 import com.nityapooja.shared.data.repository.DevotionalRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,8 @@ class VirtualPoojaRoomViewModel(
 
     private val _uiState = MutableStateFlow(VirtualPoojaRoomUiState())
     val uiState: StateFlow<VirtualPoojaRoomUiState> = _uiState.asStateFlow()
+
+    private var currentLoadJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -47,7 +50,8 @@ class VirtualPoojaRoomViewModel(
     }
 
     private fun loadDeityData(deityId: Int) {
-        viewModelScope.launch {
+        currentLoadJob?.cancel()
+        currentLoadJob = viewModelScope.launch {
             repository.getDeityById(deityId).firstOrNull()?.let { deity ->
                 _uiState.update { it.copy(selectedDeity = deity) }
             }

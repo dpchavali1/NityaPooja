@@ -127,6 +127,35 @@ actual class UserPreferencesManager {
     actual suspend fun clearAllPreferences() {
         val domain = platform.Foundation.NSBundle.mainBundle.bundleIdentifier ?: return
         defaults.removePersistentDomainForName(domain)
+        // Reset all backing StateFlows to their default values
+        _themeMode.value = "system"
+        _fontSize.value = 18
+        _userName.value = ""
+        _gotra.value = ""
+        _nakshatra.value = ""
+        _locationCity.value = "Hyderabad"
+        _locationLat.value = 17.385
+        _locationLng.value = 78.4867
+        _locationTimezone.value = "Asia/Kolkata"
+        _morningNotification.value = true
+        _eveningNotification.value = true
+        _autoDarkMode.value = false
+        _panchangNotifications.value = false
+        _quizNotification.value = true
+        _quizNotificationHour.value = 19
+        _quizNotificationMinute.value = 30
+        _grahanamNotification.value = true
+        _vrataNotification.value = false
+        _sacredMonthNotification.value = false
+        _shlokaNotification.value = false
+        _rahuKalamAlerts.value = false
+        _favoriteVrataIds.value = ""
+        _familyProfiles.value = ""
+        _japaTargetMalas.value = 3
+        _onboardingCompleted.value = false
+        _spotifyLinked.value = false
+        _spotifyAccessToken.value = ""
+        _spotifyTokenExpiry.value = 0L
     }
 
     actual suspend fun getSeededVersion(): Int =

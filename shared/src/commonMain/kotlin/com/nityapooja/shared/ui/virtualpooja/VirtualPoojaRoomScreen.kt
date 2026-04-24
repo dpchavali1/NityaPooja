@@ -162,7 +162,7 @@ private fun DeitySelectionRow(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        items(deities) { deity ->
+        items(deities, key = { it.id }) { deity ->
             DeityChip(
                 deity = deity,
                 isSelected = deity.id == selectedDeityId,

@@ -6,6 +6,7 @@ import com.nityapooja.shared.data.local.entity.*
 import kotlinx.coroutines.flow.first
 
 class DatabaseSeeder(
+    private val database: NityaPoojaDatabase,
     private val deityDao: DeityDao,
     private val aartiDao: AartiDao,
     private val stotramDao: StotramDao,

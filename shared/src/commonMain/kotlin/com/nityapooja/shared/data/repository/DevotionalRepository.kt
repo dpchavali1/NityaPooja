@@ -121,19 +121,16 @@ class DevotionalRepository(
         title: String,
         titleTelugu: String,
     ) {
-        readingHistoryDao.deleteByContent(contentType, contentId)
-        readingHistoryDao.insert(
-            ReadingHistoryEntity(
+        readingHistoryDao.insertAndTrim(
+            entry = ReadingHistoryEntity(
                 contentType = contentType,
                 contentId = contentId,
                 title = title,
                 titleTelugu = titleTelugu,
-            )
+            ),
+            contentType = contentType,
+            contentId = contentId,
         )
-        val count = readingHistoryDao.getCount()
-        if (count > 50) {
-            readingHistoryDao.deleteOldestBeyond(50)
-        }
     }
     suspend fun clearHistory() = readingHistoryDao.clearAll()
 
@@ -147,5 +144,5 @@ class DevotionalRepository(
         savedProfileDao.findByNameAndBirth(name, year, month, day, hour, minute)
 
     // Purana Quizzes
-    fun getRandomQuizzes(limit: Int = 5): Flow<List<PuranaQuizEntity>> = puranaQuizDao.getRandomQuizzes(limit)
+    suspend fun getRandomQuizzes(limit: Int = 5): List<PuranaQuizEntity> = puranaQuizDao.getRandomQuizzes(limit)
 }

@@ -40,12 +40,11 @@ class PuranaQuizViewModel(
         _uiState.value = PuranaQuizUiState(isLoading = true)
         quizLoadJob?.cancel()
         quizLoadJob = viewModelScope.launch {
-            repository.getRandomQuizzes(5).collect { questions ->
-                _uiState.value = PuranaQuizUiState(
-                    questions = questions.map { QuizQuestionState(it) },
-                    isLoading = false,
-                )
-            }
+            val questions = repository.getRandomQuizzes(5)
+            _uiState.value = PuranaQuizUiState(
+                questions = questions.map { QuizQuestionState(it) },
+                isLoading = false,
+            )
         }
     }
 

@@ -24,6 +24,9 @@ interface KeertanaDao {
     @Query("SELECT * FROM keertanalu WHERE composer = :composer")
     fun getKeertanaluByComposer(composer: String): Flow<List<KeertanaEntity>>
 
+    @Query("SELECT * FROM keertanalu WHERE composer IS NULL ORDER BY title")
+    fun getKeertanaluWithNoComposer(): Flow<List<KeertanaEntity>>
+
     @Query("SELECT DISTINCT composer FROM keertanalu")
     fun getAllComposers(): Flow<List<String>>
 

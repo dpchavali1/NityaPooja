@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -94,11 +95,12 @@ fun NityaPoojaNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val audioViewModel: AudioPlayerViewModel = koinViewModel()
+    val scope = rememberCoroutineScope()
 
     // Inject dependencies
     val seeder = org.koin.compose.koinInject<com.nityapooja.shared.data.local.db.DatabaseSeeder>()
     val notificationScheduler = org.koin.compose.koinInject<com.nityapooja.shared.platform.NotificationScheduler>()
-    val festivalDao = org.koin.compose.koinInject<com.nityapooja.shared.data.local.dao.FestivalDao>()
+    val repository = org.koin.compose.koinInject<com.nityapooja.shared.data.repository.DevotionalRepository>()
     val preferencesManager = org.koin.compose.koinInject<com.nityapooja.shared.data.preferences.UserPreferencesManager>()
 
     // What's New dialog — shown once per WHATS_NEW_VERSION
@@ -112,7 +114,7 @@ fun NityaPoojaNavHost(
     if (showWhatsNew) {
         WhatsNewDialog(onDismiss = {
             showWhatsNew = false
-            kotlinx.coroutines.MainScope().launch { preferencesManager.setWhatsNewVersion(WHATS_NEW_VERSION) }
+            scope.launch { preferencesManager.setWhatsNewVersion(WHATS_NEW_VERSION) }
         })
     }
 
@@ -122,7 +124,7 @@ fun NityaPoojaNavHost(
         // Schedule festival notifications for all festivals on every app start
         val userName = preferencesManager.userName.first()
         val timezone = preferencesManager.locationTimezone.first()
-        val festivals = festivalDao.getAllFestivals().first()
+        val festivals = repository.getAllFestivalsOnce()
         val festivalInfos = festivals.mapNotNull { f ->
             val date = f.dateThisYear ?: f.dateNextYear ?: return@mapNotNull null
             com.nityapooja.shared.platform.FestivalNotificationInfo(

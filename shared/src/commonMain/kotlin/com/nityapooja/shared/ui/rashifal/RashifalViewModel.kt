@@ -237,7 +237,10 @@ class RashifalViewModel(
         "makara", "capricorn"  -> 9
         "kumbha", "aquarius"   -> 10
         "meena", "pisces"      -> 11
-        else -> (name.hashCode().and(0x7FFFFFFF) % 12) // safe fallback
+        else -> {
+            println("WARNING: Unknown rashi name '$name' — using hash fallback")
+            name.hashCode().and(0x7FFFFFFF) % 12
+        }
     }
 
     private fun normalize24(value: Double): Double {

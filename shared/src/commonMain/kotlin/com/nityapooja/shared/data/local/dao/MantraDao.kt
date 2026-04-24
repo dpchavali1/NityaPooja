@@ -33,6 +33,6 @@ interface MantraDao {
     @Query("SELECT COUNT(*) FROM mantras")
     suspend fun getCount(): Int
 
-    @Query("UPDATE mantras SET archiveOrgUrl = :url WHERE title = :title")
-    suspend fun updateAudioUrlByTitle(title: String, url: String)
+    @Query("UPDATE mantras SET archiveOrgUrl = :url WHERE id = :id")
+    suspend fun updateArchiveOrgUrl(id: Int, url: String)
 }

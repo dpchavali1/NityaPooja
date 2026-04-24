@@ -43,7 +43,7 @@ object JyotishConstants {
     val NAKSHATRA_NAMES_TELUGU = arrayOf(
         "అశ్విని", "భరణి", "కృత్తిక", "రోహిణి", "మృగశిర",
         "ఆర్ద్ర", "పునర్వసు", "పుష్యమి", "ఆశ్లేష", "మఘ",
-        "పూర్వ ఫల్గుణి", "ఉత్తర ఫల్గుణి", "హస్త", "చిత్త", "స్వాతి",
+        "పూర్వ ఫల్గుణి", "ఉత్తర ఫల్గుణి", "హస్త", "చిత్ర", "స్వాతి",
         "విశాఖ", "అనురాధ", "జ్యేష్ఠ", "మూల", "పూర్వాషాఢ",
         "ఉత్తరాషాఢ", "శ్రవణం", "ధనిష్ఠ", "శతభిషం", "పూర్వాభాద్ర",
         "ఉత్తరాభాద్ర", "రేవతి"
@@ -52,7 +52,7 @@ object JyotishConstants {
     val NAKSHATRA_NAMES_ENGLISH = arrayOf(
         "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira",
         "Ardra", "Punarvasu", "Pushyami", "Ashlesha", "Magha",
-        "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitta", "Swati",
+        "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra", "Swati",
         "Vishakha", "Anuradha", "Jyeshtha", "Moola", "Purvashadha",
         "Uttarashadha", "Shravana", "Dhanishtha", "Shatabhisha", "Purvabhadra",
         "Uttarabhadra", "Revati"
@@ -77,7 +77,7 @@ object JyotishConstants {
     val VASYA_SCORE = arrayOf(
         intArrayOf(2, 1, 0, 1, 0),
         intArrayOf(1, 2, 1, 0, 0),
-        intArrayOf(0, 1, 2, 0, 1),
+        intArrayOf(0, 1, 2, 0, 0),
         intArrayOf(1, 0, 0, 2, 1),
         intArrayOf(0, 0, 1, 1, 2),
     )
@@ -160,15 +160,16 @@ object JyotishConstants {
     val GANA_NAMES_TELUGU = arrayOf("దేవ", "మానుష", "రాక్షస")
 
     val GANA_SCORE = arrayOf(
-        intArrayOf(6, 6, 0),
-        intArrayOf(6, 6, 0),
+        intArrayOf(6, 5, 0),   // Deva vs Deva=6, Deva vs Manush=5, Deva vs Rakshasa=0
+        intArrayOf(5, 6, 0),   // Manush vs Deva=5, Manush vs Manush=6, Manush vs Rakshasa=0
         intArrayOf(0, 0, 6),
     )
 
     fun bhakootScore(brideRashi: Int, groomRashi: Int): Int {
-        val dist = ((groomRashi - brideRashi + 12) % 12) + 1
         val inauspicious = setOf(2, 12, 5, 9, 6, 8)
-        return if (dist in inauspicious) 0 else 7
+        val dist1 = ((groomRashi - brideRashi + 12) % 12) + 1
+        val dist2 = ((brideRashi - groomRashi + 12) % 12) + 1
+        return if (dist1 in inauspicious || dist2 in inauspicious) 0 else 7
     }
 
     val NAKSHATRA_NADI = intArrayOf(

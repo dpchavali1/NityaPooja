@@ -116,12 +116,10 @@ class HomeViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /** Festival that falls on today's date — null if no festival today */
-    val todayFestival: StateFlow<FestivalEntity?> = allFestivals
-        .map { festivals ->
-            val today = _today.value.toString()
-            festivals.firstOrNull { it.dateThisYear == today || it.dateNextYear == today }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    val todayFestival: StateFlow<FestivalEntity?> = combine(allFestivals, _today) { festivals, today ->
+        val todayStr = today.toString()
+        festivals.firstOrNull { it.dateThisYear == todayStr || it.dateNextYear == todayStr }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private fun dayName(date: LocalDate): String {
         return when (date.dayOfWeek) {

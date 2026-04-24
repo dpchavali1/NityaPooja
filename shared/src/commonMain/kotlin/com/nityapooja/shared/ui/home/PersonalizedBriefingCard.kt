@@ -1,11 +1,31 @@
 package com.nityapooja.shared.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -192,73 +212,95 @@ fun PersonalizedBriefingCard(
     val nakshatraIndex = NAKSHATRA_NAMES_ENGLISH_LIST.indexOf(userNakshatra)
     val mantra = if (nakshatraIndex >= 0) NAKSHATRA_MANTRAS[nakshatraIndex] else null
 
+    var expanded by remember { mutableStateOf(false) }
+
     GlassmorphicCard(
         modifier = modifier,
         accentColor = TempleGold,
-        cornerRadius = 20.dp,
-        contentPadding = 20.dp,
+        cornerRadius = 14.dp,
+        contentPadding = 0.dp,
     ) {
-        // Header
-        Text(
-            "నేటి మీ మార్గదర్శనం · YOUR DAILY GUIDANCE",
-            style = NityaPoojaTextStyles.GoldLabel,
-            color = TempleGold,
-        )
-        Spacer(Modifier.height(12.dp))
-
-        // Nakshatra guidance — Telugu
-        Text(
-            guidance.first,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
-            lineHeight = 22.sp,
-        )
-        Spacer(Modifier.height(4.dp))
-        // Nakshatra guidance — English
-        Text(
-            guidance.second,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            lineHeight = 18.sp,
-        )
-
-        Spacer(Modifier.height(12.dp))
-        HorizontalDivider(color = TempleGold.copy(alpha = 0.15f))
-        Spacer(Modifier.height(12.dp))
-
-        // Day activity — Telugu
-        Text(
-            dayActivity.first,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        // Day activity — English
-        Text(
-            dayActivity.second,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        // Mantra recommendation
-        if (mantra != null) {
-            Spacer(Modifier.height(12.dp))
-            HorizontalDivider(color = TempleGold.copy(alpha = 0.15f))
-            Spacer(Modifier.height(12.dp))
+        // Collapsed header — always visible
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Default.Person, contentDescription = null, tint = TempleGold, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
             Text(
-                "నేటి మంత్రం · Today's Mantra",
+                "నేటి మీ మార్గదర్శనం · YOUR DAILY GUIDANCE",
                 style = NityaPoojaTextStyles.GoldLabel,
                 color = TempleGold,
+                modifier = Modifier.weight(1f),
             )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                mantra,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontStyle = FontStyle.Italic,
-                ),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+            Icon(
+                if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = TempleGold,
+                modifier = Modifier.size(18.dp),
             )
+        }
+
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(),
+            exit = shrinkVertically(),
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 14.dp).padding(bottom = 14.dp)) {
+                HorizontalDivider(color = TempleGold.copy(alpha = 0.15f))
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    guidance.first,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 22.sp,
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    guidance.second,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 18.sp,
+                )
+
+                Spacer(Modifier.height(12.dp))
+                HorizontalDivider(color = TempleGold.copy(alpha = 0.15f))
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    dayActivity.first,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    dayActivity.second,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+
+                if (mantra != null) {
+                    Spacer(Modifier.height(12.dp))
+                    HorizontalDivider(color = TempleGold.copy(alpha = 0.15f))
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        "నేటి మంత్రం · Today's Mantra",
+                        style = NityaPoojaTextStyles.GoldLabel,
+                        color = TempleGold,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        mantra,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+                    )
+                }
+            }
         }
     }
 }

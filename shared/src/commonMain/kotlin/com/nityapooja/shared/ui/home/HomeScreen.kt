@@ -30,6 +30,10 @@ import com.nityapooja.shared.ui.theme.*
 import com.nityapooja.shared.data.muhurtam.MuhurtamRules
 import com.nityapooja.shared.utils.JyotishConstants
 import com.nityapooja.shared.platform.shareText
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -164,7 +168,119 @@ fun HomeScreen(
                 }
             }
 
-            // Today's Guidance — synthesizes Panchangam into one actionable sentence
+            // 1. HERO: Deity of the Day
+            item {
+                deityOfDay.firstOrNull()?.let { deity ->
+                    val deityColor = resolveDeityColor(deity.colorTheme)
+                    var showEnglishDesc by remember { mutableStateOf(false) }
+                    GlassmorphicCard(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        accentColor = deityColor,
+                        onClick = { onNavigateToDeityDetail(deity.id) },
+                    ) {
+                        Text(
+                            "నేటి దేవత · TODAY'S DEITY",
+                            style = NityaPoojaTextStyles.GoldLabel,
+                            color = TempleGold,
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    deity.nameTelugu,
+                                    style = NityaPoojaTextStyles.TeluguDisplay.copy(fontSize = (26 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Text(
+                                    deity.name,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (15 * fontScale).sp),
+                                    color = deityColor,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                                deity.descriptionTelugu?.let {
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(it, style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp, lineHeight = (18 * fontScale).sp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f))
+                                }
+                            }
+                            Spacer(Modifier.width(14.dp))
+                            SmartDeityImage(deityId = deity.id, nameTelugu = deity.nameTelugu, nameEnglish = deity.name, deityColor = deityColor, size = 100.dp, showLabel = false, imageResName = deity.imageResName)
+                        }
+                        if (!deity.description.isNullOrBlank()) {
+                            Spacer(Modifier.height(10.dp))
+                            HorizontalDivider(color = deityColor.copy(alpha = 0.2f))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { showEnglishDesc = !showEnglishDesc }
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    "English",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = deityColor,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Icon(
+                                    if (showEnglishDesc) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                    contentDescription = null,
+                                    tint = deityColor,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            }
+                            AnimatedVisibility(
+                                visible = showEnglishDesc,
+                                enter = expandVertically(),
+                                exit = shrinkVertically(),
+                            ) {
+                                Text(
+                                    deity.description!!,
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp, lineHeight = (18 * fontScale).sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. Compact Panchangam Strip
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    onClick = onNavigateToPanchangam,
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Default.CalendarMonth, null, tint = TempleGold, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "${panchangamData.tithi.nameTelugu} · ${panchangamData.nakshatra.nameTelugu} · ☀${panchangamData.sunTimes.sunrise}",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (panchangamData.rahuKaal.isActive) {
+                            Surface(shape = MaterialTheme.shapes.small, color = DeepVermillion.copy(alpha = 0.15f)) {
+                                Text("రాహు కాలం", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp), fontWeight = FontWeight.Bold, color = DeepVermillion)
+                            }
+                            Spacer(Modifier.width(4.dp))
+                        }
+                        Icon(Icons.Default.ChevronRight, null, tint = TempleGold, modifier = Modifier.size(18.dp))
+                    }
+                }
+            }
+
+            // 3. Today's Guidance — synthesizes Panchangam into one actionable sentence
             item {
                 TodayGuidanceCard(
                     panchangam = panchangamData,
@@ -213,51 +329,7 @@ fun HomeScreen(
                 }
             }
 
-
-            // 1. HERO: Deity of the Day (God first!)
-            item {
-                deityOfDay.firstOrNull()?.let { deity ->
-                    val deityColor = resolveDeityColor(deity.colorTheme)
-                    GlassmorphicCard(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        accentColor = deityColor,
-                        onClick = { onNavigateToDeityDetail(deity.id) },
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Top,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "నేటి దేవత · TODAY'S DEITY",
-                                    style = NityaPoojaTextStyles.GoldLabel,
-                                    color = TempleGold,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    deity.nameTelugu,
-                                    style = NityaPoojaTextStyles.TeluguDisplay.copy(fontSize = (24 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                                Text(
-                                    deity.name,
-                                    style = MaterialTheme.typography.titleMedium.copy(fontSize = (16 * fontScale).sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                deity.descriptionTelugu?.let {
-                                    Text(it, style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3)
-                                }
-                            }
-                            Spacer(Modifier.width(12.dp))
-                            SmartDeityImage(deityId = deity.id, nameTelugu = deity.nameTelugu, nameEnglish = deity.name, deityColor = deityColor, size = 96.dp, showLabel = false, imageResName = deity.imageResName)
-                        }
-                    }
-                }
-            }
-
-            // 2. Daily Shloka
+            // 4. Daily Shloka
             item {
                 todayShloka?.let { shloka ->
                     GlassmorphicCard(
@@ -319,37 +391,6 @@ fun HomeScreen(
                                 Text("Share", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                    }
-                }
-            }
-
-            // 3. Compact Panchangam Strip
-            item {
-                Surface(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                    onClick = onNavigateToPanchangam,
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(Icons.Default.CalendarMonth, null, tint = TempleGold, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            "${panchangamData.tithi.nameTelugu} · ${panchangamData.nakshatra.nameTelugu} · ☀${panchangamData.sunTimes.sunrise}",
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.weight(1f),
-                        )
-                        if (panchangamData.rahuKaal.isActive) {
-                            Surface(shape = MaterialTheme.shapes.small, color = DeepVermillion.copy(alpha = 0.15f)) {
-                                Text("రాహు కాలం", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp), fontWeight = FontWeight.Bold, color = DeepVermillion)
-                            }
-                            Spacer(Modifier.width(4.dp))
-                        }
-                        Icon(Icons.Default.ChevronRight, null, tint = TempleGold, modifier = Modifier.size(18.dp))
                     }
                 }
             }
@@ -799,7 +840,6 @@ private fun TodayGuidanceCard(
     fontScale: Float = 1f,
 ) {
     val tithiName = panchangam.tithi.nameEnglish.lowercase()
-    val nakshatraName = panchangam.nakshatra.nameEnglish.lowercase()
     val yogaName = panchangam.yoga.nameEnglish.lowercase()
 
     val isEkadashi = tithiName.contains("ekadashi")
@@ -819,28 +859,48 @@ private fun TodayGuidanceCard(
     } ?: return
     val (guidance, color) = guidanceAndColor
 
+    var expanded by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         color = color.copy(alpha = 0.08f),
+        onClick = { expanded = !expanded },
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                Icons.Default.Lightbulb,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(20.dp),
-            )
-            Text(
-                guidance,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp),
-                color = color,
-                lineHeight = (18 * fontScale).sp,
-            )
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(Icons.Default.Lightbulb, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+                Text(
+                    "నేటి మార్గదర్శనం · TODAY'S GUIDANCE",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = (11 * fontScale).sp),
+                    color = color,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(
+                    if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Column {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        guidance,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = (12 * fontScale).sp, lineHeight = (18 * fontScale).sp),
+                        color = color,
+                    )
+                }
+            }
         }
     }
 }

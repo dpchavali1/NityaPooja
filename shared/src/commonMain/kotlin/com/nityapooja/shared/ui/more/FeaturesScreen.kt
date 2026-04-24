@@ -350,8 +350,8 @@ fun FeaturesScreen(
                     icon = Icons.Default.AddPhotoAlternate,
                     titleTelugu = "దేవత ఫోటో మార్చండి",
                     titleEnglish = "Custom Deity Photos",
-                    descTelugu = "మీ స్వంత దేవత ఫోటో పెట్టుకోండి — మీ ఇంటి దేవత, ఆలయ ఫోటో. యాప్‌లో అన్ని చోట్ల కనిపిస్తుంది. మీ పరికరంలో మాత్రమే సేవ్.",
-                    descEnglish = "Set your own deity photos — your kula devata or temple idol. Shows everywhere in the app. Stored only on your device.",
+                    descTelugu = "ఏ దేవత ఫోటోనైనా మీ స్వంత ఫోటోతో మార్చండి — మీ ఇంటి దేవత లేదా ఆలయ ఫోటో. మీ పరికరంలో మాత్రమే సేవ్ అవుతుంది.",
+                    descEnglish = "Replace any deity's photo with your own — your home idol or temple photo. Replaces the default image for that deity only. Stored privately on your device.",
                     howToUse = "Any Deity screen → 📷 నా ఫోటో సెట్ చేయండి",
                 )
             }

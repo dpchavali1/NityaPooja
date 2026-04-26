@@ -63,6 +63,7 @@ actual class SankalpamTtsPlayer(
                     )
                 } catch (e: Exception) {
                     _isLoading.value = false
+                    println("SankalpamTTS error: ${e.message}")
                     return@launch
                 }
                 _isLoading.value = false

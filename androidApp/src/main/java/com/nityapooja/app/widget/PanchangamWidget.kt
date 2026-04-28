@@ -33,64 +33,103 @@ class PanchangamWidget : GlanceAppWidget() {
         val goldColor = ColorProvider(Color(0xFFD4A017))
         val whiteColor = ColorProvider(Color.White)
         val bgColor = ColorProvider(Color(0xFF1A0A00))
-        val subtleColor = ColorProvider(Color(0xFFBBBBBB))
+        val dimColor = ColorProvider(Color(0xFFCCCCCC))
 
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .background(bgColor)
                 .clickable(actionStartActivity(openAppIntent))
-                .padding(10.dp),
+                .padding(horizontal = 14.dp, vertical = 10.dp),
         ) {
             Column(
                 modifier = GlanceModifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Header row: date + location
+                // Date — large, centred, gold
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
                         text = data.dateDisplay,
-                        style = TextStyle(color = goldColor, fontSize = 13.sp, fontWeight = FontWeight.Bold),
+                        style = TextStyle(
+                            color = goldColor,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                        ),
                     )
                 }
 
-                Spacer(GlanceModifier.height(4.dp))
+                Spacer(GlanceModifier.height(10.dp))
 
-                // 2-column layout for panchangam fields
-                Row(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Column(modifier = GlanceModifier.defaultWeight()) {
-                        PanchangamRow("తిథి", data.tithi, goldColor, whiteColor)
-                        Spacer(GlanceModifier.height(3.dp))
-                        PanchangamRow("నక్షత్రం", data.nakshatra, goldColor, whiteColor)
-                        Spacer(GlanceModifier.height(3.dp))
-                        PanchangamRow("యోగం", data.yoga, goldColor, whiteColor)
-                    }
-                    Spacer(GlanceModifier.width(8.dp))
-                    Column(modifier = GlanceModifier.defaultWeight()) {
-                        PanchangamRow("కరణం", data.karana, goldColor, whiteColor)
-                        Spacer(GlanceModifier.height(3.dp))
-                        PanchangamRow("సూర్యోదయం", data.sunrise, goldColor, whiteColor)
-                        Spacer(GlanceModifier.height(3.dp))
-                        PanchangamRow("సూర్యాస్తం", data.sunset, goldColor, whiteColor)
-                    }
+                // Row 1: Tithi | Karana
+                Row(modifier = GlanceModifier.fillMaxWidth()) {
+                    BigField(
+                        label = "తిథి",
+                        value = data.tithi,
+                        labelColor = goldColor,
+                        valueColor = whiteColor,
+                        modifier = GlanceModifier.defaultWeight(),
+                    )
+                    BigField(
+                        label = "కరణం",
+                        value = data.karana,
+                        labelColor = goldColor,
+                        valueColor = whiteColor,
+                        modifier = GlanceModifier.defaultWeight(),
+                    )
                 }
 
-                Spacer(GlanceModifier.height(4.dp))
+                Spacer(GlanceModifier.height(10.dp))
 
-                // Footer
+                // Row 2: Nakshatra | Yoga
+                Row(modifier = GlanceModifier.fillMaxWidth()) {
+                    BigField(
+                        label = "నక్షత్రం",
+                        value = data.nakshatra,
+                        labelColor = goldColor,
+                        valueColor = whiteColor,
+                        modifier = GlanceModifier.defaultWeight(),
+                    )
+                    BigField(
+                        label = "యోగం",
+                        value = data.yoga,
+                        labelColor = goldColor,
+                        valueColor = whiteColor,
+                        modifier = GlanceModifier.defaultWeight(),
+                    )
+                }
+
+                Spacer(GlanceModifier.height(10.dp))
+
+                // Row 3: Sunrise | Sunset — prominent
+                Row(modifier = GlanceModifier.fillMaxWidth()) {
+                    BigField(
+                        label = "సూర్యోదయం",
+                        value = data.sunrise,
+                        labelColor = goldColor,
+                        valueColor = whiteColor,
+                        modifier = GlanceModifier.defaultWeight(),
+                    )
+                    BigField(
+                        label = "సూర్యాస్తం",
+                        value = data.sunset,
+                        labelColor = goldColor,
+                        valueColor = whiteColor,
+                        modifier = GlanceModifier.defaultWeight(),
+                    )
+                }
+
+                Spacer(GlanceModifier.height(8.dp))
+
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "నిత్య పూజ",
-                        style = TextStyle(color = subtleColor, fontSize = 10.sp),
+                        "నిత్య పూజ",
+                        style = TextStyle(color = dimColor, fontSize = 12.sp),
                     )
                 }
             }
@@ -98,15 +137,23 @@ class PanchangamWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun PanchangamRow(
+    private fun BigField(
         label: String,
         value: String,
         labelColor: ColorProvider,
         valueColor: ColorProvider,
+        modifier: GlanceModifier = GlanceModifier,
     ) {
-        Column {
-            Text(label, style = TextStyle(color = labelColor, fontSize = 11.sp))
-            Text(value, style = TextStyle(color = valueColor, fontSize = 13.sp, fontWeight = FontWeight.Medium))
+        Column(modifier = modifier) {
+            Text(label, style = TextStyle(color = labelColor, fontSize = 14.sp))
+            Text(
+                value,
+                style = TextStyle(
+                    color = valueColor,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                ),
+            )
         }
     }
 }

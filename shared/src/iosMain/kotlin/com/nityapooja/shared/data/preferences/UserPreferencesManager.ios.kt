@@ -37,6 +37,7 @@ actual class UserPreferencesManager {
     private val _spotifyLinked = MutableStateFlow(readBool("spotify_linked", false))
     private val _spotifyAccessToken = MutableStateFlow(defaults.stringForKey("spotify_access_token") ?: "")
     private val _spotifyTokenExpiry = MutableStateFlow(readLong("spotify_token_expiry", 0L))
+    private val _showEnglish = MutableStateFlow(readBool("show_english", false))
 
     private fun readBool(key: String, default: Boolean): Boolean =
         if (defaults.objectForKey(key) != null) defaults.boolForKey(key) else default
@@ -75,6 +76,7 @@ actual class UserPreferencesManager {
     actual val spotifyLinked: Flow<Boolean> = _spotifyLinked
     actual val spotifyAccessToken: Flow<String> = _spotifyAccessToken
     actual val spotifyTokenExpiry: Flow<Long> = _spotifyTokenExpiry
+    actual val showEnglish: Flow<Boolean> = _showEnglish
 
     actual suspend fun setThemeMode(mode: ThemeMode) {
         val str = when (mode) { ThemeMode.SYSTEM -> "system"; ThemeMode.LIGHT -> "light"; ThemeMode.DARK -> "dark"; ThemeMode.SAFFRON -> "saffron" }
@@ -119,6 +121,7 @@ actual class UserPreferencesManager {
         defaults.setInteger(expiry, "spotify_token_expiry"); _spotifyTokenExpiry.value = expiry
         defaults.setBool(true, "spotify_linked"); _spotifyLinked.value = true
     }
+    actual suspend fun setShowEnglish(enabled: Boolean) { defaults.setBool(enabled, "show_english"); _showEnglish.value = enabled }
     actual suspend fun clearSpotifyToken() {
         defaults.removeObjectForKey("spotify_access_token"); _spotifyAccessToken.value = ""
         defaults.removeObjectForKey("spotify_token_expiry"); _spotifyTokenExpiry.value = 0L
@@ -156,6 +159,7 @@ actual class UserPreferencesManager {
         _spotifyLinked.value = false
         _spotifyAccessToken.value = ""
         _spotifyTokenExpiry.value = 0L
+        _showEnglish.value = false
     }
 
     actual suspend fun getSeededVersion(): Int =

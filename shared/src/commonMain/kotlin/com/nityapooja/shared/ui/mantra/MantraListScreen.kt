@@ -18,17 +18,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import com.nityapooja.shared.ui.settings.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MantraListScreen(
     viewModel: MantraViewModel = koinViewModel(),
+    settingsViewModel: SettingsViewModel = koinViewModel(),
     onMantraClick: (Int) -> Unit = {},
     onJapaClick: () -> Unit = {},
     onBack: () -> Unit = {},
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val mantras by viewModel.allMantras.collectAsState()
+    val showEnglish by settingsViewModel.showEnglish.collectAsState()
 
     Scaffold(
         topBar = {
@@ -69,8 +72,16 @@ fun MantraListScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(mantra.titleTelugu, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text(mantra.title, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            if (showEnglish) mantra.title else mantra.titleTelugu,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            if (showEnglish) mantra.titleTelugu else mantra.title,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                         mantra.sanskrit?.let {
                             Spacer(Modifier.height(8.dp))
                             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary, maxLines = 2)

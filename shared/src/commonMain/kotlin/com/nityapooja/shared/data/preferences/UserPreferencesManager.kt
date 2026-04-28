@@ -33,6 +33,7 @@ expect class UserPreferencesManager {
     val spotifyLinked: Flow<Boolean>
     val spotifyAccessToken: Flow<String>
     val spotifyTokenExpiry: Flow<Long>
+    val showEnglish: Flow<Boolean>
 
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setFontSize(size: Int)
@@ -57,6 +58,7 @@ expect class UserPreferencesManager {
     suspend fun setOnboardingCompleted(completed: Boolean)
     suspend fun setSpotifyToken(token: String, expiresIn: Int)
     suspend fun clearSpotifyToken()
+    suspend fun setShowEnglish(enabled: Boolean)
     suspend fun clearAllPreferences()
 
     suspend fun getSeededVersion(): Int

@@ -88,6 +88,11 @@ class SettingsViewModel(
     val rahuKalamAlerts: StateFlow<Boolean> = preferencesManager.rahuKalamAlerts
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val showEnglish: StateFlow<Boolean> = preferencesManager.showEnglish
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun setShowEnglish(enabled: Boolean) { viewModelScope.launch { preferencesManager.setShowEnglish(enabled) } }
+
     fun setVrataNotification(enabled: Boolean) {
         viewModelScope.launch {
             preferencesManager.setVrataNotification(enabled)

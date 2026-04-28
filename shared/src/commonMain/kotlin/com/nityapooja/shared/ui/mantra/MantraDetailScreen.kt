@@ -22,6 +22,7 @@ import com.nityapooja.shared.ui.components.FontSizeControls
 import com.nityapooja.shared.ui.components.FontSizeViewModel
 import com.nityapooja.shared.ui.components.GoldGradientButton
 import com.nityapooja.shared.ui.components.buildShareText
+import com.nityapooja.shared.ui.settings.SettingsViewModel
 import com.nityapooja.shared.ui.theme.TempleGold
 import com.nityapooja.shared.platform.shareText
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,6 +41,7 @@ fun MantraDetailScreen(
     audioViewModel: AudioPlayerViewModel,
     viewModel: MantraViewModel = koinViewModel(),
     fontSizeViewModel: FontSizeViewModel = koinViewModel(),
+    settingsViewModel: SettingsViewModel = koinViewModel(),
     bannerAd: (@Composable () -> Unit)? = null,
 ) {
     val mantra by remember(mantraId) { viewModel.getMantraById(mantraId) }
@@ -47,6 +49,7 @@ fun MantraDetailScreen(
 
     val fontSize by fontSizeViewModel.fontSize.collectAsState()
     val fontScale = fontSize / 16f
+    val showEnglish by settingsViewModel.showEnglish.collectAsState()
     val audioState by audioViewModel.state.collectAsState()
     val isSpotifyConnected by audioViewModel.isSpotifyConnected.collectAsState()
     val isSpotifyLinked by audioViewModel.isSpotifyLinked.collectAsState()
@@ -173,61 +176,94 @@ fun MantraDetailScreen(
 
                 bannerAd?.invoke()
 
-                m.meaningTelugu?.let {
-                    Text(
-                        "అర్థం (Telugu)",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        it,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = (16 * fontScale).sp,
-                            lineHeight = (28 * fontScale).sp,
-                        ),
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                }
-
-                m.meaningEnglish?.let {
-                    Text(
-                        "Meaning (English)",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        it,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = (14 * fontScale).sp,
-                            lineHeight = (22 * fontScale).sp,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                }
-
-                m.benefits?.let {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-                    Text(
-                        "Benefits",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        it,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = (14 * fontScale).sp,
-                            lineHeight = (22 * fontScale).sp,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                if (showEnglish) {
+                    m.meaningEnglish?.let {
+                        Text(
+                            "Meaning",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = (16 * fontScale).sp,
+                                lineHeight = (28 * fontScale).sp,
+                            ),
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
+                    m.benefits?.let {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                        Text(
+                            "Benefits",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = (14 * fontScale).sp,
+                                lineHeight = (22 * fontScale).sp,
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    m.meaningTelugu?.let {
+                        Text(
+                            "అర్థం",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = (16 * fontScale).sp,
+                                lineHeight = (28 * fontScale).sp,
+                            ),
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(16.dp))
+                    }
+                    m.benefitsTelugu?.let {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                        Text(
+                            "ప్రయోజనాలు",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = (14 * fontScale).sp,
+                                lineHeight = (22 * fontScale).sp,
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } ?: m.benefits?.let {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                        Text(
+                            "Benefits",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = (14 * fontScale).sp,
+                                lineHeight = (22 * fontScale).sp,
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         } ?: Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {

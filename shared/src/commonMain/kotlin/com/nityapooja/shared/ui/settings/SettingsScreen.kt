@@ -67,6 +67,7 @@ fun SettingsScreen(
     val sacredMonthNotification by viewModel.sacredMonthNotification.collectAsState()
     val shlokaNotification by viewModel.shlokaNotification.collectAsState()
     val rahuKalamAlerts by viewModel.rahuKalamAlerts.collectAsState()
+    val showEnglish by viewModel.showEnglish.collectAsState()
 
     val dataCleared by viewModel.dataCleared.collectAsState()
 
@@ -308,6 +309,25 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
+            }
+
+            // Show English Translations toggle
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("\u0C07\u0C02\u0C17\u0C4D\u0C32\u0C40\u0C37\u0C4D \u0C05\u0C28\u0C41\u0C35\u0C3E\u0C26\u0C3E\u0C32\u0C41", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text("Show English translations", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(
+                        checked = showEnglish,
+                        onCheckedChange = { viewModel.setShowEnglish(it) },
+                        colors = SwitchDefaults.colors(checkedThumbColor = TempleGold),
+                    )
+                }
             }
 
             // Location

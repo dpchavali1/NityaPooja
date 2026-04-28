@@ -44,6 +44,7 @@ actual class UserPreferencesManager(private val context: Context) {
         val GOTRA = stringPreferencesKey("gotra")
         val NAKSHATRA = stringPreferencesKey("nakshatra")
         val SPOTIFY_LINKED = booleanPreferencesKey("spotify_linked")
+        val SHOW_ENGLISH = booleanPreferencesKey("show_english")
     }
 
     private val encryptedPrefs: SharedPreferences by lazy {
@@ -104,6 +105,7 @@ actual class UserPreferencesManager(private val context: Context) {
     actual val spotifyLinked: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SPOTIFY_LINKED] ?: false }
     actual val spotifyAccessToken: Flow<String> = _spotifyAccessToken.asStateFlow()
     actual val spotifyTokenExpiry: Flow<Long> = _spotifyTokenExpiry.asStateFlow()
+    actual val showEnglish: Flow<Boolean> = context.dataStore.data.map { prefs -> prefs[Keys.SHOW_ENGLISH] ?: false }
 
     actual suspend fun setThemeMode(mode: ThemeMode) {
         context.dataStore.edit { prefs ->
@@ -154,6 +156,7 @@ actual class UserPreferencesManager(private val context: Context) {
         _spotifyTokenExpiry.value = expiry
         context.dataStore.edit { it[Keys.SPOTIFY_LINKED] = true }
     }
+    actual suspend fun setShowEnglish(enabled: Boolean) { context.dataStore.edit { it[Keys.SHOW_ENGLISH] = enabled } }
     actual suspend fun clearSpotifyToken() {
         encryptedPrefs.edit().remove("spotify_access_token").remove("spotify_token_expiry").apply()
         _spotifyAccessToken.value = ""

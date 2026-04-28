@@ -12,6 +12,7 @@ import com.nityapooja.shared.di.androidPlatformModule
 import com.nityapooja.shared.di.sharedModule
 import androidx.work.WorkManager
 import com.nityapooja.app.widget.PanchangamWidgetUpdateWorker
+import com.nityapooja.app.widget.RashifalWidgetUpdateWorker
 import com.nityapooja.shared.platform.NotificationScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,7 @@ class NityaPoojaApp : Application() {
         cancelLegacyWorkManagerNotifications()
         scheduleNotificationsFromPreferences()
         PanchangamWidgetUpdateWorker.schedule(this)
+        RashifalWidgetUpdateWorker.schedule(this)
         MobileAds.setRequestConfiguration(
             RequestConfiguration.Builder()
                 .setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_G)

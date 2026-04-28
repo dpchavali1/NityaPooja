@@ -53,6 +53,7 @@
 
     <!-- Widget -->
     <string name="panchangam_widget_description">Daily Panchangam (Tithi, Nakshatra, Yoga, Karana, Sunrise/Sunset)</string>
+    <string name="rashifal_widget_description">Daily Rashifal — personalised horoscope based on your janma rashi</string>
 
     <!-- Streak -->
     <string name="bhakti_streak">Bhakti Streak</string>

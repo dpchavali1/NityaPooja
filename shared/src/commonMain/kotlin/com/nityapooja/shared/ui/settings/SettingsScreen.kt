@@ -82,6 +82,8 @@ fun SettingsScreen(
     var nameInput by remember(userName) { mutableStateOf(userName) }
     var gotraInput by remember(gotra) { mutableStateOf(gotra) }
     var nakshatraDropdownExpanded by remember { mutableStateOf(false) }
+    var rashiDropdownExpanded by remember { mutableStateOf(false) }
+    val selectedRashiId by viewModel.selectedRashiId.collectAsState()
 
     Scaffold(
         topBar = {
@@ -221,6 +223,134 @@ fun SettingsScreen(
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                             )
                         }
+                    }
+                }
+            }
+
+            GlassmorphicCard(cornerRadius = 16.dp, contentPadding = 16.dp) {
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                Spacer(Modifier.height(16.dp))
+                Text("\u0C30ాశి చక్రం", style = MaterialTheme.typography.labelMedium, color = TempleGold)
+                Text("Rashifal Widget — Your Rashi", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(8.dp))
+                val rashiNamesT = listOf("మేషం", "వృషభం", "మిథునం", "కర్కాటకం", "సింహం", "కన్య", "తుల", "వృశ్చికం", "ధనస్సు", "మకరం", "కుంభం", "మీనం")
+                val rashiNamesE = listOf("Mesha", "Vrishabha", "Mithuna", "Kataka", "Simha", "Kanya", "Tula", "Vrischika", "Dhanus", "Makara", "Kumbha", "Meena")
+                ExposedDropdownMenuBox(
+                    expanded = rashiDropdownExpanded,
+                    onExpandedChange = { rashiDropdownExpanded = it },
+                ) {
+                    OutlinedTextField(
+                        value = if (selectedRashiId in 1..12) "${rashiNamesT[selectedRashiId - 1]} / ${rashiNamesE[selectedRashiId - 1]}" else "",
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth().menuAnchor(),
+                        placeholder = { Text("\u0C30ాశి ఎంచుకోండి / Select your rashi") },
+                        singleLine = true,
+                        leadingIcon = { Icon(Icons.Default.Stars, null, tint = TempleGold) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = rashiDropdownExpanded) },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = TempleGold, cursorColor = TempleGold),
+                    )
+                    ExposedDropdownMenu(
+                        expanded = rashiDropdownExpanded,
+                        onDismissRequest = { rashiDropdownExpanded = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("మేషం / Mesha") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(1)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("వృషభం / Vrishabha") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(2)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("మిథునం / Mithuna") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(3)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("కర్కాటకం / Kataka") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(4)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("సింహం / Simha") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(5)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("కన్య / Kanya") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(6)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("తుల / Tula") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(7)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("వృశ్చికం / Vrischika") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(8)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("ధనస్సు / Dhanus") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(9)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("మకరం / Makara") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(10)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("కుంభం / Kumbha") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(11)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                        DropdownMenuItem(
+                            text = { Text("మీనం / Meena") },
+                            onClick = {
+                                viewModel.setSelectedRashiId(12)
+                                rashiDropdownExpanded = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
                     }
                 }
             }

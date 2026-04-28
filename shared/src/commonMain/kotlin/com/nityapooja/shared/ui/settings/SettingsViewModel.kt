@@ -91,7 +91,11 @@ class SettingsViewModel(
     val showEnglish: StateFlow<Boolean> = preferencesManager.showEnglish
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val selectedRashiId: StateFlow<Int> = preferencesManager.selectedRashiId
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     fun setShowEnglish(enabled: Boolean) { viewModelScope.launch { preferencesManager.setShowEnglish(enabled) } }
+    fun setSelectedRashiId(id: Int) { viewModelScope.launch { preferencesManager.setSelectedRashiId(id) } }
 
     fun setVrataNotification(enabled: Boolean) {
         viewModelScope.launch {

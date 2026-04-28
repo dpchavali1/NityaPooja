@@ -86,18 +86,24 @@ class RashifalViewModel(
      */
     fun computeGochaRa(rashi: RashiEntity): RashifalPrediction {
         val location = locationSettings.value
-        val tz = try { TimeZone.of(location.timezone) } catch (_: Exception) { TimeZone.currentSystemDefault() }
+        return Companion.computeGochaRa(rashi, location.lat, location.lng, location.timezone)
+    }
+
+    companion object {
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Static computation — callable from widget data providers
+    // ─────────────────────────────────────────────────────────────────────────
+
+    fun computeGochaRa(rashi: RashiEntity, lat: Double, lng: Double, timezone: String): RashifalPrediction {
+        val tz = try { TimeZone.of(timezone) } catch (_: Exception) { TimeZone.currentSystemDefault() }
         val now = Clock.System.now()
         val localNow = now.toLocalDateTime(tz)
         val utcOffsetHours = now.offsetIn(tz).totalSeconds / 3600.0
 
-        // Respect panchangam day: if before sunrise, use previous civil date
         val sunTimes = AstronomicalCalculator.calculateSunTimesDecimal(
-            lat = location.lat,
-            lng = location.lng,
-            year = localNow.year,
-            month = localNow.monthNumber,
-            day = localNow.dayOfMonth,
+            lat = lat, lng = lng,
+            year = localNow.year, month = localNow.monthNumber, day = localNow.dayOfMonth,
             utcOffsetHours = utcOffsetHours,
         )
         val sunriseDecimal = normalize24(sunTimes.sunriseDecimal)
@@ -107,27 +113,17 @@ class RashifalViewModel(
         } else {
             localNow.date
         }
-
-        // Julian Day at sunrise of the panchangam reference date (in UT)
         val sunriseUT = sunriseDecimal - utcOffsetHours
-        val jd = AstronomicalCalculator.julianDay(
-            refDate.year, refDate.monthNumber, refDate.dayOfMonth, sunriseUT,
-        )
-
+        val jd = AstronomicalCalculator.julianDay(refDate.year, refDate.monthNumber, refDate.dayOfMonth, sunriseUT)
         val grahas = AstronomicalCalculator.allGrahaPositions(jd)
-        val moonRashiIdx = grahas[1].rashiIndex   // 0-11, 0=Mesha
-        val sunRashiIdx  = grahas[0].rashiIndex   // 0-11
-
-        val janmaRashiIdx = rashiNameToIndex(rashi.name)   // 0-11
-        val moonHouse = ((moonRashiIdx - janmaRashiIdx + 12) % 12) + 1  // 1-12
-
+        val moonRashiIdx = grahas[1].rashiIndex
+        val sunRashiIdx  = grahas[0].rashiIndex
+        val janmaRashiIdx = rashiNameToIndex(rashi.name)
+        val moonHouse = ((moonRashiIdx - janmaRashiIdx + 12) % 12) + 1
         val (predTelugu, predEnglish) = MOON_HOUSE_PREDICTIONS[moonHouse - 1]
-
         return RashifalPrediction(
-            textTelugu = predTelugu,
-            textEnglish = predEnglish,
-            moonHouse = moonHouse,
-            isChandrashtama = moonHouse == 8,
+            textTelugu = predTelugu, textEnglish = predEnglish,
+            moonHouse = moonHouse, isChandrashtama = moonHouse == 8,
             moonRashiNameTelugu = RASHI_NAMES_TELUGU[moonRashiIdx],
             moonRashiNameEnglish = RASHI_NAMES_ENGLISH[moonRashiIdx],
             sunRashiNameTelugu = RASHI_NAMES_TELUGU[sunRashiIdx],
@@ -139,13 +135,13 @@ class RashifalViewModel(
     // Static data
     // ─────────────────────────────────────────────────────────────────────────
 
-    private val RASHI_NAMES_TELUGU = arrayOf(
+    val RASHI_NAMES_TELUGU = arrayOf(
         "మేషం", "వృషభం", "మిథునం", "కర్కాటకం",
         "సింహం", "కన్య", "తుల", "వృశ్చికం",
         "ధనుస్సు", "మకరం", "కుంభం", "మీనం",
     )
 
-    private val RASHI_NAMES_ENGLISH = arrayOf(
+    val RASHI_NAMES_ENGLISH = arrayOf(
         "Mesha", "Vrishabha", "Mithuna", "Kataka",
         "Simha", "Kanya", "Tula", "Vrischika",
         "Dhanus", "Makara", "Kumbha", "Meena",
@@ -223,8 +219,7 @@ class RashifalViewModel(
     // Helpers
     // ─────────────────────────────────────────────────────────────────────────
 
-    /** Maps a rashi English name (as stored in DB) to a 0-based index (0=Mesha…11=Meena). */
-    private fun rashiNameToIndex(name: String): Int = when (name.lowercase().trim()) {
+    fun rashiNameToIndex(name: String): Int = when (name.lowercase().trim()) {
         "mesha", "aries"       -> 0
         "vrishabha", "taurus"  -> 1
         "mithuna", "gemini"    -> 2
@@ -243,9 +238,11 @@ class RashifalViewModel(
         }
     }
 
-    private fun normalize24(value: Double): Double {
+    fun normalize24(value: Double): Double {
         var v = value % 24.0
         if (v < 0) v += 24.0
         return v
     }
+
+    } // end companion object
 }

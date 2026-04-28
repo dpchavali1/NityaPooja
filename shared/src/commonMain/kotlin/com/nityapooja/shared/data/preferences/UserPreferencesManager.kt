@@ -34,6 +34,7 @@ expect class UserPreferencesManager {
     val spotifyAccessToken: Flow<String>
     val spotifyTokenExpiry: Flow<Long>
     val showEnglish: Flow<Boolean>
+    val selectedRashiId: Flow<Int>
 
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setFontSize(size: Int)
@@ -59,6 +60,7 @@ expect class UserPreferencesManager {
     suspend fun setSpotifyToken(token: String, expiresIn: Int)
     suspend fun clearSpotifyToken()
     suspend fun setShowEnglish(enabled: Boolean)
+    suspend fun setSelectedRashiId(id: Int)
     suspend fun clearAllPreferences()
 
     suspend fun getSeededVersion(): Int

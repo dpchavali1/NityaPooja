@@ -38,6 +38,7 @@ actual class UserPreferencesManager {
     private val _spotifyAccessToken = MutableStateFlow(prefs.get("spotify_access_token", ""))
     private val _spotifyTokenExpiry = MutableStateFlow(prefs.getLong("spotify_token_expiry", 0L))
     private val _showEnglish = MutableStateFlow(prefs.getBoolean("show_english", false))
+    private val _selectedRashiId = MutableStateFlow(prefs.getInt("selected_rashi_id", 0))
 
     actual val themeMode: Flow<ThemeMode> = _themeMode.map {
         when (it) { "light" -> ThemeMode.LIGHT; "dark" -> ThemeMode.DARK; "saffron" -> ThemeMode.SAFFRON; else -> ThemeMode.SYSTEM }
@@ -70,6 +71,7 @@ actual class UserPreferencesManager {
     actual val spotifyAccessToken: Flow<String> = _spotifyAccessToken
     actual val spotifyTokenExpiry: Flow<Long> = _spotifyTokenExpiry
     actual val showEnglish: Flow<Boolean> = _showEnglish
+    actual val selectedRashiId: Flow<Int> = _selectedRashiId
 
     actual suspend fun setThemeMode(mode: ThemeMode) {
         val str = when (mode) { ThemeMode.SYSTEM -> "system"; ThemeMode.LIGHT -> "light"; ThemeMode.DARK -> "dark"; ThemeMode.SAFFRON -> "saffron" }
@@ -113,6 +115,7 @@ actual class UserPreferencesManager {
         prefs.putBoolean("spotify_linked", true); _spotifyLinked.value = true
     }
     actual suspend fun setShowEnglish(enabled: Boolean) { prefs.putBoolean("show_english", enabled); _showEnglish.value = enabled }
+    actual suspend fun setSelectedRashiId(id: Int) { prefs.putInt("selected_rashi_id", id); _selectedRashiId.value = id }
     actual suspend fun clearSpotifyToken() {
         prefs.remove("spotify_access_token"); _spotifyAccessToken.value = ""
         prefs.remove("spotify_token_expiry"); _spotifyTokenExpiry.value = 0L

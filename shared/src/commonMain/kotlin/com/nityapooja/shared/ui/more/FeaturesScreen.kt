@@ -71,7 +71,7 @@ fun FeaturesScreen(
                     color = TempleGold.copy(alpha = 0.12f),
                 ) {
                     Text(
-                        "🙏 NityaPooja · Version 2.2 · 35+ Features",
+                        "🙏 NityaPooja · Version 2.3 · 38+ Features",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
@@ -201,7 +201,30 @@ fun FeaturesScreen(
                 )
             }
 
-            // ── Section 4: Jyotish ───────────────────────────────────────────
+            // ── Section 4: Home Screen Widgets ──────────────────────────────
+            item { Spacer(Modifier.height(4.dp)); SectionHeader(titleTelugu = "హోమ్ స్క్రీన్ విజెట్స్", titleEnglish = "Home Screen Widgets") }
+            item {
+                FeatureCard(
+                    icon = Icons.Default.Widgets,
+                    titleTelugu = "పంచాంగం విజెట్",
+                    titleEnglish = "Panchangam Widget",
+                    descTelugu = "4×3 పరిమాణంలో పెద్ద అక్షరాలతో నేటి పంచాంగం — తిథి, నక్షత్రం, యోగం, కరణం, సూర్యోదయ/సూర్యాస్తమయ. వయసైన వారికి సులభంగా చదవడానికి రూపొందించారు. అర్ధరాత్రి స్వయంచాలకంగా నవీకరించబడుతుంది.",
+                    descEnglish = "Daily Panchangam in a 4×3 tile with large, accessible text — Tithi, Nakshatra, Yoga, Karana, and Sunrise/Sunset. Designed for readability. Auto-updates at midnight.",
+                    howToUse = "Home screen long-press → Widgets → Nitya Pooja → Panchangam (4×2 మొదట జోడించండి, తర్వాత సైజు పెంచవచ్చు)",
+                )
+            }
+            item {
+                FeatureCard(
+                    icon = Icons.Default.Stars,
+                    titleTelugu = "రాశిఫలం విజెట్",
+                    titleEnglish = "Rashifal Widget",
+                    descTelugu = "మీ జన్మ రాశి ఫలం నేరుగా హోమ్ స్క్రీన్‌పై — అప్లికేషన్ తెరవకుండా. చంద్రాష్టమ హెచ్చరిక ఎర్ర రంగులో. Settings లో 'Show English' ఆన్ చేస్తే ఆంగ్లంలో చూపిస్తుంది.",
+                    descEnglish = "Your janma rashi prediction on your home screen without opening the app. Chandrashtama shown in red. Respects the Show English toggle in Settings.",
+                    howToUse = "1. Settings → Sankalpam Details → మీ రాశి ఎంచుకోండి  2. Home screen long-press → Widgets → Nitya Pooja → Rashifal  3. Widget నొక్కితే రాశిఫలం స్క్రీన్‌కు వెళ్తారు",
+                )
+            }
+
+            // ── Section 5: Jyotish ───────────────────────────────────────────
             item { Spacer(Modifier.height(4.dp)); SectionHeader(titleTelugu = "జ్యోతిష్యం", titleEnglish = "Jyotish & Astrology") }
             item {
                 FeatureCard(
@@ -244,7 +267,7 @@ fun FeaturesScreen(
                 )
             }
 
-            // ── Section 5: Family ────────────────────────────────────────────
+            // ── Section 6: Family ────────────────────────────────────────────
             item { Spacer(Modifier.height(4.dp)); SectionHeader(titleTelugu = "కుటుంబం", titleEnglish = "Family") }
             item {
                 FeatureCard(
@@ -277,7 +300,7 @@ fun FeaturesScreen(
                 )
             }
 
-            // ── Section 6: Telugu Culture ────────────────────────────────────
+            // ── Section 7: Telugu Culture ────────────────────────────────────
             item { Spacer(Modifier.height(4.dp)); SectionHeader(titleTelugu = "తెలుగు సంస్కృతి", titleEnglish = "Telugu Culture") }
             item {
                 FeatureCard(
@@ -310,7 +333,7 @@ fun FeaturesScreen(
                 )
             }
 
-            // ── Section 7: Devotional Texts ──────────────────────────────────
+            // ── Section 8: Devotional Texts ──────────────────────────────────
             item { Spacer(Modifier.height(4.dp)); SectionHeader(titleTelugu = "భక్తి గ్రంథాలు", titleEnglish = "Devotional Texts") }
             item {
                 FeatureCard(
@@ -343,7 +366,7 @@ fun FeaturesScreen(
                 )
             }
 
-            // ── Section 8: Personalization ───────────────────────────────────
+            // ── Section 9: Personalization ───────────────────────────────────
             item { Spacer(Modifier.height(4.dp)); SectionHeader(titleTelugu = "వ్యక్తిగత సేవలు", titleEnglish = "Personalization") }
             item {
                 FeatureCard(
@@ -363,6 +386,16 @@ fun FeaturesScreen(
                     descTelugu = "మీ పేరు, నక్షత్రం, గోత్రం సెట్ చేయండి. నక్షత్రం ఆధారంగా హోమ్ స్క్రీన్‌లో వ్యక్తిగత మార్గదర్శనం వస్తుంది.",
                     descEnglish = "Set your name, nakshatra, and gotra. Nakshatra unlocks personalized daily guidance on the home screen.",
                     howToUse = "Home screen → Profile icon (top right)",
+                )
+            }
+            item {
+                FeatureCard(
+                    icon = Icons.Default.Translate,
+                    titleTelugu = "ఆంగ్లంలో చూపించు",
+                    titleEnglish = "Show English Translations",
+                    descTelugu = "మంత్రాల అర్థాలు, ప్రయోజనాలు, రాశిఫలం — అన్నీ ఒక టాగుల్‌తో ఆంగ్లంలో మారుస్తారు. తెలుగు బాగా రాని వారికి లేదా ఆంగ్లంలో చదవాలనుకునే వారికి ఉపయుక్తంగా ఉంటుంది.",
+                    descEnglish = "Toggle all mantra meanings, benefits, and Rashifal predictions to English in one tap. Useful for those who prefer reading content in English.",
+                    howToUse = "Settings → Appearance → Show English Translations (toggle on/off)",
                 )
             }
             item {

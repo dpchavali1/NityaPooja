@@ -29,6 +29,7 @@ class RashifalWidget : GlanceAppWidget() {
         }
         val openAppIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("nav_route", "rashifal")
         }
         provideContent {
             WidgetContent(data, showEnglish, openAppIntent)

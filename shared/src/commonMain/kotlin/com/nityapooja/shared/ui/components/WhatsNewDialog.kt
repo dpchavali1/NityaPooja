@@ -16,7 +16,7 @@ import com.nityapooja.shared.ui.theme.AuspiciousGreen
 import com.nityapooja.shared.ui.theme.TempleGold
 
 // Bump this when you want to show the dialog again after a new release
-const val WHATS_NEW_VERSION = 5
+const val WHATS_NEW_VERSION = 6
 
 @Composable
 fun WhatsNewDialog(onDismiss: () -> Unit) {
@@ -25,7 +25,7 @@ fun WhatsNewDialog(onDismiss: () -> Unit) {
         title = {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 Text("NityaPooja", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = TempleGold)
-                Text("కొత్త ఫీచర్లు · What's New in v2.2", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("కొత్త ఫీచర్లు · What's New in v2.3", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         text = {
@@ -33,6 +33,30 @@ fun WhatsNewDialog(onDismiss: () -> Unit) {
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
+                WhatsNewItem(
+                    icon = Icons.Default.PhoneAndroid,
+                    titleTelugu = "రాశిఫలం హోమ్ విజెట్",
+                    titleEnglish = "Rashifal Home Screen Widget",
+                    descriptionTelugu = "ఇప్పుడు మీ రాశిఫలం నేరుగా హోమ్ స్క్రీన్‌పై చూడవచ్చు — అప్లికేషన్ తెరవకుండా. చంద్రాష్టమ హెచ్చరిక ఎర్ర రంగులో. తెలుగు లేదా ఆంగ్లంలో చూపిస్తుంది.",
+                    descriptionEnglish = "See your daily rashifal right on your home screen without opening the app. Chandrashtama shown in red. Switches language with your app setting.",
+                    howToUse = "Settings → Sankalpam Details → మీ రాశి ఎంచుకోండి → Home screen long-press → Widgets → Nitya Pooja → Rashifal",
+                )
+                WhatsNewItem(
+                    icon = Icons.Default.Widgets,
+                    titleTelugu = "పంచాంగం విజెట్ — పెద్ద అక్షరాలు",
+                    titleEnglish = "Panchangam Widget — Larger Text",
+                    descriptionTelugu = "పంచాంగం విజెట్ ఇప్పుడు 4×3 పరిమాణంలో పెద్ద అక్షరాలతో వస్తుంది — వయసైన వారికి సులభంగా చదవడానికి. తిథి, నక్షత్రం, యోగం, కరణం, సూర్యోదయ/సూర్యాస్తమయ స్పష్టంగా.",
+                    descriptionEnglish = "Panchangam widget redesigned as a 4×3 tile with large, easy-to-read text — perfect for elderly users. Shows Tithi, Nakshatra, Yoga, Karana, and Sunrise/Sunset clearly.",
+                    howToUse = "Home screen long-press → Widgets → Nitya Pooja → Panchangam",
+                )
+                WhatsNewItem(
+                    icon = Icons.Default.Translate,
+                    titleTelugu = "ఆంగ్లంలో చూపించు",
+                    titleEnglish = "Show English Translations",
+                    descriptionTelugu = "మంత్రాల అర్థాలు, రాశిఫలం — అన్నీ ఇప్పుడు ఆంగ్లంలో చదవవచ్చు. ఒక్క టాగుల్‌తో మారండి.",
+                    descriptionEnglish = "Mantra meanings, benefits, and Rashifal predictions can now be read in English. One toggle switches the whole app.",
+                    howToUse = "Settings → Appearance → Show English Translations",
+                )
                 WhatsNewItem(
                     icon = Icons.Default.Stars,
                     titleTelugu = "రాశిఫలం — నిజమైన వైదిక గోచారం",
